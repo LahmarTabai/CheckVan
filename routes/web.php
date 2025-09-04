@@ -6,6 +6,11 @@ use App\Livewire\Admin\Dashboard;
 use App\Livewire\Admin\Vehicules;
 use App\Livewire\Admin\Taches;
 use App\Livewire\Admin\Notifications;
+use App\Livewire\Chauffeur\TacheDetail;
+
+
+use App\Livewire\Chauffeur\Dashboard as ChauffeurDashboard;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -35,4 +40,11 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::get('chauffeurs', Chauffeurs::class)->name('chauffeurs');
     Route::get('taches', Taches::class)->name('taches');
     Route::get('notifications', Notifications::class)->name('notifications');
+});
+
+
+
+Route::middleware(['auth', 'isChauffeur'])->group(function () {
+    Route::get('/chauffeur/dashboard', ChauffeurDashboard::class)->name('chauffeur.dashboard');
+    Route::get('/taches/{id}/detail', TacheDetail::class)->name('chauffeur.tache.detail');
 });
