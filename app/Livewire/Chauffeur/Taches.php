@@ -26,6 +26,22 @@ class Taches extends Component
                     ->where('status', 'en_attente')
                     ->firstOrFail();
 
+        // Doit être validée par l'admin
+        if (!$tache->is_validated) {
+            session()->flash('success', "Tâche non validée par l'admin.");
+            return;
+        }
+
+        // Vérifier qu'un véhicule est pris en charge et correspond
+        $affectation = \App\Models\Affectation::where('chauffeur_id', Auth::id())
+            ->where('status', 'en_cours')
+            ->first();
+
+        if (!$affectation || $affectation->vehicule_id !== $tache->vehicule_id) {
+            session()->flash('success', "Vous devez d'abord prendre en charge le véhicule assigné.");
+            return;
+        }
+
         $tache->update([
             'status' => 'en_cours',
             'start_date' => Carbon::now(),

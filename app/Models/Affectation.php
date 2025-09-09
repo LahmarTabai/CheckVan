@@ -27,10 +27,17 @@ class Affectation extends Model
         return $this->belongsTo(Vehicule::class);
     }
 
-    // Affectation.php
     public function photos()
     {
-        return $this->hasMany(Photo::class, 'tache_id', 'id'); // ou adapte si tu veux lier à un autre modèle
+        return $this->hasMany(Photo::class, 'affectation_id', 'id');
+    }
+
+    /**
+     * Relation avec les dommages
+     */
+    public function dommages()
+    {
+        return $this->hasMany(Dommage::class);
     }
 
 }

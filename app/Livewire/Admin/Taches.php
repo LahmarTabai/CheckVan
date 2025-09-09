@@ -7,6 +7,7 @@ use App\Models\Tache;
 use App\Models\User;
 use App\Models\Vehicule;
 use Livewire\WithPagination;
+use App\Services\FcmService;
 
 class Taches extends Component
 {
@@ -69,6 +70,7 @@ class Taches extends Component
             'vehicule_id' => $this->vehicule_id,
             'start_date' => $this->start_date,
             'status' => 'en_attente',
+            'is_validated' => false,
         ]);
 
         session()->flash('success', 'Tâche créée avec succès.');
@@ -114,7 +116,18 @@ class Taches extends Component
     public function valider($id)
     {
         $tache = Tache::findOrFail($id);
-        $tache->update(['status' => 'en_cours']);
+        $tache->update(['is_validated' => true]);
+
+        // Envoyer une notification FCM au chauffeur
+        $chauffeur = $tache->chauffeur;
+        if ($chauffeur && $chauffeur->fcm_token) {
+            app(FcmService::class)->sendToToken(
+                $chauffeur->fcm_token,
+                'Tâche validée',
+                'Votre tâche a été validée par l\'administrateur.',
+                ['type' => 'tache', 'tache_id' => $tache->id]
+            );
+        }
         session()->flash('success', 'Tâche validée.');
     }
 }

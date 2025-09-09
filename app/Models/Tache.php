@@ -19,6 +19,7 @@ class Tache extends Model
         'end_latitude',
         'end_longitude',
         'status',
+        'is_validated',
     ];
 
     /**

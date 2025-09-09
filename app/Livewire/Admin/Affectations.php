@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Vehicule;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use App\Services\FcmService;
 
 class Affectations extends Component
 {
@@ -47,11 +48,22 @@ class Affectations extends Component
             'vehicule_id' => 'required|exists:vehicules,id',
         ]);
 
-        Affectation::create([
+        $affectation = Affectation::create([
             'chauffeur_id' => $this->chauffeur_id,
             'vehicule_id' => $this->vehicule_id,
             'status' => $this->status,
         ]);
+
+        // Notifier l'admin et le chauffeur via FCM si possible
+        $chauffeur = User::find($this->chauffeur_id);
+        if ($chauffeur && $chauffeur->fcm_token) {
+            app(FcmService::class)->sendToToken(
+                $chauffeur->fcm_token,
+                'Nouvelle affectation',
+                'Un véhicule vous a été affecté.',
+                ['type' => 'affectation', 'vehicule_id' => $this->vehicule_id]
+            );
+        }
 
         session()->flash('success', 'Affectation enregistrée');
         $this->resetForm();

@@ -6,7 +6,14 @@ use App\Livewire\Admin\Dashboard;
 use App\Livewire\Admin\Vehicules;
 use App\Livewire\Admin\Taches;
 use App\Livewire\Admin\Notifications;
+use App\Livewire\Admin\Affectations;
+use App\Livewire\Admin\Dommages;
 use App\Livewire\Chauffeur\TacheDetail;
+use App\Livewire\Chauffeur\Taches as ChauffeurTaches;
+use App\Livewire\Chauffeur\PriseEnCharge;
+use App\Livewire\Chauffeur\DommageInterface;
+use App\Http\Controllers\ExportController;
+use App\Livewire\Admin\Map as AdminMap;
 
 
 use App\Livewire\Chauffeur\Dashboard as ChauffeurDashboard;
@@ -28,23 +35,31 @@ Route::middleware([
 
 
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/admin/chauffeurs', Chauffeurs::class)->name('admin.chauffeurs');
-});
+// La route ci-dessous doublonnait avec le groupe admin et utilisait un middleware incorrect
+// Suppression pour éviter les incohérences
 
 
 
-Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('dashboard', Dashboard::class)->name('dashboard');
-    Route::get('vehicules', Vehicules::class)->name('vehicules');
-    Route::get('chauffeurs', Chauffeurs::class)->name('chauffeurs');
-    Route::get('taches', Taches::class)->name('taches');
-    Route::get('notifications', Notifications::class)->name('notifications');
+Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', Dashboard::class)->name('dashboard');
+    Route::get('/vehicules', Vehicules::class)->name('vehicules');
+    Route::get('/chauffeurs', Chauffeurs::class)->name('chauffeurs');
+    Route::get('/affectations', Affectations::class)->name('affectations');
+    Route::get('/taches', Taches::class)->name('taches');
+    Route::get('/dommages', Dommages::class)->name('dommages');
+    Route::get('/notifications', Notifications::class)->name('notifications');
+    Route::get('/map', AdminMap::class)->name('map');
+
+    // Export Excel
+    Route::get('export/taches', [ExportController::class, 'tachesParChauffeur'])->name('export.taches');
 });
 
 
 
 Route::middleware(['auth', 'isChauffeur'])->group(function () {
     Route::get('/chauffeur/dashboard', ChauffeurDashboard::class)->name('chauffeur.dashboard');
+    Route::get('/chauffeur/taches', ChauffeurTaches::class)->name('chauffeur.taches');
+    Route::get('/chauffeur/prise-en-charge', PriseEnCharge::class)->name('chauffeur.prise-en-charge');
+    Route::get('/chauffeur/dommages/{affectationId}', DommageInterface::class)->name('chauffeur.dommages');
     Route::get('/taches/{id}/detail', TacheDetail::class)->name('chauffeur.tache.detail');
 });

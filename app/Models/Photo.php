@@ -11,6 +11,7 @@ class Photo extends Model
 
     protected $fillable = [
         'tache_id',
+        'affectation_id',
         'type',
         'path',
     ];
@@ -21,5 +22,13 @@ class Photo extends Model
     public function tache()
     {
         return $this->belongsTo(Tache::class);
+    }
+
+    /**
+     * Relation : Photo → Affectation
+     */
+    public function affectation()
+    {
+        return $this->belongsTo(Affectation::class);
     }
 }

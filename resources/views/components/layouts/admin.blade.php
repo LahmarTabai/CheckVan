@@ -30,9 +30,6 @@
                     <a href="{{ route('admin.taches') }}" class="nav-link text-white">📋 Tâches</a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a href="{{ route('admin.dommages') }}" class="nav-link text-white">🚨 Dommages</a>
-                </li>
-                <li class="nav-item mb-2">
                     <a href="{{ route('admin.map') }}" class="nav-link text-white">🗺️ Carte</a>
                 </li>
                 <li class="nav-item mb-2">
