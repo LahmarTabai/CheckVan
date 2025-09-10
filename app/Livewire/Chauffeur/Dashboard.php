@@ -14,7 +14,7 @@ class Dashboard extends Component
 
     public function mount()
     {
-        $chauffeurId = Auth::id();
+        $chauffeurId = Auth::user()->user_id;
 
         // Récupère la dernière affectation en cours
         $this->vehiculeAffecte = Affectation::with('vehicule')
@@ -32,6 +32,6 @@ class Dashboard extends Component
 
     public function render()
     {
-        return view('livewire.chauffeur.dashboard');
+        return view('livewire.chauffeur.dashboard')->layout('layouts.chauffeur');
     }
 }

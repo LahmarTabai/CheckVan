@@ -13,10 +13,14 @@ return new class extends Migration
     {
         Schema::create('photos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tache_id')->constrained()->onDelete('cascade');
-            $table->string('type'); // plaque, carburant, kilométrage, etc.
+            $table->unsignedBigInteger('tache_id')->nullable();
+            $table->unsignedBigInteger('affectation_id')->nullable();
+            $table->string('type'); // 'avant', 'après', 'dommage'
             $table->string('path');
             $table->timestamps();
+
+            $table->foreign('tache_id')->references('id')->on('taches')->onDelete('cascade');
+            $table->foreign('affectation_id')->references('id')->on('affectations')->onDelete('cascade');
         });
     }
 
@@ -28,3 +32,4 @@ return new class extends Migration
         Schema::dropIfExists('photos');
     }
 };
+

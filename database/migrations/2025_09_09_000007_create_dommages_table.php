@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('dommages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('affectation_id')->constrained()->onDelete('cascade');
-            $table->foreignId('chauffeur_id')->constrained('users')->onDelete('cascade');
+            $table->unsignedBigInteger('affectation_id');
+            $table->unsignedBigInteger('chauffeur_id');
             $table->decimal('coord_x', 8, 2)->nullable(); // Coordonnée X sur l'image 2D/3D
             $table->decimal('coord_y', 8, 2)->nullable(); // Coordonnée Y sur l'image 2D/3D
             $table->decimal('coord_z', 8, 2)->nullable(); // Coordonnée Z pour 3D (optionnel)
@@ -24,6 +24,9 @@ return new class extends Migration
             $table->string('photo_path')->nullable(); // Photo du dommage
             $table->boolean('reparé')->default(false);
             $table->timestamps();
+
+            $table->foreign('affectation_id')->references('id')->on('affectations')->onDelete('cascade');
+            $table->foreign('chauffeur_id')->references('user_id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -35,3 +38,4 @@ return new class extends Migration
         Schema::dropIfExists('dommages');
     }
 };
+

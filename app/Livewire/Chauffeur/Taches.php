@@ -11,18 +11,18 @@ class Taches extends Component
 {
     public function render()
     {
-        $taches = Tache::where('chauffeur_id', Auth::id())
+        $taches = Tache::where('chauffeur_id', Auth::user()->user_id)
                         ->with('vehicule')
                         ->latest()
                         ->get();
 
-        return view('livewire.chauffeur.taches', compact('taches'));
+        return view('livewire.chauffeur.taches', compact('taches'))->layout('layouts.chauffeur');
     }
 
     public function commencerTache($id)
     {
         $tache = Tache::where('id', $id)
-                    ->where('chauffeur_id', Auth::id())
+                    ->where('chauffeur_id', Auth::user()->user_id)
                     ->where('status', 'en_attente')
                     ->firstOrFail();
 
@@ -33,7 +33,7 @@ class Taches extends Component
         }
 
         // Vérifier qu'un véhicule est pris en charge et correspond
-        $affectation = \App\Models\Affectation::where('chauffeur_id', Auth::id())
+        $affectation = \App\Models\Affectation::where('chauffeur_id', Auth::user()->user_id)
             ->where('status', 'en_cours')
             ->first();
 
@@ -54,7 +54,7 @@ class Taches extends Component
     public function terminerTache($id)
     {
         $tache = Tache::where('id', $id)
-                    ->where('chauffeur_id', Auth::id())
+                    ->where('chauffeur_id', Auth::user()->user_id)
                     ->where('status', 'en_cours')
                     ->firstOrFail();
 

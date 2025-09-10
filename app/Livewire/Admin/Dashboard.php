@@ -13,7 +13,7 @@ class Dashboard extends Component
 {
     public function render()
     {
-        $adminId = Auth::id();
+        $adminId = Auth::user()->user_id;
 
         $chauffeursCount = User::where('role', 'chauffeur')
                                ->where('admin_id', $adminId)
@@ -36,6 +36,6 @@ class Dashboard extends Component
             'chauffeursCount', 'vehiculesCount',
             'tachesEnAttente', 'tachesEnCours', 'tachesTerminees',
             'affectationsActives', 'dernieresTaches'
-        ));
+        ))->layout('layouts.admin');
     }
 }

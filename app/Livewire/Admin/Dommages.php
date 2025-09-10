@@ -50,7 +50,7 @@ class Dommages extends Component
         $this->selectedDommage = Dommage::with(['affectation.vehicule', 'chauffeur'])
             ->where('id', $dommageId)
             ->whereHas('affectation.vehicule', function($query) {
-                $query->where('admin_id', auth()->id());
+                $query->where('admin_id', auth()->user()->user_id);
             })
             ->first();
 
@@ -61,7 +61,7 @@ class Dommages extends Component
     {
         $dommage = Dommage::where('id', $dommageId)
             ->whereHas('affectation.vehicule', function($query) {
-                $query->where('admin_id', auth()->id());
+                $query->where('admin_id', auth()->user()->user_id);
             })
             ->first();
 
@@ -81,7 +81,7 @@ class Dommages extends Component
     {
         $query = Dommage::with(['affectation.vehicule', 'chauffeur'])
             ->whereHas('affectation.vehicule', function($q) {
-                $q->where('admin_id', auth()->id());
+                $q->where('admin_id', auth()->user()->user_id);
             });
 
         // Filtres
@@ -120,16 +120,16 @@ class Dommages extends Component
         // Statistiques
         $stats = [
             'total' => Dommage::whereHas('affectation.vehicule', function($q) {
-                $q->where('admin_id', auth()->id());
+                $q->where('admin_id', auth()->user()->user_id);
             })->count(),
             'non_repares' => Dommage::whereHas('affectation.vehicule', function($q) {
-                $q->where('admin_id', auth()->id());
+                $q->where('admin_id', auth()->user()->user_id);
             })->where('reparé', false)->count(),
             'majeurs' => Dommage::whereHas('affectation.vehicule', function($q) {
-                $q->where('admin_id', auth()->id());
+                $q->where('admin_id', auth()->user()->user_id);
             })->where('severite', 'majeur')->count(),
         ];
 
-        return view('livewire.admin.dommages', compact('dommages', 'stats'));
+        return view('livewire.admin.dommages', compact('dommages', 'stats'))->layout('layouts.admin');
     }
 }

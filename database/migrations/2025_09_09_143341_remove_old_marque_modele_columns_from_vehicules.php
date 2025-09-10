@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->unsignedBigInteger('admin_id')->nullable()->after('id');
-            $table->enum('role', ['admin', 'chauffeur'])->default('chauffeur');
-            $table->string('profile_picture')->nullable();
+        Schema::table('vehicules', function (Blueprint $table) {
+            $table->dropColumn(['marque', 'modele']);
         });
     }
 
@@ -23,8 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
+        Schema::table('vehicules', function (Blueprint $table) {
+            $table->string('marque')->nullable();
+            $table->string('modele')->nullable();
         });
     }
 };

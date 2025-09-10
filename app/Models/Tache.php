@@ -27,7 +27,7 @@ class Tache extends Model
      */
     public function chauffeur()
     {
-        return $this->belongsTo(User::class, 'chauffeur_id');
+        return $this->belongsTo(User::class, 'chauffeur_id', 'user_id');
     }
 
     /**

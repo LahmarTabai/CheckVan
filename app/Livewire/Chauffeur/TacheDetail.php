@@ -13,12 +13,12 @@ class TacheDetail extends Component
     public function mount($id)
     {
         $this->tache = Tache::with(['vehicule', 'photos'])
-            ->where('chauffeur_id', Auth::id())
+            ->where('chauffeur_id', Auth::user()->user_id)
             ->findOrFail($id);
     }
 
     public function render()
     {
-        return view('livewire.chauffeur.tache-detail');
+        return view('livewire.chauffeur.tache-detail')->layout('layouts.chauffeur');
     }
 }

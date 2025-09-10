@@ -11,11 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('affectations', function (Blueprint $table) {
+        Schema::create('vehicule_photos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('chauffeur_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('vehicule_id')->constrained()->onDelete('cascade');
-            $table->enum('status', ['en_cours', 'terminée'])->default('en_cours');
+            $table->string('chemin');
+            $table->string('nom_fichier');
+            $table->string('extension');
+            $table->integer('taille')->nullable(); // en bytes
+            $table->integer('ordre')->default(1);
+            $table->string('type')->default('exterieur'); // exterieur, interieur, moteur, etc.
             $table->timestamps();
         });
     }
@@ -25,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('affectations');
+        Schema::dropIfExists('vehicule_photos');
     }
 };

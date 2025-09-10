@@ -21,3 +21,14 @@ Route::middleware('auth:sanctum')->group(function () {
         return ['status' => 'ok'];
     });
 });
+
+// Routes publiques pour les marques et modèles
+Route::get('/marques', function () {
+    $apiService = new \App\Services\VehiculeApiService();
+    return response()->json($apiService->getMarques());
+});
+
+Route::get('/modeles/{marqueId}', function ($marqueId) {
+    $apiService = new \App\Services\VehiculeApiService();
+    return response()->json($apiService->getModeles($marqueId));
+});

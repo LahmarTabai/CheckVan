@@ -25,7 +25,7 @@ class Taches extends Component
     {
         $query = Tache::with(['chauffeur', 'vehicule'])
             ->whereHas('vehicule', function ($q) {
-                $q->where('admin_id', auth()->id());
+                $q->where('admin_id', auth()->user()->user_id);
             });
 
         if ($this->statusFilter) {
@@ -42,9 +42,9 @@ class Taches extends Component
 
         return view('livewire.admin.taches', [
             'taches' => $query->latest()->paginate(10),
-            'chauffeurs' => User::where('role', 'chauffeur')->where('admin_id', auth()->id())->get(),
-            'vehicules' => Vehicule::where('admin_id', auth()->id())->get(),
-        ]);
+            'chauffeurs' => User::where('role', 'chauffeur')->where('admin_id', auth()->user()->user_id)->get(),
+            'vehicules' => Vehicule::where('admin_id', auth()->user()->user_id)->get(),
+        ])->layout('layouts.admin');
     }
 
     public function resetForm()

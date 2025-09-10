@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('vehicules', function (Blueprint $table) {
+        Schema::create('marques', function (Blueprint $table) {
             $table->id();
-            $table->string('marque');
-            $table->string('modele')->nullable();
-            $table->string('immatriculation')->unique();
-            $table->string('photo')->nullable();
-            $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
+            $table->string('nom')->unique();
+            $table->string('pays')->default('France');
+            $table->string('logo')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('vehicules');
+        Schema::dropIfExists('marques');
     }
 };

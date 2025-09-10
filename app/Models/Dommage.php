@@ -40,7 +40,7 @@ class Dommage extends Model
      */
     public function chauffeur(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'chauffeur_id');
+        return $this->belongsTo(User::class, 'chauffeur_id', 'user_id');
     }
 
     /**

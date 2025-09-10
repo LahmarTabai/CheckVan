@@ -18,18 +18,18 @@ class Affectations extends Component
     {
         $affectations = Affectation::with(['chauffeur', 'vehicule'])
             ->whereHas('chauffeur', function ($query) {
-                $query->where('admin_id', Auth::id());
+                $query->where('admin_id', Auth::user()->user_id);
             })
             ->latest()
             ->get();
 
         $chauffeurs = User::where('role', 'chauffeur')
-            ->where('admin_id', Auth::id())
+            ->where('admin_id', Auth::user()->user_id)
             ->get();
 
-        $vehicules = Vehicule::where('admin_id', Auth::id())->get();
+        $vehicules = Vehicule::where('admin_id', Auth::user()->user_id)->get();
 
-        return view('livewire.admin.affectations', compact('affectations', 'chauffeurs', 'vehicules'));
+        return view('livewire.admin.affectations', compact('affectations', 'chauffeurs', 'vehicules'))->layout('layouts.admin');
     }
 
     public function resetForm()

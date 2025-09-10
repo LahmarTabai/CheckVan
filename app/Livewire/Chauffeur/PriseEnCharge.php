@@ -20,7 +20,7 @@ class PriseEnCharge extends Component
 
     public function mount()
     {
-        $current = Affectation::where('chauffeur_id', Auth::id())
+        $current = Affectation::where('chauffeur_id', Auth::user()->user_id)
                     ->where('status', 'en_cours')
                     ->first();
 
@@ -31,11 +31,13 @@ class PriseEnCharge extends Component
 
     public function render()
     {
-        $vehicules = Vehicule::where('admin_id', Auth::user()->admin_id)->get();
-        $affectation = Affectation::where('chauffeur_id', Auth::id())
+        $adminId = Auth::user()->admin_id;
+        $vehicules = Vehicule::where('admin_id', $adminId)->get();
+        $affectation = Affectation::where('chauffeur_id', Auth::user()->user_id)
                             ->where('status', 'en_cours')->first();
 
-        return view('livewire.chauffeur.prise-en-charge', compact('vehicules', 'affectation'));
+
+        return view('livewire.chauffeur.prise-en-charge', compact('vehicules', 'affectation'))->layout('layouts.chauffeur');
     }
 
     public function prendreEnCharge()
@@ -46,13 +48,13 @@ class PriseEnCharge extends Component
         ]);
 
         // Terminer l'ancienne affectation
-        Affectation::where('chauffeur_id', Auth::id())
+        Affectation::where('chauffeur_id', Auth::user()->user_id)
             ->where('status', 'en_cours')
             ->update(['status' => 'terminée']);
 
         // Enregistrer nouvelle affectation
         $affectation = Affectation::create([
-            'chauffeur_id' => Auth::id(),
+            'chauffeur_id' => Auth::user()->user_id,
             'vehicule_id' => $this->vehicule_id,
             'status' => 'en_cours',
         ]);
@@ -71,7 +73,7 @@ class PriseEnCharge extends Component
 
     public function rendreVehicule()
     {
-        $affectation = Affectation::where('chauffeur_id', Auth::id())
+        $affectation = Affectation::where('chauffeur_id', Auth::user()->user_id)
                         ->where('status', 'en_cours')->first();
 
         if (!$affectation) return;

@@ -12,7 +12,7 @@ class Map extends Component
 
     public function refresh()
     {
-        $adminId = Auth::id();
+        $adminId = Auth::user()->user_id;
         $this->locations = Location::query()
             ->whereHas('chauffeur', fn($q) => $q->where('admin_id', $adminId))
             ->latest('recorded_at')
@@ -26,7 +26,7 @@ class Map extends Component
         if (empty($this->locations)) {
             $this->refresh();
         }
-        return view('livewire.admin.map');
+        return view('livewire.admin.map')->layout('layouts.admin');
     }
 }
 

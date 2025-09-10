@@ -143,6 +143,6 @@ class DommageInterface extends Component
 
     public function render()
     {
-        return view('livewire.chauffeur.dommage-interface');
+        return view('livewire.chauffeur.dommage-interface')->layout('layouts.chauffeur');
     }
 }

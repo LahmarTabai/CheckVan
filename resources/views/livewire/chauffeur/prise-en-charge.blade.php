@@ -1,6 +1,7 @@
 <div class="container py-4">
     <h3>Prise en charge du véhicule</h3>
 
+
     @if ($message)
         <div class="alert alert-success">{{ $message }}</div>
     @endif

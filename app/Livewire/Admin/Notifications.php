@@ -29,6 +29,6 @@ class Notifications extends Component
             ->latest()
             ->paginate(10);
 
-        return view('livewire.admin.notifications', compact('notifications'));
+        return view('livewire.admin.notifications', compact('notifications'))->layout('layouts.admin');
     }
 }
