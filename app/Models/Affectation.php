@@ -13,12 +13,15 @@ class Affectation extends Model
         'chauffeur_id',
         'vehicule_id',
         'status',
+        'date_debut',
+        'date_fin',
+        'description',
     ];
 
     // 🔁 Une affectation appartient à un chauffeur
     public function chauffeur()
     {
-        return $this->belongsTo(User::class, 'chauffeur_id');
+        return $this->belongsTo(User::class, 'chauffeur_id', 'user_id');
     }
 
     // 🔁 Une affectation appartient à un véhicule

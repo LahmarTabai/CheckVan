@@ -118,6 +118,7 @@
             <thead>
                 <tr>
                     <th>Nom</th>
+                    <th>Prénom</th>
                     <th>Email</th>
                     <th>Téléphone</th>
                     <th>Permis</th>
@@ -129,7 +130,8 @@
             <tbody>
                 @forelse($chauffeurs as $chauffeur)
                     <tr>
-                        <td>{{ $chauffeur->nom ?? '-' }} {{ $chauffeur->prenom ?? '' }}</td>
+                        <td>{{ $chauffeur->nom ?? '' }} </td>
+                        <td>{{ $chauffeur->prenom ?? '' }}</td>
                         <td>{{ $chauffeur->email }}</td>
                         <td>{{ $chauffeur->tel ?? '-' }}</td>
                         <td>{{ $chauffeur->numero_permis ?? '-' }}</td>
