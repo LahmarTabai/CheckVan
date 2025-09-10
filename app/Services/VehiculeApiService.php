@@ -22,19 +22,19 @@ class VehiculeApiService
             try {
                 // Essayer l'API NHTSA (gratuite, stable)
                 $marques = $this->fetchMarquesFromNhtsa();
-                
+
                 if (empty($marques)) {
                     // Fallback sur l'API CarQuery
                     $marques = $this->fetchMarquesFromCarQuery();
                 }
-                
+
                 if (empty($marques)) {
                     // Fallback sur les seeders
                     $marques = $this->getMarquesFromSeeders();
                 }
-                
+
                 return $marques;
-                
+
             } catch (\Exception $e) {
                 Log::error('Erreur API marques: ' . $e->getMessage());
                 return $this->getMarquesFromSeeders();
@@ -48,29 +48,29 @@ class VehiculeApiService
     public function getModeles(int $marqueId): array
     {
         $cacheKey = "api_modeles_{$marqueId}";
-        
+
         return Cache::remember($cacheKey, self::CACHE_DURATION, function () use ($marqueId) {
             try {
                 $marque = Marque::find($marqueId);
                 if (!$marque) {
                     return [];
                 }
-                
+
                 // Essayer l'API NHTSA
                 $modeles = $this->fetchModelesFromNhtsa($marque->nom);
-                
+
                 if (empty($modeles)) {
                     // Fallback sur l'API CarQuery
                     $modeles = $this->fetchModelesFromCarQuery($marque->nom);
                 }
-                
+
                 if (empty($modeles)) {
                     // Fallback sur les seeders
                     $modeles = $this->getModelesFromSeeders($marqueId);
                 }
-                
+
                 return $modeles;
-                
+
             } catch (\Exception $e) {
                 Log::error("Erreur API modèles pour marque {$marqueId}: " . $e->getMessage());
                 return $this->getModelesFromSeeders($marqueId);
@@ -85,11 +85,11 @@ class VehiculeApiService
     {
         $response = Http::timeout(self::API_TIMEOUT)
             ->get('https://vpic.nhtsa.dot.gov/api/vehicles/getallmakes?format=json');
-            
+
         if ($response->successful()) {
             $data = $response->json();
             $marques = [];
-            
+
             foreach ($data['Results'] as $item) {
                 $marques[] = [
                     'nom' => $item['Make_Name'],
@@ -98,10 +98,10 @@ class VehiculeApiService
                     'is_active' => true
                 ];
             }
-            
+
             return $marques;
         }
-        
+
         return [];
     }
 
@@ -112,11 +112,11 @@ class VehiculeApiService
     {
         $response = Http::timeout(self::API_TIMEOUT)
             ->get("https://vpic.nhtsa.dot.gov/api/vehicles/getmodelsformake/{$marqueNom}?format=json");
-            
+
         if ($response->successful()) {
             $data = $response->json();
             $modeles = [];
-            
+
             foreach ($data['Results'] as $item) {
                 $modeles[] = [
                     'nom' => $item['Model_Name'],
@@ -126,10 +126,10 @@ class VehiculeApiService
                     'is_active' => true
                 ];
             }
-            
+
             return $modeles;
         }
-        
+
         return [];
     }
 
@@ -140,11 +140,11 @@ class VehiculeApiService
     {
         $response = Http::timeout(self::API_TIMEOUT)
             ->get('https://www.carqueryapi.com/api/0.3/?cmd=getMakes');
-            
+
         if ($response->successful()) {
             $data = $response->json();
             $marques = [];
-            
+
             foreach ($data['Makes'] as $item) {
                 $marques[] = [
                     'nom' => $item['make_display'],
@@ -153,10 +153,10 @@ class VehiculeApiService
                     'is_active' => true
                 ];
             }
-            
+
             return $marques;
         }
-        
+
         return [];
     }
 
@@ -167,11 +167,11 @@ class VehiculeApiService
     {
         $response = Http::timeout(self::API_TIMEOUT)
             ->get("https://www.carqueryapi.com/api/0.3/?cmd=getModels&make={$marqueNom}");
-            
+
         if ($response->successful()) {
             $data = $response->json();
             $modeles = [];
-            
+
             foreach ($data['Models'] as $item) {
                 $modeles[] = [
                     'nom' => $item['model_name'],
@@ -181,10 +181,10 @@ class VehiculeApiService
                     'is_active' => true
                 ];
             }
-            
+
             return $modeles;
         }
-        
+
         return [];
     }
 
@@ -218,7 +218,7 @@ class VehiculeApiService
     {
         $marquesApi = $this->getMarques();
         $count = 0;
-        
+
         foreach ($marquesApi as $marqueData) {
             $marque = Marque::firstOrCreate(
                 ['nom' => $marqueData['nom']],
@@ -226,7 +226,7 @@ class VehiculeApiService
             );
             $count++;
         }
-        
+
         return $count;
     }
 
@@ -237,7 +237,7 @@ class VehiculeApiService
     {
         $modelesApi = $this->getModeles($marqueId);
         $count = 0;
-        
+
         foreach ($modelesApi as $modeleData) {
             $modeleData['marque_id'] = $marqueId;
             $modele = Modele::firstOrCreate(
@@ -249,7 +249,7 @@ class VehiculeApiService
             );
             $count++;
         }
-        
+
         return $count;
     }
 
