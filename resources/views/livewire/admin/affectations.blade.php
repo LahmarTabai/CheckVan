@@ -226,7 +226,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <div class="btn-group" role="group">
+                                        <div class="btn-group-actions">
                                             @if ($a->status === 'en_cours')
                                                 <button wire:click="terminerAffectation({{ $a->id }})"
                                                     class="btn btn-success-2050 btn-sm" title="Terminer l'affectation"
