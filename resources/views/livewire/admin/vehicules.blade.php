@@ -51,7 +51,7 @@
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label-2050">Marque *</label>
+                            <label class="form-label-2050"> Marque *</label>
                             <select wire:model.live="marque_id" class="form-control-2050">
                                 <option value="">-- Sélectionner une marque --</option>
                                 @foreach ($marques as $marque)
@@ -251,10 +251,15 @@
         <!-- Liste des véhicules Futuriste -->
         <div class="card-2050 hover-lift">
             <div class="card-header-2050">
-                <h5 class="mb-0">
-                    <i class="fas fa-list me-2"></i>Liste des véhicules
-                    <span class="badge badge-success-2050 ms-2">{{ $vehicules->total() }}</span>
-                </h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Liste des véhicules
+                        <span class="badge badge-success-2050 ms-2">{{ $vehicules->total() }}</span>
+                    </h5>
+                    <button wire:click="exportExcel" class="btn btn-success-2050 btn-sm">
+                        <i class="fas fa-file-excel me-2"></i>Exporter Excel
+                    </button>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -262,9 +267,43 @@
                         <thead>
                             <tr>
                                 <th><i class="fas fa-images me-2"></i>Photos</th>
-                                <th><i class="fas fa-car me-2"></i>Véhicule</th>
-                                <th><i class="fas fa-info-circle me-2"></i>Type</th>
-                                <th><i class="fas fa-chart-line me-2"></i>Statut</th>
+                                <th>
+                                    <button wire:click="sortBy('immatriculation')"
+                                        class="btn btn-link p-0 text-decoration-none">
+                                        {{-- class="btn btn-link p-0 text-decoration-none text-black"> --}}
+                                        <i class="fas fa-car me-2"></i>Véhicule
+                                        @if ($sortField === 'immatriculation')
+                                            <i
+                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                        @else
+                                            <i class="fas fa-sort ms-1 text-muted"></i>
+                                        @endif
+                                    </button>
+                                </th>
+                                <th>
+                                    <button wire:click="sortBy('type')"
+                                        class="btn btn-link p-0 text-decoration-none">
+                                        <i class="fas fa-info-circle me-2"></i>Type
+                                        @if ($sortField === 'type')
+                                            <i
+                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                        @else
+                                            <i class="fas fa-sort ms-1 text-muted"></i>
+                                        @endif
+                                    </button>
+                                </th>
+                                <th>
+                                    <button wire:click="sortBy('statut')"
+                                        class="btn btn-link p-0 text-decoration-none">
+                                        <i class="fas fa-chart-line me-2"></i>Statut
+                                        @if ($sortField === 'statut')
+                                            <i
+                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                        @else
+                                            <i class="fas fa-sort ms-1 text-muted"></i>
+                                        @endif
+                                    </button>
+                                </th>
                                 <th><i class="fas fa-cogs me-2"></i>Actions</th>
                             </tr>
                         </thead>
@@ -483,6 +522,8 @@
             </div>
         </div>
     </div>
+
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

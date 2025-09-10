@@ -12,6 +12,7 @@ use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Services\ExportService;
 
 class Vehicules extends Component
 {
@@ -35,6 +36,10 @@ class Vehicules extends Component
     public $filterModele = '';
     public $filterAnnee = '';
     public $filterCouleur = '';
+
+    // Tri
+    public $sortField = 'created_at';
+    public $sortDirection = 'desc';
 
     // Données pour les listes déroulantes
     public $marques = [];
@@ -164,7 +169,20 @@ class Vehicules extends Component
             $query->where('couleur', $this->filterCouleur);
         }
 
-        $vehicules = $query->latest()->paginate(10);
+        // Tri
+        if ($this->sortField === 'marque') {
+            $query->join('marques', 'vehicules.marque_id', '=', 'marques.id')
+                  ->orderBy('marques.nom', $this->sortDirection)
+                  ->select('vehicules.*');
+        } elseif ($this->sortField === 'modele') {
+            $query->join('modeles', 'vehicules.modele_id', '=', 'modeles.id')
+                  ->orderBy('modeles.nom', $this->sortDirection)
+                  ->select('vehicules.*');
+        } else {
+            $query->orderBy($this->sortField, $this->sortDirection);
+        }
+
+        $vehicules = $query->paginate(10);
 
         return view('livewire.admin.vehicules', compact('vehicules'))->layout('layouts.admin');
     }
@@ -178,6 +196,32 @@ class Vehicules extends Component
         $this->filterModele = '';
         $this->filterAnnee = '';
         $this->filterCouleur = '';
+    }
+
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
+
+    public function exportExcel()
+    {
+        $filters = [
+            'search' => $this->search,
+            'type' => $this->filterType,
+            'statut' => $this->filterStatut,
+            'marque_id' => $this->filterMarque,
+            'modele_id' => $this->filterModele,
+            'annee' => $this->filterAnnee,
+            'couleur' => $this->filterCouleur,
+        ];
+
+        return ExportService::exportVehicules($filters);
     }
 
     // Propriétés pour la modal de détails

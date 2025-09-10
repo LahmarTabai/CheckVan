@@ -366,6 +366,12 @@ body::before {
   color: #fa709a;
 }
 
+.alert-info-2050 {
+  background: rgba(13, 202, 240, 0.1);
+  border-left-color: #0dcaf0;
+  color: #0dcaf0;
+}
+
 /* ========================================
    SIDEBAR FUTURISTE
    ======================================== */
@@ -506,6 +512,52 @@ body::before {
 
 .btn-group-actions .btn {
   margin: 0;
+}
+
+/* ========================================
+   PAGINATION
+   ======================================== */
+
+.pagination {
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.page-link {
+  background: var(--bg-glass);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  color: var(--text-primary);
+  padding: 0.75rem 1rem;
+  margin: 0 0.25rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.page-link:hover {
+  background: var(--primary-gradient);
+  color: white;
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+.page-item.active .page-link {
+  background: var(--primary-gradient);
+  border-color: var(--primary-color);
+  color: white;
+  box-shadow: var(--shadow-glow);
+}
+
+.page-item.disabled .page-link {
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  border-color: rgba(102, 126, 234, 0.1);
+}
+
+.page-item:first-child .page-link,
+.page-item:last-child .page-link {
+  border-radius: 8px;
 }
 
 /* ========================================

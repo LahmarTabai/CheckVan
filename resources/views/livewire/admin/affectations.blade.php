@@ -21,10 +21,25 @@
 
         @if (session()->has('error'))
             <div class="alert alert-danger-2050 alert-dismissible fade show animate-fade-in-up" role="alert">
-                <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
+
+        <!-- Règles métier -->
+        {{-- <div class="alert alert-info-2050 mb-4">
+            <div class="d-flex align-items-start">
+                <i class="fas fa-info-circle me-3 mt-1"></i>
+                <div>
+                    <h6 class="mb-2">Règles d'affectation :</h6>
+                    <ul class="mb-0 small">
+                        <li>Un chauffeur ne peut avoir qu'un seul véhicule en cours à la fois</li>
+                        <li>Un véhicule ne peut être affecté qu'à un seul chauffeur à la fois</li>
+                        <li>Lorsqu'une affectation est terminée, le véhicule devient à nouveau disponible</li>
+                    </ul>
+                </div>
+            </div>
+        </div> --}}
 
         <!-- Formulaire Futuriste -->
         <div class="card-2050 mb-4 hover-lift">
@@ -44,6 +59,7 @@
                                     <option value="{{ $c->user_id }}">{{ $c->nom }} {{ $c->prenom }}</option>
                                 @endforeach
                             </select>
+                            <small class="text-muted">Chauffeurs disponibles : {{ $chauffeurs->count() }}</small>
                             @error('chauffeur_id')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
@@ -58,10 +74,10 @@
                                         {{ $v->modele->nom ?? '' }} - {{ $v->immatriculation }}</option>
                                 @endforeach
                             </select>
+                            <small class="text-muted">Véhicules disponibles : {{ $vehicules->count() }}</small>
                             @error('vehicule_id')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
-                            <small class="text-muted">{{ $vehicules->count() }} véhicule(s) disponible(s)</small>
                         </div>
 
                         <div class="col-md-4">
@@ -151,20 +167,58 @@
         <!-- Liste des affectations Futuriste -->
         <div class="card-2050 hover-lift">
             <div class="card-header-2050">
-                <h5 class="mb-0">
-                    <i class="fas fa-list me-2"></i>Liste des affectations
-                    <span class="badge badge-success-2050 ms-2">{{ $affectations->count() }}</span>
-                </h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Liste des affectations
+                        <span class="badge badge-success-2050 ms-2">{{ $affectations->total() }}</span>
+                    </h5>
+                    <button wire:click="exportExcel" class="btn btn-success-2050 btn-sm">
+                        <i class="fas fa-file-excel me-2"></i>Exporter Excel
+                    </button>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-2050 mb-0">
                         <thead>
                             <tr>
-                                <th><i class="fas fa-user me-2"></i>Chauffeur</th>
+                                <th>
+                                    <button wire:click="sortBy('chauffeur_id')"
+                                        class="btn btn-link p-0 text-decoration-none text-white">
+                                        <i class="fas fa-user me-2"></i>Chauffeur
+                                        @if ($sortField === 'chauffeur_id')
+                                            <i
+                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                        @else
+                                            <i class="fas fa-sort ms-1 text-muted"></i>
+                                        @endif
+                                    </button>
+                                </th>
                                 <th><i class="fas fa-car me-2"></i>Véhicule</th>
-                                <th><i class="fas fa-calendar me-2"></i>Dates</th>
-                                <th><i class="fas fa-info-circle me-2"></i>Statut</th>
+                                <th>
+                                    <button wire:click="sortBy('date_debut')"
+                                        class="btn btn-link p-0 text-decoration-none text-white">
+                                        <i class="fas fa-calendar me-2"></i>Dates
+                                        @if ($sortField === 'date_debut')
+                                            <i
+                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                        @else
+                                            <i class="fas fa-sort ms-1 text-muted"></i>
+                                        @endif
+                                    </button>
+                                </th>
+                                <th>
+                                    <button wire:click="sortBy('status')"
+                                        class="btn btn-link p-0 text-decoration-none text-white">
+                                        <i class="fas fa-info-circle me-2"></i>Statut
+                                        @if ($sortField === 'status')
+                                            <i
+                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                        @else
+                                            <i class="fas fa-sort ms-1 text-muted"></i>
+                                        @endif
+                                    </button>
+                                </th>
                                 <th><i class="fas fa-file-text me-2"></i>Description</th>
                                 <th><i class="fas fa-cogs me-2"></i>Actions</th>
                             </tr>
@@ -263,6 +317,10 @@
                     </table>
                 </div>
             </div>
+        </div>
+
+        <div class="mt-4">
+            {{ $affectations->links() }}
         </div>
     </div>
 </div>

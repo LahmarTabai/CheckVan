@@ -3,14 +3,25 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Services\ExportService;
 
 class Chauffeurs extends Component
 {
+    use WithPagination;
     public $nom, $prenom, $email, $password, $chauffeur_id;
     public $tel, $adresse, $date_naissance, $numero_permis, $permis_expire_le, $statut, $date_embauche;
     public $isEdit = false;
+
+    // Filtres
+    public $search = '';
+    public $filterStatut = '';
+
+    // Tri
+    public $sortField = 'created_at';
+    public $sortDirection = 'desc';
 
     public function mount()
     {
@@ -19,9 +30,27 @@ class Chauffeurs extends Component
 
     public function render()
     {
-        $chauffeurs = User::where('role', 'chauffeur')
-                          ->where('admin_id', auth()->user()->user_id)
-                          ->get();
+        $query = User::where('role', 'chauffeur')
+                     ->where('admin_id', auth()->user()->user_id);
+
+        // Filtres
+        if ($this->search) {
+            $query->where(function ($q) {
+                $q->where('nom', 'like', '%' . $this->search . '%')
+                  ->orWhere('prenom', 'like', '%' . $this->search . '%')
+                  ->orWhere('email', 'like', '%' . $this->search . '%')
+                  ->orWhere('tel', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        if ($this->filterStatut) {
+            $query->where('statut', $this->filterStatut);
+        }
+
+        // Tri
+        $query->orderBy($this->sortField, $this->sortDirection);
+
+        $chauffeurs = $query->paginate(10);
 
         return view('livewire.admin.chauffeurs', [
             'chauffeurs' => $chauffeurs
@@ -119,5 +148,32 @@ class Chauffeurs extends Component
     {
         User::findOrFail($id)->delete();
         session()->flash('success', 'Chauffeur supprimé');
+    }
+
+    public function resetFilters()
+    {
+        $this->search = '';
+        $this->filterStatut = '';
+    }
+
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
+
+    public function exportExcel()
+    {
+        $filters = [
+            'search' => $this->search,
+            'statut' => $this->filterStatut,
+        ];
+
+        return ExportService::exportChauffeurs($filters);
     }
 }

@@ -6,11 +6,14 @@ use App\Models\Affectation;
 use App\Models\User;
 use App\Models\Vehicule;
 use Livewire\Component;
+use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 use App\Services\FcmService;
+use App\Services\ExportService;
 
 class Affectations extends Component
 {
+    use WithPagination;
     public $chauffeur_id, $vehicule_id, $status = 'en_cours', $affectation_id;
     public $date_debut, $date_fin, $description;
     public $isEdit = false;
@@ -18,6 +21,10 @@ class Affectations extends Component
     // Filtres
     public $filterStatus = '';
     public $filterChauffeur = '';
+
+    // Tri
+    public $sortField = 'created_at';
+    public $sortDirection = 'desc';
 
     public function render()
     {
@@ -35,12 +42,18 @@ class Affectations extends Component
             $query->where('chauffeur_id', $this->filterChauffeur);
         }
 
-        $affectations = $query->latest()->get();
+        // Tri
+        $query->orderBy($this->sortField, $this->sortDirection);
+
+        $affectations = $query->paginate(10);
 
             // dd($affectations);
 
+        // Récupérer les chauffeurs disponibles (sans véhicule en cours)
+        $chauffeursAffectes = Affectation::where('status', 'en_cours')->pluck('chauffeur_id');
         $chauffeurs = User::where('role', 'chauffeur')
             ->where('admin_id', Auth::user()->user_id)
+            ->whereNotIn('user_id', $chauffeursAffectes)
             ->get();
 
         // Récupérer les véhicules disponibles (non affectés ou rendus)
@@ -149,6 +162,32 @@ class Affectations extends Component
         ]);
 
         $aff = Affectation::findOrFail($this->affectation_id);
+
+        // Règles métier pour la modification
+        if ($this->status === 'en_cours') {
+            // Règle métier : Un chauffeur ne peut avoir qu'un seul véhicule en_cours à la fois
+            $existingAffectation = Affectation::where('chauffeur_id', $this->chauffeur_id)
+                ->where('status', 'en_cours')
+                ->where('id', '!=', $this->affectation_id)
+                ->first();
+
+            if ($existingAffectation) {
+                session()->flash('error', 'Ce chauffeur a déjà un véhicule en cours d\'affectation.');
+                return;
+            }
+
+            // Règle métier : Un véhicule ne peut être affecté qu'à un seul chauffeur à la fois
+            $vehiculeAffecte = Affectation::where('vehicule_id', $this->vehicule_id)
+                ->where('status', 'en_cours')
+                ->where('id', '!=', $this->affectation_id)
+                ->first();
+
+            if ($vehiculeAffecte) {
+                session()->flash('error', 'Ce véhicule est déjà affecté à un autre chauffeur.');
+                return;
+            }
+        }
+
         $aff->update([
             'chauffeur_id' => $this->chauffeur_id,
             'vehicule_id' => $this->vehicule_id,
@@ -181,5 +220,26 @@ class Affectations extends Component
         } else {
             session()->flash('error', 'Cette affectation est déjà terminée');
         }
+    }
+
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
+
+    public function exportExcel()
+    {
+        $filters = [
+            'status' => $this->filterStatus,
+            'chauffeur_id' => $this->filterChauffeur,
+        ];
+
+        return ExportService::exportAffectations($filters);
     }
 }

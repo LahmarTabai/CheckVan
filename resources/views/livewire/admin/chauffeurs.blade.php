@@ -149,23 +149,83 @@
             </div>
         </div>
 
+        <!-- Filtres Futuristes -->
+        <div class="card-2050 mb-4 hover-lift">
+            <div class="card-header-2050">
+                <h6 class="mb-0">
+                    <i class="fas fa-filter me-2"></i>Filtres Intelligents
+                </h6>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label-2050">Recherche générale</label>
+                        <input type="text" wire:model.live="search" class="form-control-2050"
+                            placeholder="Nom, prénom, email, téléphone...">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-2050">Statut</label>
+                        <select wire:model.live="filterStatut" class="form-control-2050">
+                            <option value="">Tous</option>
+                            <option value="actif">Actif</option>
+                            <option value="inactif">Inactif</option>
+                            <option value="suspendu">Suspendu</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label-2050">&nbsp;</label>
+                        <button wire:click="resetFilters" class="btn btn-outline-2050 w-100">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Liste des chauffeurs Futuriste -->
         <div class="card-2050 hover-lift">
             <div class="card-header-2050">
-                <h5 class="mb-0">
-                    <i class="fas fa-list me-2"></i>Liste des chauffeurs
-                    <span class="badge badge-success-2050 ms-2">{{ $chauffeurs->count() }}</span>
-                </h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Liste des chauffeurs
+                        <span class="badge badge-success-2050 ms-2">{{ $chauffeurs->total() }}</span>
+                    </h5>
+                    <button wire:click="exportExcel" class="btn btn-success-2050 btn-sm">
+                        <i class="fas fa-file-excel me-2"></i>Exporter Excel
+                    </button>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-2050 mb-0">
                         <thead>
                             <tr>
-                                <th><i class="fas fa-user me-2"></i>Chauffeur</th>
+                                <th>
+                                    <button wire:click="sortBy('nom')"
+                                        class="btn btn-link p-0 text-decoration-none text-white">
+                                        <i class="fas fa-user me-2"></i>Chauffeur
+                                        @if ($sortField === 'nom')
+                                            <i
+                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                        @else
+                                            <i class="fas fa-sort ms-1 text-muted"></i>
+                                        @endif
+                                    </button>
+                                </th>
                                 <th><i class="fas fa-envelope me-2"></i>Contact</th>
                                 <th><i class="fas fa-id-card me-2"></i>Permis</th>
-                                <th><i class="fas fa-info-circle me-2"></i>Statut</th>
+                                <th>
+                                    <button wire:click="sortBy('statut')"
+                                        class="btn btn-link p-0 text-decoration-none text-white">
+                                        <i class="fas fa-info-circle me-2"></i>Statut
+                                        @if ($sortField === 'statut')
+                                            <i
+                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                        @else
+                                            <i class="fas fa-sort ms-1 text-muted"></i>
+                                        @endif
+                                    </button>
+                                </th>
                                 <th><i class="fas fa-cogs me-2"></i>Actions</th>
                             </tr>
                         </thead>
@@ -253,6 +313,10 @@
                     </table>
                 </div>
             </div>
+        </div>
+
+        <div class="mt-4">
+            {{ $chauffeurs->links() }}
         </div>
     </div>
 </div>
