@@ -286,6 +286,20 @@ body::before {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.table-2050 thead th .text-primary {
+  color: #667eea !important;
+  font-weight: 700;
+}
+
+.table-2050 thead th .btn-link.text-primary {
+  color: #667eea !important;
+  font-weight: 700;
+}
+
+.table-2050 thead th .btn-link.text-primary:hover {
+  color: #5a67d8 !important;
+}
+
 .table-2050 tbody tr {
   border: none;
   transition: all 0.3s ease;

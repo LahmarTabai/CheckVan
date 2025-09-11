@@ -271,7 +271,7 @@
                             <tr>
                                 <th>
                                     <button wire:click="sortBy('nom')"
-                                        class="btn btn-link p-0 text-decoration-none text-white">
+                                        class="btn btn-link p-0 text-decoration-none text-primary">
                                         <i class="fas fa-user me-2"></i>Chauffeur
                                         @if ($sortField === 'nom')
                                             <i
@@ -281,11 +281,11 @@
                                         @endif
                                     </button>
                                 </th>
-                                <th><i class="fas fa-envelope me-2"></i>Contact</th>
-                                <th><i class="fas fa-id-card me-2"></i>Permis</th>
+                                <th class="text-primary"><i class="fas fa-envelope me-2"></i>Contact</th>
+                                <th class="text-primary"><i class="fas fa-id-card me-2"></i>Permis</th>
                                 <th>
                                     <button wire:click="sortBy('statut')"
-                                        class="btn btn-link p-0 text-decoration-none text-white">
+                                        class="btn btn-link p-0 text-decoration-none text-primary">
                                         <i class="fas fa-info-circle me-2"></i>Statut
                                         @if ($sortField === 'statut')
                                             <i
@@ -295,7 +295,7 @@
                                         @endif
                                     </button>
                                 </th>
-                                <th><i class="fas fa-cogs me-2"></i>Actions</th>
+                                <th class="text-primary"><i class="fas fa-cogs me-2"></i>Actions</th>
                             </tr>
                         </thead>
                         <tbody>

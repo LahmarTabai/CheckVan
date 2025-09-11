@@ -222,7 +222,7 @@
                             <tr>
                                 <th>
                                     <button wire:click="sortBy('chauffeur_id')"
-                                        class="btn btn-link p-0 text-decoration-none text-white">
+                                        class="btn btn-link p-0 text-decoration-none text-primary">
                                         <i class="fas fa-user me-2"></i>Chauffeur
                                         @if ($sortField === 'chauffeur_id')
                                             <i
@@ -232,10 +232,10 @@
                                         @endif
                                     </button>
                                 </th>
-                                <th><i class="fas fa-car me-2"></i>Véhicule</th>
+                                <th class="text-primary"><i class="fas fa-car me-2"></i>Véhicule</th>
                                 <th>
                                     <button wire:click="sortBy('date_debut')"
-                                        class="btn btn-link p-0 text-decoration-none text-white">
+                                        class="btn btn-link p-0 text-decoration-none text-primary">
                                         <i class="fas fa-calendar me-2"></i>Dates
                                         @if ($sortField === 'date_debut')
                                             <i
@@ -247,7 +247,7 @@
                                 </th>
                                 <th>
                                     <button wire:click="sortBy('status')"
-                                        class="btn btn-link p-0 text-decoration-none text-white">
+                                        class="btn btn-link p-0 text-decoration-none text-primary">
                                         <i class="fas fa-info-circle me-2"></i>Statut
                                         @if ($sortField === 'status')
                                             <i
@@ -257,8 +257,8 @@
                                         @endif
                                     </button>
                                 </th>
-                                <th><i class="fas fa-file-text me-2"></i>Description</th>
-                                <th><i class="fas fa-cogs me-2"></i>Actions</th>
+                                <th class="text-primary"><i class="fas fa-file-text me-2"></i>Description</th>
+                                <th class="text-primary"><i class="fas fa-cogs me-2"></i>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
