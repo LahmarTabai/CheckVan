@@ -133,6 +133,27 @@
                             @enderror
                         </div>
 
+                        <!-- Photo de profil -->
+                        <div class="col-12">
+                            <label class="form-label-2050">Photo de profil</label>
+                            <input type="file" wire:model="profile_picture" class="form-control-2050"
+                                accept="image/*">
+                            <small class="text-muted">Formats acceptés : JPG, PNG, GIF. Taille max : 8MB.</small>
+                            @error('profile_picture')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+
+                            @if ($profile_picture)
+                                <div class="mt-2">
+                                    <img src="{{ $profile_picture->temporaryUrl() }}" alt="Aperçu"
+                                        class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+                                    <small class="text-success ms-2">
+                                        <i class="fas fa-check me-1"></i>Photo sélectionnée
+                                    </small>
+                                </div>
+                            @endif
+                        </div>
+
                         <!-- Boutons d'action -->
                         <div class="col-12">
                             <button type="submit" class="btn btn-primary-2050 me-3">
@@ -158,12 +179,13 @@
             </div>
             <div class="card-body p-4">
                 <div class="row g-3">
-                    <div class="col-md-6">
+                    <!-- Ligne 1 -->
+                    <div class="col-md-3">
                         <label class="form-label-2050">Recherche générale</label>
                         <input type="text" wire:model.live="search" class="form-control-2050"
                             placeholder="Nom, prénom, email, téléphone...">
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <label class="form-label-2050">Statut</label>
                         <select wire:model.live="filterStatut" class="form-control-2050">
                             <option value="">Tous</option>
@@ -173,10 +195,57 @@
                         </select>
                     </div>
                     <div class="col-md-2">
+                        <label class="form-label-2050">Rôle</label>
+                        <select wire:model.live="filterRole" class="form-control-2050">
+                            <option value="">Tous</option>
+                            <option value="admin">Admin</option>
+                            <option value="chauffeur">Chauffeur</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label-2050">Permis</label>
+                        <select wire:model.live="filterPermis" class="form-control-2050">
+                            <option value="">Tous</option>
+                            <option value="expire_bientot">Expire bientôt</option>
+                            <option value="expire_dans_3_mois">Expire dans 3 mois</option>
+                            <option value="expire_dans_6_mois">Expire dans 6 mois</option>
+                            <option value="expire">Expiré</option>
+                            <option value="sans_permis">Sans permis</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label-2050">Email vérifié</label>
+                        <select wire:model.live="filterEmailVerified" class="form-control-2050">
+                            <option value="">Tous</option>
+                            <option value="verified">Vérifié</option>
+                            <option value="not_verified">Non vérifié</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1">
                         <label class="form-label-2050">&nbsp;</label>
                         <button wire:click="resetFilters" class="btn btn-outline-2050 w-100">
                             <i class="fas fa-times"></i>
                         </button>
+                    </div>
+                </div>
+
+                <!-- Ligne 2 - Dates -->
+                <div class="row g-3 mt-2">
+                    <div class="col-md-3">
+                        <label class="form-label-2050">Date d'embauche - Début</label>
+                        <input type="date" wire:model.live="filterDateEmbaucheDebut" class="form-control-2050">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label-2050">Date d'embauche - Fin</label>
+                        <input type="date" wire:model.live="filterDateEmbaucheFin" class="form-control-2050">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label-2050">Date de naissance - Début</label>
+                        <input type="date" wire:model.live="filterDateNaissanceDebut" class="form-control-2050">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label-2050">Date de naissance - Fin</label>
+                        <input type="date" wire:model.live="filterDateNaissanceFin" class="form-control-2050">
                     </div>
                 </div>
             </div>
@@ -284,6 +353,10 @@
                                     </td>
                                     <td>
                                         <div class="btn-group-actions">
+                                            <button wire:click="showDetails({{ $chauffeur->user_id }})"
+                                                class="btn btn-info-2050 btn-sm" title="Détails">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
                                             <button wire:click="edit({{ $chauffeur->user_id }})"
                                                 class="btn btn-warning-2050 btn-sm" title="Modifier">
                                                 <i class="fas fa-edit"></i>
@@ -319,4 +392,172 @@
             {{ $chauffeurs->links() }}
         </div>
     </div>
+
+    <!-- Modal Détails Chauffeur -->
+    @if ($showDetailsModal && $selectedChauffeur)
+        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content card-2050">
+                    <div class="modal-header card-header-2050">
+                        <h5 class="modal-title">
+                            <i class="fas fa-user-tie me-2"></i>Détails du chauffeur
+                        </h5>
+                        <button type="button" class="btn-close" wire:click="closeDetailsModal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="row g-4">
+                            <!-- Photo de profil -->
+                            <div class="col-12 text-center mb-4">
+                                <div class="glass-effect rounded-circle p-3 d-inline-block">
+                                    @if ($selectedChauffeur->profile_picture)
+                                        <img src="{{ asset('storage/' . $selectedChauffeur->profile_picture) }}"
+                                            alt="Photo de profil" class="rounded-circle"
+                                            style="width: 120px; height: 120px; object-fit: cover;">
+                                    @else
+                                        <div class="rounded-circle bg-gradient d-flex align-items-center justify-content-center"
+                                            style="width: 120px; height: 120px;">
+                                            <i class="fas fa-user text-white fs-1"></i>
+                                        </div>
+                                    @endif
+                                </div>
+                                <h4 class="text-gradient mt-3 mb-0">
+                                    {{ $selectedChauffeur->nom }} {{ $selectedChauffeur->prenom }}
+                                </h4>
+                                <p class="text-muted mb-0">{{ ucfirst($selectedChauffeur->role) }}</p>
+                            </div>
+
+                            <!-- Informations personnelles -->
+                            <div class="col-md-6">
+                                <h6 class="text-gradient mb-3">
+                                    <i class="fas fa-user me-2"></i>Informations personnelles
+                                </h6>
+                                <div class="glass-effect p-3 rounded">
+                                    <div class="mb-2">
+                                        <strong>Nom complet :</strong><br>
+                                        {{ $selectedChauffeur->nom }} {{ $selectedChauffeur->prenom }}
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Email :</strong><br>
+                                        {{ $selectedChauffeur->email }}
+                                        @if ($selectedChauffeur->email_verified_at)
+                                            <span class="badge badge-success-2050 ms-2">
+                                                <i class="fas fa-check me-1"></i>Vérifié
+                                            </span>
+                                        @else
+                                            <span class="badge badge-warning-2050 ms-2">
+                                                <i class="fas fa-exclamation me-1"></i>Non vérifié
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Téléphone :</strong><br>
+                                        {{ $selectedChauffeur->tel ?? 'Non renseigné' }}
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Date de naissance :</strong><br>
+                                        {{ $selectedChauffeur->date_naissance ? \Carbon\Carbon::parse($selectedChauffeur->date_naissance)->format('d/m/Y') : 'Non renseignée' }}
+                                    </div>
+                                    <div class="mb-0">
+                                        <strong>Adresse :</strong><br>
+                                        {{ $selectedChauffeur->adresse ?? 'Non renseignée' }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Informations professionnelles -->
+                            <div class="col-md-6">
+                                <h6 class="text-gradient mb-3">
+                                    <i class="fas fa-briefcase me-2"></i>Informations professionnelles
+                                </h6>
+                                <div class="glass-effect p-3 rounded">
+                                    <div class="mb-2">
+                                        <strong>Rôle :</strong><br>
+                                        <span class="badge badge-primary-2050">
+                                            {{ ucfirst($selectedChauffeur->role) }}
+                                        </span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Statut :</strong><br>
+                                        @if ($selectedChauffeur->statut === 'actif')
+                                            <span class="badge badge-success-2050">
+                                                <i class="fas fa-check me-1"></i>Actif
+                                            </span>
+                                        @elseif($selectedChauffeur->statut === 'inactif')
+                                            <span class="badge badge-warning-2050">
+                                                <i class="fas fa-pause me-1"></i>Inactif
+                                            </span>
+                                        @else
+                                            <span class="badge badge-danger-2050">
+                                                <i class="fas fa-ban me-1"></i>Suspendu
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Date d'embauche :</strong><br>
+                                        {{ $selectedChauffeur->date_embauche ? \Carbon\Carbon::parse($selectedChauffeur->date_embauche)->format('d/m/Y') : 'Non renseignée' }}
+                                    </div>
+                                    <div class="mb-0">
+                                        <strong>Membre depuis :</strong><br>
+                                        {{ \Carbon\Carbon::parse($selectedChauffeur->created_at)->format('d/m/Y à H:i') }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Informations du permis -->
+                            <div class="col-12">
+                                <h6 class="text-gradient mb-3">
+                                    <i class="fas fa-id-card me-2"></i>Informations du permis
+                                </h6>
+                                <div class="glass-effect p-3 rounded">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-2">
+                                                <strong>Numéro de permis :</strong><br>
+                                                {{ $selectedChauffeur->numero_permis ?? 'Non renseigné' }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-2">
+                                                <strong>Expiration du permis :</strong><br>
+                                                @if ($selectedChauffeur->permis_expire_le)
+                                                    {{ \Carbon\Carbon::parse($selectedChauffeur->permis_expire_le)->format('d/m/Y') }}
+                                                    @php
+                                                        $expirationDate = \Carbon\Carbon::parse(
+                                                            $selectedChauffeur->permis_expire_le,
+                                                        );
+                                                        $now = \Carbon\Carbon::now();
+                                                        $daysUntilExpiration = $now->diffInDays($expirationDate, false);
+                                                    @endphp
+                                                    @if ($daysUntilExpiration < 0)
+                                                        <span class="badge badge-danger-2050 ms-2">
+                                                            <i class="fas fa-exclamation-triangle me-1"></i>Expiré
+                                                        </span>
+                                                    @elseif($daysUntilExpiration <= 30)
+                                                        <span class="badge badge-warning-2050 ms-2">
+                                                            <i class="fas fa-clock me-1"></i>Expire bientôt
+                                                        </span>
+                                                    @else
+                                                        <span class="badge badge-success-2050 ms-2">
+                                                            <i class="fas fa-check me-1"></i>Valide
+                                                        </span>
+                                                    @endif
+                                                @else
+                                                    Non renseignée
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer card-header-2050">
+                        <button type="button" class="btn btn-outline-2050" wire:click="closeDetailsModal">
+                            <i class="fas fa-times me-2"></i>Fermer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

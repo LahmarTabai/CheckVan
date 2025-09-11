@@ -22,6 +22,12 @@ class Affectations extends Component
     public $filterStatus = '';
     public $filterChauffeur = '';
 
+    // Recherche dans les formulaires
+    public $searchChauffeur = '';
+    public $searchVehicule = '';
+    public $showChauffeurDropdown = false;
+    public $showVehiculeDropdown = false;
+
     // Tri
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
@@ -51,17 +57,40 @@ class Affectations extends Component
 
         // Récupérer les chauffeurs disponibles (sans véhicule en cours)
         $chauffeursAffectes = Affectation::where('status', 'en_cours')->pluck('chauffeur_id');
-        $chauffeurs = User::where('role', 'chauffeur')
+        $chauffeursQuery = User::where('role', 'chauffeur')
             ->where('admin_id', Auth::user()->user_id)
-            ->whereNotIn('user_id', $chauffeursAffectes)
-            ->get();
+            ->whereNotIn('user_id', $chauffeursAffectes);
+
+        // Filtrer par recherche si nécessaire
+        if ($this->searchChauffeur) {
+            $chauffeursQuery->where(function($query) {
+                $query->where('nom', 'like', '%' . $this->searchChauffeur . '%')
+                      ->orWhere('prenom', 'like', '%' . $this->searchChauffeur . '%');
+            });
+        }
+
+        $chauffeurs = $chauffeursQuery->get();
 
         // Récupérer les véhicules disponibles (non affectés ou rendus)
         $vehiculesAffectes = Affectation::where('status', 'en_cours')->pluck('vehicule_id');
-        $vehicules = Vehicule::with(['marque', 'modele'])
+        $vehiculesQuery = Vehicule::with(['marque', 'modele'])
             ->where('admin_id', Auth::user()->user_id)
-            ->whereNotIn('id', $vehiculesAffectes)
-            ->get();
+            ->whereNotIn('id', $vehiculesAffectes);
+
+        // Filtrer par recherche si nécessaire
+        if ($this->searchVehicule) {
+            $vehiculesQuery->where(function($query) {
+                $query->where('immatriculation', 'like', '%' . $this->searchVehicule . '%')
+                      ->orWhereHas('marque', function($q) {
+                          $q->where('nom', 'like', '%' . $this->searchVehicule . '%');
+                      })
+                      ->orWhereHas('modele', function($q) {
+                          $q->where('nom', 'like', '%' . $this->searchVehicule . '%');
+                      });
+            });
+        }
+
+        $vehicules = $vehiculesQuery->get();
 
         return view('livewire.admin.affectations', compact('affectations', 'chauffeurs', 'vehicules'))->layout('layouts.admin');
     }
@@ -76,6 +105,10 @@ class Affectations extends Component
         $this->date_fin = null;
         $this->description = null;
         $this->isEdit = false;
+        $this->searchChauffeur = '';
+        $this->searchVehicule = '';
+        $this->showChauffeurDropdown = false;
+        $this->showVehiculeDropdown = false;
     }
 
     public function resetFilters()
@@ -241,5 +274,38 @@ class Affectations extends Component
         ];
 
         return ExportService::exportAffectations($filters);
+    }
+
+    // Méthodes pour la recherche dans les formulaires
+    public function updatedSearchChauffeur()
+    {
+        $this->showChauffeurDropdown = true;
+        $this->chauffeur_id = null;
+    }
+
+    public function updatedSearchVehicule()
+    {
+        $this->showVehiculeDropdown = true;
+        $this->vehicule_id = null;
+    }
+
+    public function selectChauffeur($chauffeurId, $chauffeurName)
+    {
+        $this->chauffeur_id = $chauffeurId;
+        $this->searchChauffeur = $chauffeurName;
+        $this->showChauffeurDropdown = false;
+    }
+
+    public function selectVehicule($vehiculeId, $vehiculeName)
+    {
+        $this->vehicule_id = $vehiculeId;
+        $this->searchVehicule = $vehiculeName;
+        $this->showVehiculeDropdown = false;
+    }
+
+    public function hideDropdowns()
+    {
+        $this->showChauffeurDropdown = false;
+        $this->showVehiculeDropdown = false;
     }
 }

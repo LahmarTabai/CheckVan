@@ -196,6 +196,17 @@ body::before {
   box-shadow: 0 8px 25px rgba(250, 112, 154, 0.6);
 }
 
+.btn-info-2050 {
+  background: linear-gradient(135deg, #17a2b8, #138496);
+  color: white;
+  box-shadow: 0 4px 15px rgba(23, 162, 184, 0.4);
+}
+
+.btn-info-2050:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(23, 162, 184, 0.6);
+}
+
 .btn-outline-2050 {
   background: transparent;
   border: 2px solid rgba(102, 126, 234, 0.5);
@@ -370,6 +381,46 @@ body::before {
   background: rgba(13, 202, 240, 0.1);
   border-left-color: #0dcaf0;
   color: #0dcaf0;
+}
+
+/* ========================================
+   DROPDOWN PERSONNALISÉ 2050
+   ======================================== */
+.dropdown-menu-2050 {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: var(--shadow-2050);
+  backdrop-filter: blur(20px);
+  padding: 0.5rem 0;
+  margin-top: 0.25rem;
+}
+
+.dropdown-item-2050 {
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  display: block;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-item-2050:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item-2050:hover {
+  background: rgba(79, 172, 254, 0.1);
+  color: var(--primary-color);
+  transform: translateX(5px);
+}
+
+.dropdown-item-2050:active {
+  background: rgba(79, 172, 254, 0.2);
 }
 
 /* ========================================

@@ -53,12 +53,31 @@
                     <div class="row g-4">
                         <div class="col-md-4">
                             <label class="form-label-2050">Chauffeur *</label>
-                            <select wire:model="chauffeur_id" class="form-control-2050">
-                                <option value="">-- Sélectionner un chauffeur --</option>
-                                @foreach ($chauffeurs as $c)
-                                    <option value="{{ $c->user_id }}">{{ $c->nom }} {{ $c->prenom }}</option>
-                                @endforeach
-                            </select>
+                            <div class="position-relative">
+                                <input type="text" wire:model.live="searchChauffeur"
+                                    wire:focus="showChauffeurDropdown = true" class="form-control-2050"
+                                    placeholder="Rechercher un chauffeur..." autocomplete="off">
+
+                                @if ($showChauffeurDropdown && $chauffeurs->count() > 0)
+                                    <div class="dropdown-menu-2050 show w-100"
+                                        style="max-height: 200px; overflow-y: auto;">
+                                        @foreach ($chauffeurs as $c)
+                                            <div class="dropdown-item-2050"
+                                                wire:click="selectChauffeur({{ $c->user_id }}, '{{ $c->nom }} {{ $c->prenom }}')"
+                                                style="cursor: pointer;">
+                                                {{ $c->nom }} {{ $c->prenom }}
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                @if ($chauffeur_id)
+                                    <small class="text-success">
+                                        <i class="fas fa-check-circle me-1"></i>
+                                        Chauffeur sélectionné
+                                    </small>
+                                @endif
+                            </div>
                             <small class="text-muted">Chauffeurs disponibles : {{ $chauffeurs->count() }}</small>
                             @error('chauffeur_id')
                                 <small class="text-danger">{{ $message }}</small>
@@ -67,13 +86,32 @@
 
                         <div class="col-md-4">
                             <label class="form-label-2050">Véhicule *</label>
-                            <select wire:model="vehicule_id" class="form-control-2050">
-                                <option value="">-- Sélectionner un véhicule disponible --</option>
-                                @foreach ($vehicules as $v)
-                                    <option value="{{ $v->id }}">{{ $v->marque->nom ?? 'N/A' }}
-                                        {{ $v->modele->nom ?? '' }} - {{ $v->immatriculation }}</option>
-                                @endforeach
-                            </select>
+                            <div class="position-relative">
+                                <input type="text" wire:model.live="searchVehicule"
+                                    wire:focus="showVehiculeDropdown = true" class="form-control-2050"
+                                    placeholder="Rechercher un véhicule..." autocomplete="off">
+
+                                @if ($showVehiculeDropdown && $vehicules->count() > 0)
+                                    <div class="dropdown-menu-2050 show w-100"
+                                        style="max-height: 200px; overflow-y: auto;">
+                                        @foreach ($vehicules as $v)
+                                            <div class="dropdown-item-2050"
+                                                wire:click="selectVehicule({{ $v->id }}, '{{ $v->marque->nom ?? 'N/A' }} {{ $v->modele->nom ?? '' }} - {{ $v->immatriculation }}')"
+                                                style="cursor: pointer;">
+                                                {{ $v->marque->nom ?? 'N/A' }} {{ $v->modele->nom ?? '' }} -
+                                                {{ $v->immatriculation }}
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                @if ($vehicule_id)
+                                    <small class="text-success">
+                                        <i class="fas fa-check-circle me-1"></i>
+                                        Véhicule sélectionné
+                                    </small>
+                                @endif
+                            </div>
                             <small class="text-muted">Véhicules disponibles : {{ $vehicules->count() }}</small>
                             @error('vehicule_id')
                                 <small class="text-danger">{{ $message }}</small>
@@ -324,3 +362,14 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fermer les dropdowns quand on clique ailleurs
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.position-relative')) {
+                Livewire.dispatch('hideDropdowns');
+            }
+        });
+    });
+</script>

@@ -22,6 +22,7 @@ class Vehicules extends Component
     public $marque_id, $modele_id, $immatriculation, $vehiculeId;
     public $type = 'propriete', $annee, $couleur, $kilometrage;
     public $statut = 'disponible', $description, $prix_achat, $date_achat;
+    public $prix_location, $date_location;
     public $numero_chassis, $numero_moteur, $derniere_revision, $prochaine_revision;
 
     // Photos multiples
@@ -63,6 +64,8 @@ class Vehicules extends Component
             'description' => 'nullable|string|max:1000',
             'prix_achat' => 'nullable|numeric|min:0',
             'date_achat' => 'nullable|date',
+            'prix_location' => 'nullable|numeric|min:0',
+            'date_location' => 'nullable|date',
             'numero_chassis' => 'nullable|string|max:50',
             'numero_moteur' => 'nullable|string|max:50',
             'derniere_revision' => 'nullable|date',
@@ -247,14 +250,16 @@ class Vehicules extends Component
         $this->immatriculation = '';
         $this->type = 'propriete';
         $this->annee = null;
-        $this->couleur = '';
+        $this->couleur = null;
         $this->kilometrage = null;
         $this->statut = 'disponible';
-        $this->description = '';
+        $this->description = null;
         $this->prix_achat = null;
         $this->date_achat = null;
-        $this->numero_chassis = '';
-        $this->numero_moteur = '';
+        $this->prix_location = null;
+        $this->date_location = null;
+        $this->numero_chassis = null;
+        $this->numero_moteur = null;
         $this->derniere_revision = null;
         $this->prochaine_revision = null;
         $this->photos = [];
@@ -266,33 +271,37 @@ class Vehicules extends Component
 
     public function store()
     {
-        $this->validate();
+        try {
+            $this->validate();
 
-        $vehicule = Vehicule::create([
-            'admin_id' => Auth::user()->user_id,
-            'marque_id' => $this->marque_id,
-            'modele_id' => $this->modele_id,
-            'immatriculation' => $this->immatriculation,
-            'type' => $this->type,
-            'annee' => $this->annee,
-            'couleur' => $this->couleur,
-            'kilometrage' => $this->kilometrage,
-            'statut' => $this->statut,
-            'description' => $this->description,
-            'prix_achat' => $this->prix_achat,
-            'date_achat' => $this->date_achat,
-            'numero_chassis' => $this->numero_chassis,
-            'numero_moteur' => $this->numero_moteur,
-            'derniere_revision' => $this->derniere_revision,
-            'prochaine_revision' => $this->prochaine_revision,
-        ]);
+            $vehicule = Vehicule::create([
+                'admin_id' => Auth::user()->user_id,
+                'marque_id' => $this->marque_id,
+                'modele_id' => $this->modele_id,
+                'immatriculation' => $this->immatriculation,
+                'type' => $this->type,
+                'annee' => $this->annee,
+                'couleur' => $this->couleur,
+                'kilometrage' => $this->kilometrage,
+                'statut' => $this->statut,
+                'description' => $this->description,
+                'prix_achat' => $this->prix_achat,
+                'date_achat' => $this->date_achat,
+                'numero_chassis' => $this->numero_chassis,
+                'numero_moteur' => $this->numero_moteur,
+                'derniere_revision' => $this->derniere_revision,
+                'prochaine_revision' => $this->prochaine_revision,
+            ]);
 
-        // Sauvegarder les photos
-        $this->savePhotos($vehicule);
+            // Sauvegarder les photos
+            $this->savePhotos($vehicule);
 
-        session()->flash('success', 'Véhicule ajouté avec succès.');
-        $this->resetForm();
-        $this->dispatch('vehicule-added');
+            session()->flash('success', 'Véhicule ajouté avec succès.');
+            $this->resetForm();
+            $this->dispatch('vehicule-added');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Erreur lors de l\'ajout du véhicule: ' . $e->getMessage());
+        }
     }
 
     public function edit($id)
