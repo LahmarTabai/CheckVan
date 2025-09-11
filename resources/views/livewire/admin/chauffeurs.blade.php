@@ -395,7 +395,8 @@
 
     <!-- Modal Détails Chauffeur -->
     @if ($showDetailsModal && $selectedChauffeur)
-        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);"
+            wire:click.self="closeDetailsModal">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content card-2050">
                     <div class="modal-header card-header-2050">
@@ -423,7 +424,11 @@
                                 <h4 class="text-gradient mt-3 mb-0">
                                     {{ $selectedChauffeur->nom }} {{ $selectedChauffeur->prenom }}
                                 </h4>
-                                <p class="text-muted mb-0">{{ ucfirst($selectedChauffeur->role) }}</p>
+                                <p class="text-muted mb-0">
+                                    <span class="badge badge-primary-2050">
+                                        {{ ucfirst($selectedChauffeur->role) }}
+                                    </span>
+                                </p>
                             </div>
 
                             <!-- Informations personnelles -->

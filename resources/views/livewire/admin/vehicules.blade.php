@@ -130,7 +130,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label-2050">Numéro de châssis</label>
-                            <input type="text" wire:model="numero_chassis" class="form-control-2050" 
+                            <input type="text" wire:model="numero_chassis" class="form-control-2050"
                                    placeholder="Ex: VF1234567890123456">
                             @error('numero_chassis')
                                 <small class="text-danger">{{ $message }}</small>
@@ -139,7 +139,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label-2050">Numéro de moteur</label>
-                            <input type="text" wire:model="numero_moteur" class="form-control-2050" 
+                            <input type="text" wire:model="numero_moteur" class="form-control-2050"
                                    placeholder="Ex: MOTEUR123456">
                             @error('numero_moteur')
                                 <small class="text-danger">{{ $message }}</small>
@@ -156,7 +156,7 @@
 
                         <div class="col-12">
                             <label class="form-label-2050">Description</label>
-                            <textarea wire:model="description" class="form-control-2050" rows="3" 
+                            <textarea wire:model="description" class="form-control-2050" rows="3"
                                       placeholder="Description du véhicule, équipements, état général..."></textarea>
                             @error('description')
                                 <small class="text-danger">{{ $message }}</small>
