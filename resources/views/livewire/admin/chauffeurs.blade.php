@@ -102,7 +102,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label-2050">Statut *</label>
-                            <select wire:model="statut" class="form-control-2050">
+                            <select wire:model="statut" class="form-control-2050 select2-2050">
                                 <option value="">-- Sélectionner le statut --</option>
                                 <option value="actif">Actif</option>
                                 <option value="inactif">Inactif</option>
@@ -187,7 +187,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label-2050">Statut</label>
-                        <select wire:model.live="filterStatut" class="form-control-2050">
+                        <select wire:model.live="filterStatut" class="form-control-2050 select2-2050">
                             <option value="">Tous</option>
                             <option value="actif">Actif</option>
                             <option value="inactif">Inactif</option>
@@ -196,7 +196,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label-2050">Rôle</label>
-                        <select wire:model.live="filterRole" class="form-control-2050">
+                        <select wire:model.live="filterRole" class="form-control-2050 select2-2050">
                             <option value="">Tous</option>
                             <option value="admin">Admin</option>
                             <option value="chauffeur">Chauffeur</option>
@@ -204,7 +204,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label-2050">Permis</label>
-                        <select wire:model.live="filterPermis" class="form-control-2050">
+                        <select wire:model.live="filterPermis" class="form-control-2050 select2-2050">
                             <option value="">Tous</option>
                             <option value="expire_bientot">Expire bientôt</option>
                             <option value="expire_dans_3_mois">Expire dans 3 mois</option>
@@ -215,7 +215,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label-2050">Email vérifié</label>
-                        <select wire:model.live="filterEmailVerified" class="form-control-2050">
+                        <select wire:model.live="filterEmailVerified" class="form-control-2050 select2-2050">
                             <option value="">Tous</option>
                             <option value="verified">Vérifié</option>
                             <option value="not_verified">Non vérifié</option>

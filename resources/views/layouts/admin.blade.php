@@ -14,6 +14,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     {{-- Style 2050 --}}
     <link href="{{ asset('css/checkvan-2050.css') }}" rel="stylesheet">
+    {{-- Select2 CSS --}}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+        rel="stylesheet" />
 
     @livewireStyles
 </head>
@@ -121,6 +125,69 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {{-- Select2 JS --}}
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    {{-- Select2 2050 Initialization --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Select2 with 2050 theme
+            $('.select2-2050').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Sélectionner...',
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return "Aucun résultat trouvé";
+                    },
+                    searching: function() {
+                        return "Recherche en cours...";
+                    }
+                }
+            });
+
+            // Custom styling for 2050 theme
+            $('.select2-2050').on('select2:open', function() {
+                $('.select2-dropdown').addClass('select2-dropdown-2050');
+            });
+
+            // Reinitialize Select2 after Livewire updates
+            document.addEventListener('livewire:navigated', function() {
+                $('.select2-2050').select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: 'Sélectionner...',
+                    allowClear: true,
+                    language: {
+                        noResults: function() {
+                            return "Aucun résultat trouvé";
+                        },
+                        searching: function() {
+                            return "Recherche en cours...";
+                        }
+                    }
+                });
+            });
+
+            // Reinitialize Select2 after Livewire component updates
+            document.addEventListener('livewire:updated', function() {
+                $('.select2-2050').select2('destroy').select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: 'Sélectionner...',
+                    allowClear: true,
+                    language: {
+                        noResults: function() {
+                            return "Aucun résultat trouvé";
+                        },
+                        searching: function() {
+                            return "Recherche en cours...";
+                        }
+                    }
+                });
+            });
+        });
+    </script>
     @livewireScripts
 </body>
 

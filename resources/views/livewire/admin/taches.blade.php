@@ -32,7 +32,7 @@
                     <div class="row g-4">
                         <div class="col-md-4">
                             <label class="form-label-2050">Chauffeur <span class="text-danger">*</span></label>
-                            <select wire:model="chauffeur_id" class="form-control-2050">
+                            <select wire:model="chauffeur_id" class="form-control-2050 select2-2050">
                                 <option value="">Sélectionner un chauffeur</option>
                                 @foreach ($chauffeurs as $chauffeur)
                                     <option value="{{ $chauffeur->user_id }}">
@@ -46,7 +46,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label-2050">Véhicule <span class="text-danger">*</span></label>
-                            <select wire:model="vehicule_id" class="form-control-2050">
+                            <select wire:model="vehicule_id" class="form-control-2050 select2-2050">
                                 <option value="">Sélectionner un véhicule</option>
                                 @foreach ($vehicules as $vehicule)
                                     <option value="{{ $vehicule->id }}">
@@ -158,7 +158,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label-2050">Statut</label>
-                        <select wire:model.live="statusFilter" class="form-control-2050">
+                        <select wire:model.live="statusFilter" class="form-control-2050 select2-2050">
                             <option value="">Tous</option>
                             <option value="en_attente">En attente</option>
                             <option value="en_cours">En cours</option>
@@ -167,7 +167,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label-2050">Validation</label>
-                        <select wire:model.live="validationFilter" class="form-control-2050">
+                        <select wire:model.live="validationFilter" class="form-control-2050 select2-2050">
                             <option value="">Toutes</option>
                             <option value="1">Validées</option>
                             <option value="0">Non validées</option>
@@ -175,7 +175,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label-2050">Chauffeur</label>
-                        <select wire:model.live="chauffeurFilter" class="form-control-2050">
+                        <select wire:model.live="chauffeurFilter" class="form-control-2050 select2-2050">
                             <option value="">Tous</option>
                             @foreach ($chauffeurs as $chauffeur)
                                 <option value="{{ $chauffeur->user_id }}">
@@ -186,7 +186,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label-2050">Véhicule</label>
-                        <select wire:model.live="vehiculeFilter" class="form-control-2050">
+                        <select wire:model.live="vehiculeFilter" class="form-control-2050 select2-2050">
                             <option value="">Tous</option>
                             @foreach ($vehicules as $vehicule)
                                 <option value="{{ $vehicule->id }}">

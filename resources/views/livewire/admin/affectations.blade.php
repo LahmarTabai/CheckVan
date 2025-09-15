@@ -120,7 +120,7 @@
 
                         <div class="col-md-4">
                             <label class="form-label-2050">Statut</label>
-                            <select wire:model="status" class="form-control-2050">
+                            <select wire:model="status" class="form-control-2050 select2-2050">
                                 <option value="en_cours">En cours</option>
                                 <option value="terminée">Terminée</option>
                             </select>
@@ -177,7 +177,7 @@
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label-2050">Statut</label>
-                        <select wire:model.live="filterStatus" class="form-control-2050">
+                        <select wire:model.live="filterStatus" class="form-control-2050 select2-2050">
                             <option value="">Tous</option>
                             <option value="en_cours">En cours</option>
                             <option value="terminée">Terminée</option>
@@ -185,7 +185,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label-2050">Chauffeur</label>
-                        <select wire:model.live="filterChauffeur" class="form-control-2050">
+                        <select wire:model.live="filterChauffeur" class="form-control-2050 select2-2050">
                             <option value="">Tous</option>
                             @foreach ($chauffeurs as $c)
                                 <option value="{{ $c->user_id }}">{{ $c->nom }} {{ $c->prenom }}</option>

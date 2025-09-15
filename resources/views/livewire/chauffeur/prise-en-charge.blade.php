@@ -33,7 +33,7 @@
                         <div class="mb-4">
                             <label class="form-label-2050">Véhicule disponible <span
                                     class="text-danger">*</span></label>
-                            <select wire:model="vehicule_id" class="form-control-2050">
+                            <select wire:model="vehicule_id" class="form-control-2050 select2-2050">
                                 <option value="">-- Choisir un véhicule --</option>
                                 @foreach ($vehicules as $vehicule)
                                     <option value="{{ $vehicule->id }}">

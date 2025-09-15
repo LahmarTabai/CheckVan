@@ -40,7 +40,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label-2050">Type de véhicule *</label>
-                            <select wire:model.live="type" class="form-control-2050">
+                            <select wire:model.live="type" class="form-control-2050 select2-2050">
                                 <option value="">-- Sélectionner le type --</option>
                                 <option value="propriete">Propriété</option>
                                 <option value="location">Location</option>
@@ -52,7 +52,7 @@
 
                         <div class="col-md-4">
                             <label class="form-label-2050"> Marque *</label>
-                            <select wire:model.live="marque_id" class="form-control-2050">
+                            <select wire:model.live="marque_id" class="form-control-2050 select2-2050">
                                 <option value="">-- Sélectionner une marque --</option>
                                 @foreach ($marques as $marque)
                                     <option value="{{ $marque->id }}">{{ $marque->nom }}</option>
@@ -65,7 +65,7 @@
 
                         <div class="col-md-4">
                             <label class="form-label-2050">Modèle *</label>
-                            <select wire:model="modele_id" class="form-control-2050">
+                            <select wire:model="modele_id" class="form-control-2050 select2-2050">
                                 <option value="">-- Sélectionner un modèle --</option>
                                 @foreach ($modeles as $modele)
                                     <option value="{{ $modele->id }}">{{ $modele->nom }}</option>
@@ -78,7 +78,7 @@
 
                         <div class="col-md-4">
                             <label class="form-label-2050">Couleur *</label>
-                            <select wire:model="couleur" class="form-control-2050">
+                            <select wire:model="couleur" class="form-control-2050 select2-2050">
                                 <option value="">-- Sélectionner une couleur --</option>
                                 @foreach ($couleurs as $couleur)
                                     <option value="{{ $couleur }}">{{ $couleur }}</option>
@@ -108,7 +108,7 @@
 
                         <div class="col-md-3">
                             <label class="form-label-2050">Statut *</label>
-                            <select wire:model="statut" class="form-control-2050">
+                            <select wire:model="statut" class="form-control-2050 select2-2050">
                                 <option value="">-- Sélectionner le statut --</option>
                                 <option value="disponible">Disponible</option>
                                 <option value="en_mission">En mission</option>
@@ -131,7 +131,7 @@
                         <div class="col-md-6">
                             <label class="form-label-2050">Numéro de châssis</label>
                             <input type="text" wire:model="numero_chassis" class="form-control-2050"
-                                   placeholder="Ex: VF1234567890123456">
+                                placeholder="Ex: VF1234567890123456">
                             @error('numero_chassis')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
@@ -140,7 +140,7 @@
                         <div class="col-md-6">
                             <label class="form-label-2050">Numéro de moteur</label>
                             <input type="text" wire:model="numero_moteur" class="form-control-2050"
-                                   placeholder="Ex: MOTEUR123456">
+                                placeholder="Ex: MOTEUR123456">
                             @error('numero_moteur')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
@@ -157,7 +157,7 @@
                         <div class="col-12">
                             <label class="form-label-2050">Description</label>
                             <textarea wire:model="description" class="form-control-2050" rows="3"
-                                      placeholder="Description du véhicule, équipements, état général..."></textarea>
+                                placeholder="Description du véhicule, équipements, état général..."></textarea>
                             @error('description')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
@@ -166,8 +166,8 @@
                         @if ($type === 'propriete')
                             <div class="col-md-6">
                                 <label class="form-label-2050">Prix d'achat (€)</label>
-                                <input type="number" wire:model="prix_achat" class="form-control-2050" step="0.01"
-                                    placeholder="0.00">
+                                <input type="number" wire:model="prix_achat" class="form-control-2050"
+                                    step="0.01" placeholder="0.00">
                                 @error('prix_achat')
                                     <small class="text-danger">{{ $message }}</small>
                                 @enderror
@@ -239,7 +239,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label-2050">Type</label>
-                        <select wire:model.live="filterType" class="form-control-2050">
+                        <select wire:model.live="filterType" class="form-control-2050 select2-2050">
                             <option value="">Tous</option>
                             <option value="propriete">Propriété</option>
                             <option value="location">Location</option>
@@ -247,7 +247,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label-2050">Statut</label>
-                        <select wire:model.live="filterStatut" class="form-control-2050">
+                        <select wire:model.live="filterStatut" class="form-control-2050 select2-2050">
                             <option value="">Tous</option>
                             <option value="disponible">Disponible</option>
                             <option value="en_mission">En mission</option>
@@ -257,7 +257,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label-2050">Marque</label>
-                        <select wire:model.live="filterMarque" class="form-control-2050">
+                        <select wire:model.live="filterMarque" class="form-control-2050 select2-2050">
                             <option value="">Toutes</option>
                             @foreach ($marques as $marque)
                                 <option value="{{ $marque->id }}">{{ $marque->nom }}</option>
@@ -266,7 +266,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label-2050">Modèle</label>
-                        <select wire:model.live="filterModele" class="form-control-2050">
+                        <select wire:model.live="filterModele" class="form-control-2050 select2-2050">
                             <option value="">Tous</option>
                             @foreach ($modeles as $modele)
                                 <option value="{{ $modele->id }}">{{ $modele->nom }}</option>
@@ -316,8 +316,7 @@
                                     </button>
                                 </th>
                                 <th>
-                                    <button wire:click="sortBy('type')"
-                                        class="btn btn-link p-0 text-decoration-none">
+                                    <button wire:click="sortBy('type')" class="btn btn-link p-0 text-decoration-none">
                                         <i class="fas fa-info-circle me-2"></i>Type
                                         @if ($sortField === 'type')
                                             <i
