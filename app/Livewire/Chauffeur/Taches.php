@@ -3,67 +3,230 @@
 namespace App\Livewire\Chauffeur;
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use App\Models\Tache;
+use App\Models\Photo;
+use App\Models\Affectation;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class Taches extends Component
 {
+    use WithFileUploads;
+
+    // Propriétés pour les modales
+    public $showStartModal = false;
+    public $showEndModal = false;
+    public $selectedTache = null;
+
+    // Propriétés pour démarrer une tâche
+    public $debut_kilometrage;
+    public $debut_carburant;
+    public $start_photos = [];
+    public $start_latitude;
+    public $start_longitude;
+
+    // Propriétés pour terminer une tâche
+    public $fin_kilometrage;
+    public $fin_carburant;
+    public $end_photos = [];
+    public $end_latitude;
+    public $end_longitude;
+    public $description_fin;
+
     public function render()
     {
         $taches = Tache::where('chauffeur_id', Auth::user()->user_id)
-                        ->with('vehicule')
+                        ->with(['vehicule.marque', 'vehicule.modele', 'photos'])
                         ->latest()
                         ->get();
 
         return view('livewire.chauffeur.taches', compact('taches'))->layout('layouts.chauffeur');
     }
 
-    public function commencerTache($id)
+    public function showStartModal($id)
     {
-        $tache = Tache::where('id', $id)
-                    ->where('chauffeur_id', Auth::user()->user_id)
-                    ->where('status', 'en_attente')
-                    ->firstOrFail();
+        $this->selectedTache = Tache::where('id', $id)
+            ->where('chauffeur_id', Auth::user()->user_id)
+            ->where('status', 'en_attente')
+            ->with(['vehicule.marque', 'vehicule.modele'])
+            ->firstOrFail();
 
-        // Doit être validée par l'admin
-        if (!$tache->is_validated) {
-            session()->flash('success', "Tâche non validée par l'admin.");
+        // Vérifier que la tâche est validée
+        if (!$this->selectedTache->is_validated) {
+            session()->flash('error', "Cette tâche n'est pas encore validée par l'administrateur.");
             return;
         }
 
-        // Vérifier qu'un véhicule est pris en charge et correspond
-        $affectation = \App\Models\Affectation::where('chauffeur_id', Auth::user()->user_id)
+        // Vérifier qu'un véhicule est pris en charge
+        $affectation = Affectation::where('chauffeur_id', Auth::user()->user_id)
             ->where('status', 'en_cours')
             ->first();
 
-        if (!$affectation || $affectation->vehicule_id !== $tache->vehicule_id) {
-            session()->flash('success', "Vous devez d'abord prendre en charge le véhicule assigné.");
+        if (!$affectation || $affectation->vehicule_id !== $this->selectedTache->vehicule_id) {
+            session()->flash('error', "Vous devez d'abord prendre en charge le véhicule assigné à cette tâche.");
             return;
         }
 
-        $tache->update([
+        $this->resetStartForm();
+        $this->showStartModal = true;
+    }
+
+    public function showEndModal($id)
+    {
+        $this->selectedTache = Tache::where('id', $id)
+            ->where('chauffeur_id', Auth::user()->user_id)
+            ->where('status', 'en_cours')
+            ->with(['vehicule.marque', 'vehicule.modele'])
+            ->firstOrFail();
+
+        $this->resetEndForm();
+        $this->showEndModal = true;
+    }
+
+    public function closeStartModal()
+    {
+        $this->showStartModal = false;
+        $this->selectedTache = null;
+        $this->resetStartForm();
+    }
+
+    public function closeEndModal()
+    {
+        $this->showEndModal = false;
+        $this->selectedTache = null;
+        $this->resetEndForm();
+    }
+
+    public function resetStartForm()
+    {
+        $this->debut_kilometrage = '';
+        $this->debut_carburant = '';
+        $this->start_photos = [];
+        $this->start_latitude = '';
+        $this->start_longitude = '';
+        $this->resetErrorBag();
+    }
+
+    public function resetEndForm()
+    {
+        $this->fin_kilometrage = '';
+        $this->fin_carburant = '';
+        $this->end_photos = [];
+        $this->end_latitude = '';
+        $this->end_longitude = '';
+        $this->description_fin = '';
+        $this->resetErrorBag();
+    }
+
+    public function startTache()
+    {
+        $this->validate([
+            'debut_kilometrage' => 'required|integer|min:0',
+            'debut_carburant' => 'required|numeric|min:0|max:100',
+            'start_photos' => 'required|array|min:3|max:5',
+            'start_photos.*' => 'image|max:2048',
+            'start_latitude' => 'required|numeric',
+            'start_longitude' => 'required|numeric',
+        ], [
+            'debut_kilometrage.required' => 'Le kilométrage de début est obligatoire.',
+            'debut_kilometrage.integer' => 'Le kilométrage doit être un nombre entier.',
+            'debut_kilometrage.min' => 'Le kilométrage ne peut pas être négatif.',
+            'debut_carburant.required' => 'Le niveau de carburant de début est obligatoire.',
+            'debut_carburant.numeric' => 'Le carburant doit être un nombre.',
+            'debut_carburant.min' => 'Le carburant ne peut pas être négatif.',
+            'debut_carburant.max' => 'Le carburant ne peut pas dépasser 100%.',
+            'start_photos.required' => 'Vous devez prendre au moins 3 photos.',
+            'start_photos.min' => 'Vous devez prendre au moins 3 photos.',
+            'start_photos.max' => 'Vous ne pouvez pas prendre plus de 5 photos.',
+            'start_photos.*.image' => 'Chaque fichier doit être une image.',
+            'start_photos.*.max' => 'Chaque photo ne peut pas dépasser 2MB.',
+            'start_latitude.required' => 'La géolocalisation est obligatoire.',
+            'start_longitude.required' => 'La géolocalisation est obligatoire.',
+        ]);
+
+        // Mettre à jour la tâche
+        $this->selectedTache->update([
             'status' => 'en_cours',
             'start_date' => Carbon::now(),
-            // plus tard : 'start_latitude' => ..., 'start_longitude' => ...
+            'start_latitude' => $this->start_latitude,
+            'start_longitude' => $this->start_longitude,
+            'debut_kilometrage' => $this->debut_kilometrage,
+            'debut_carburant' => $this->debut_carburant,
         ]);
 
-        session()->flash('success', 'Tâche commencée.');
+        // Sauvegarder les photos
+        $this->savePhotos($this->start_photos, 'start');
+
+        session()->flash('success', 'Tâche démarrée avec succès !');
+        $this->closeStartModal();
     }
 
-    public function terminerTache($id)
+    public function endTache()
     {
-        $tache = Tache::where('id', $id)
-                    ->where('chauffeur_id', Auth::user()->user_id)
-                    ->where('status', 'en_cours')
-                    ->firstOrFail();
+        $this->validate([
+            'fin_kilometrage' => 'required|integer|min:0',
+            'fin_carburant' => 'required|numeric|min:0|max:100',
+            'end_photos' => 'required|array|min:3|max:5',
+            'end_photos.*' => 'image|max:2048',
+            'end_latitude' => 'required|numeric',
+            'end_longitude' => 'required|numeric',
+            'description_fin' => 'nullable|string|max:1000',
+        ], [
+            'fin_kilometrage.required' => 'Le kilométrage de fin est obligatoire.',
+            'fin_kilometrage.integer' => 'Le kilométrage doit être un nombre entier.',
+            'fin_kilometrage.min' => 'Le kilométrage ne peut pas être négatif.',
+            'fin_carburant.required' => 'Le niveau de carburant de fin est obligatoire.',
+            'fin_carburant.numeric' => 'Le carburant doit être un nombre.',
+            'fin_carburant.min' => 'Le carburant ne peut pas être négatif.',
+            'fin_carburant.max' => 'Le carburant ne peut pas dépasser 100%.',
+            'end_photos.required' => 'Vous devez prendre au moins 3 photos.',
+            'end_photos.min' => 'Vous devez prendre au moins 3 photos.',
+            'end_photos.max' => 'Vous ne pouvez pas prendre plus de 5 photos.',
+            'end_photos.*.image' => 'Chaque fichier doit être une image.',
+            'end_photos.*.max' => 'Chaque photo ne peut pas dépasser 2MB.',
+            'end_latitude.required' => 'La géolocalisation est obligatoire.',
+            'end_longitude.required' => 'La géolocalisation est obligatoire.',
+            'description_fin.max' => 'La description ne peut pas dépasser 1000 caractères.',
+        ]);
 
-        $tache->update([
+        // Mettre à jour la tâche
+        $this->selectedTache->update([
             'status' => 'terminée',
             'end_date' => Carbon::now(),
-            // plus tard : 'end_latitude' => ..., 'end_longitude' => ...
+            'end_latitude' => $this->end_latitude,
+            'end_longitude' => $this->end_longitude,
+            'fin_kilometrage' => $this->fin_kilometrage,
+            'fin_carburant' => $this->fin_carburant,
+            'description' => $this->description_fin,
         ]);
 
-        session()->flash('success', 'Tâche terminée.');
+        // Sauvegarder les photos
+        $this->savePhotos($this->end_photos, 'end');
+
+        session()->flash('success', 'Tâche terminée avec succès !');
+        $this->closeEndModal();
     }
+
+    private function savePhotos($photos, $type)
+    {
+        $photoTypes = [
+            'start' => ['debut_kilometrage', 'debut_carburant', 'plaque'],
+            'end' => ['fin_kilometrage', 'fin_carburant', 'plaque']
+        ];
+
+        foreach ($photos as $index => $photo) {
+            $filename = 'tache_' . $this->selectedTache->id . '_' . $type . '_' . time() . '_' . $index . '.' . $photo->getClientOriginalExtension();
+            $path = $photo->storeAs('photos/taches', $filename, 'public');
+
+            Photo::create([
+                'tache_id' => $this->selectedTache->id,
+                'type' => $photoTypes[$type][$index] ?? 'autre',
+                'path' => $path,
+                'description' => 'Photo ' . $type . ' - ' . ($photoTypes[$type][$index] ?? 'autre'),
+            ]);
+        }
+    }
+
 }

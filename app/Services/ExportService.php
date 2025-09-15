@@ -259,4 +259,64 @@ class ExportService
             }
         }, 'affectations_' . date('Y-m-d_H-i-s') . '.xlsx');
     }
+
+    public function exportTaches($taches)
+    {
+        return Excel::download(new class($taches) implements FromCollection, WithHeadings, WithMapping, WithStyles {
+            private $taches;
+
+            public function __construct($taches)
+            {
+                $this->taches = $taches;
+            }
+
+            public function collection()
+            {
+                return $this->taches;
+            }
+
+            public function headings(): array
+            {
+                return [
+                    'Chauffeur',
+                    'Véhicule',
+                    'Immatriculation',
+                    'Date de début',
+                    'Date de fin',
+                    'Statut',
+                    'Validée',
+                    'Position début (lat)',
+                    'Position début (lng)',
+                    'Position fin (lat)',
+                    'Position fin (lng)',
+                    'Date de création'
+                ];
+            }
+
+            public function map($tache): array
+            {
+                return [
+                    ($tache->chauffeur->nom ?? 'N/A') . ' ' . ($tache->chauffeur->prenom ?? ''),
+                    ($tache->vehicule->marque ?? 'N/A') . ' ' . ($tache->vehicule->modele ?? 'N/A'),
+                    $tache->vehicule->immatriculation ?? 'N/A',
+                    $tache->start_date ? $tache->start_date->format('d/m/Y H:i') : '',
+                    $tache->end_date ? $tache->end_date->format('d/m/Y H:i') : '',
+                    ucfirst($tache->status),
+                    $tache->is_validated ? 'Oui' : 'Non',
+                    $tache->start_latitude ?? '',
+                    $tache->start_longitude ?? '',
+                    $tache->end_latitude ?? '',
+                    $tache->end_longitude ?? '',
+                    $tache->created_at->format('d/m/Y H:i')
+                ];
+            }
+
+            public function styles(Worksheet $sheet)
+            {
+                return [
+                    1 => ['font' => ['bold' => true]],
+                ];
+            }
+        }, 'taches_' . date('Y-m-d_H-i-s') . '.xlsx');
+    }
 }

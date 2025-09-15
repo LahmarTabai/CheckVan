@@ -2,6 +2,28 @@
    CHECKVAN 2050 - DESIGN FUTURISTE
    ======================================== */
 
+/* Prévention du débordement horizontal */
+body {
+  overflow-x: hidden;
+}
+
+.container-fluid {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Tableaux responsives */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prévention du débordement des cartes */
+.card-2050 {
+  max-width: 100%;
+  overflow: hidden;
+}
+
 :root {
   /* Couleurs principales */
   --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -533,6 +555,7 @@ body::before {
   margin-left: 280px;
   min-height: 100vh;
   padding: 2rem;
+  width: 100%;
 }
 
 /* ========================================

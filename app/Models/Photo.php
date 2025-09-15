@@ -14,6 +14,7 @@ class Photo extends Model
         'affectation_id',
         'type',
         'path',
+        'description',
     ];
 
     /**

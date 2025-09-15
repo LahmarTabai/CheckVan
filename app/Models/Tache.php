@@ -15,11 +15,17 @@ class Tache extends Model
         'start_date',
         'start_latitude',
         'start_longitude',
+        'debut_kilometrage',
+        'debut_carburant',
         'end_date',
         'end_latitude',
         'end_longitude',
+        'fin_kilometrage',
+        'fin_carburant',
         'status',
         'is_validated',
+        'description',
+        'type_tache',
     ];
 
     /**
