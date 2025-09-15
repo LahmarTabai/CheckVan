@@ -148,47 +148,18 @@ class Taches extends Component
 
     public function exportExcel()
     {
-        $query = Tache::with(['chauffeur', 'vehicule.marque', 'vehicule.modele'])
-            ->whereHas('vehicule', function ($q) {
-                $q->where('admin_id', Auth::user()->user_id);
-            });
+        // Préparer les filtres pour l'export avancé
+        $filters = [
+            'search' => $this->search,
+            'status' => $this->statusFilter,
+            'chauffeur_id' => $this->chauffeurFilter,
+            'vehicule_id' => $this->vehiculeFilter,
+            'validation' => $this->validationFilter,
+            'date_debut_debut' => $this->dateDebutFilter,
+            'date_debut_fin' => $this->dateFinFilter,
+        ];
 
-        // Appliquer les mêmes filtres que dans render()
-        if ($this->statusFilter) {
-            $query->where('status', $this->statusFilter);
-        }
-        if ($this->chauffeurFilter) {
-            $query->where('chauffeur_id', $this->chauffeurFilter);
-        }
-        if ($this->vehiculeFilter) {
-            $query->where('vehicule_id', $this->vehiculeFilter);
-        }
-        if ($this->validationFilter !== '') {
-            $query->where('is_validated', $this->validationFilter === '1');
-        }
-        if ($this->dateDebutFilter) {
-            $query->whereDate('start_date', '>=', $this->dateDebutFilter);
-        }
-        if ($this->dateFinFilter) {
-            $query->whereDate('start_date', '<=', $this->dateFinFilter);
-        }
-        if ($this->search) {
-            $query->where(function ($q) {
-                $q->whereHas('chauffeur', function ($subQ) {
-                    $subQ->where('nom', 'like', '%' . $this->search . '%')
-                         ->orWhere('prenom', 'like', '%' . $this->search . '%');
-                })->orWhereHas('vehicule', function ($subQ) {
-                    $subQ->where('immatriculation', 'like', '%' . $this->search . '%')
-                         ->orWhere('marque', 'like', '%' . $this->search . '%')
-                         ->orWhere('modele', 'like', '%' . $this->search . '%');
-                });
-            });
-        }
-
-        $taches = $query->orderBy($this->sortField, $this->sortDirection)->get();
-
-        $exportService = new ExportService();
-        return $exportService->exportTaches($taches);
+        return ExportService::exportTachesAvance($filters);
     }
 
     public function create()

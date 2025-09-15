@@ -281,32 +281,58 @@ class ExportService
                     'Chauffeur',
                     'Véhicule',
                     'Immatriculation',
+                    'Type de tâche',
                     'Date de début',
                     'Date de fin',
                     'Statut',
                     'Validée',
+                    'Kilométrage début',
+                    'Kilométrage fin',
+                    'Kilométrage parcouru',
+                    'Carburant début (%)',
+                    'Carburant fin (%)',
+                    'Consommation carburant',
                     'Position début (lat)',
                     'Position début (lng)',
                     'Position fin (lat)',
                     'Position fin (lng)',
+                    'Description',
                     'Date de création'
                 ];
             }
 
             public function map($tache): array
             {
+                $kilometrageParcouru = '';
+                if ($tache->debut_kilometrage && $tache->fin_kilometrage) {
+                    $kilometrageParcouru = $tache->fin_kilometrage - $tache->debut_kilometrage;
+                }
+
+                $consommationCarburant = '';
+                if ($tache->debut_carburant && $tache->fin_carburant) {
+                    $consommationCarburant = $tache->debut_carburant - $tache->fin_carburant . '%';
+                }
+
                 return [
                     ($tache->chauffeur->nom ?? 'N/A') . ' ' . ($tache->chauffeur->prenom ?? ''),
-                    ($tache->vehicule->marque ?? 'N/A') . ' ' . ($tache->vehicule->modele ?? 'N/A'),
+                    ($tache->vehicule->marque->nom ?? 'N/A') . ' ' . ($tache->vehicule->modele->nom ?? 'N/A'),
                     $tache->vehicule->immatriculation ?? 'N/A',
+                    ucfirst($tache->type_tache),
                     $tache->start_date ? $tache->start_date->format('d/m/Y H:i') : '',
                     $tache->end_date ? $tache->end_date->format('d/m/Y H:i') : '',
                     ucfirst($tache->status),
                     $tache->is_validated ? 'Oui' : 'Non',
+                    $tache->debut_kilometrage ?? '',
+                    $tache->fin_kilometrage ?? '',
+                    $kilometrageParcouru,
+                    $tache->debut_carburant ?? '',
+                    $tache->fin_carburant ?? '',
+                    $consommationCarburant,
                     $tache->start_latitude ?? '',
                     $tache->start_longitude ?? '',
                     $tache->end_latitude ?? '',
                     $tache->end_longitude ?? '',
+                    $tache->description ?? '',
                     $tache->created_at->format('d/m/Y H:i')
                 ];
             }
@@ -318,5 +344,145 @@ class ExportService
                 ];
             }
         }, 'taches_' . date('Y-m-d_H-i-s') . '.xlsx');
+    }
+
+    public static function exportTachesAvance($filters = [])
+    {
+        $query = Tache::with(['chauffeur', 'vehicule.marque', 'vehicule.modele'])
+            ->whereHas('vehicule', function ($q) {
+                $q->where('admin_id', Auth::user()->user_id);
+            });
+
+        // Appliquer les filtres
+        if (!empty($filters['search'])) {
+            $query->where(function ($q) use ($filters) {
+                $q->whereHas('chauffeur', function ($q) use ($filters) {
+                    $q->where('nom', 'like', '%' . $filters['search'] . '%')
+                      ->orWhere('prenom', 'like', '%' . $filters['search'] . '%');
+                })
+                ->orWhereHas('vehicule', function ($q) use ($filters) {
+                    $q->where('immatriculation', 'like', '%' . $filters['search'] . '%')
+                      ->orWhereHas('marque', function ($q) use ($filters) {
+                          $q->where('nom', 'like', '%' . $filters['search'] . '%');
+                      })
+                      ->orWhereHas('modele', function ($q) use ($filters) {
+                          $q->where('nom', 'like', '%' . $filters['search'] . '%');
+                      });
+                });
+            });
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['type_tache'])) {
+            $query->where('type_tache', $filters['type_tache']);
+        }
+
+        if (!empty($filters['chauffeur_id'])) {
+            $query->where('chauffeur_id', $filters['chauffeur_id']);
+        }
+
+        if (!empty($filters['vehicule_id'])) {
+            $query->where('vehicule_id', $filters['vehicule_id']);
+        }
+
+        if (!empty($filters['validation'])) {
+            $query->where('is_validated', $filters['validation'] === '1');
+        }
+
+        if (!empty($filters['date_debut_debut'])) {
+            $query->whereDate('start_date', '>=', $filters['date_debut_debut']);
+        }
+
+        if (!empty($filters['date_debut_fin'])) {
+            $query->whereDate('start_date', '<=', $filters['date_debut_fin']);
+        }
+
+        $taches = $query->get();
+
+        return Excel::download(new class($taches) implements FromCollection, WithHeadings, WithMapping, WithStyles {
+            private $taches;
+
+            public function __construct($taches)
+            {
+                $this->taches = $taches;
+            }
+
+            public function collection()
+            {
+                return $this->taches;
+            }
+
+            public function headings(): array
+            {
+                return [
+                    'Chauffeur',
+                    'Véhicule',
+                    'Immatriculation',
+                    'Type de tâche',
+                    'Date de début',
+                    'Date de fin',
+                    'Statut',
+                    'Validée',
+                    'Kilométrage début',
+                    'Kilométrage fin',
+                    'Kilométrage parcouru',
+                    'Carburant début (%)',
+                    'Carburant fin (%)',
+                    'Consommation carburant',
+                    'Position début (lat)',
+                    'Position début (lng)',
+                    'Position fin (lat)',
+                    'Position fin (lng)',
+                    'Description',
+                    'Date de création'
+                ];
+            }
+
+            public function map($tache): array
+            {
+                $kilometrageParcouru = '';
+                if ($tache->debut_kilometrage && $tache->fin_kilometrage) {
+                    $kilometrageParcouru = $tache->fin_kilometrage - $tache->debut_kilometrage;
+                }
+
+                $consommationCarburant = '';
+                if ($tache->debut_carburant && $tache->fin_carburant) {
+                    $consommationCarburant = $tache->debut_carburant - $tache->fin_carburant . '%';
+                }
+
+                return [
+                    ($tache->chauffeur->nom ?? 'N/A') . ' ' . ($tache->chauffeur->prenom ?? ''),
+                    ($tache->vehicule->marque->nom ?? 'N/A') . ' ' . ($tache->vehicule->modele->nom ?? 'N/A'),
+                    $tache->vehicule->immatriculation ?? 'N/A',
+                    ucfirst($tache->type_tache),
+                    $tache->start_date ? $tache->start_date->format('d/m/Y H:i') : '',
+                    $tache->end_date ? $tache->end_date->format('d/m/Y H:i') : '',
+                    ucfirst($tache->status),
+                    $tache->is_validated ? 'Oui' : 'Non',
+                    $tache->debut_kilometrage ?? '',
+                    $tache->fin_kilometrage ?? '',
+                    $kilometrageParcouru,
+                    $tache->debut_carburant ?? '',
+                    $tache->fin_carburant ?? '',
+                    $consommationCarburant,
+                    $tache->start_latitude ?? '',
+                    $tache->start_longitude ?? '',
+                    $tache->end_latitude ?? '',
+                    $tache->end_longitude ?? '',
+                    $tache->description ?? '',
+                    $tache->created_at->format('d/m/Y H:i')
+                ];
+            }
+
+            public function styles(Worksheet $sheet)
+            {
+                return [
+                    1 => ['font' => ['bold' => true]],
+                ];
+            }
+        }, 'taches_avance_' . date('Y-m-d_H-i-s') . '.xlsx');
     }
 }

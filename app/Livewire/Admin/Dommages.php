@@ -79,7 +79,7 @@ class Dommages extends Component
 
     public function render()
     {
-        $query = Dommage::with(['affectation.vehicule', 'chauffeur'])
+        $query = Dommage::with(['affectation.vehicule.marque', 'affectation.vehicule.modele', 'chauffeur'])
             ->whereHas('affectation.vehicule', function($q) {
                 $q->where('admin_id', auth()->user()->user_id);
             });
@@ -89,12 +89,18 @@ class Dommages extends Component
             $query->where(function($q) {
                 $q->where('description', 'like', '%' . $this->search . '%')
                   ->orWhereHas('affectation.vehicule', function($subQ) {
-                      $subQ->where('marque', 'like', '%' . $this->search . '%')
-                           ->orWhere('modele', 'like', '%' . $this->search . '%')
-                           ->orWhere('immatriculation', 'like', '%' . $this->search . '%');
+                      $subQ->where('immatriculation', 'like', '%' . $this->search . '%')
+                           ->orWhereHas('marque', function($marqueQ) {
+                               $marqueQ->where('nom', 'like', '%' . $this->search . '%');
+                           })
+                           ->orWhereHas('modele', function($modeleQ) {
+                               $modeleQ->where('nom', 'like', '%' . $this->search . '%');
+                           });
                   })
                   ->orWhereHas('chauffeur', function($subQ) {
-                      $subQ->where('name', 'like', '%' . $this->search . '%');
+                      $subQ->where('nom', 'like', '%' . $this->search . '%')
+                           ->orWhere('prenom', 'like', '%' . $this->search . '%')
+                           ->orWhere('email', 'like', '%' . $this->search . '%');
                   });
             });
         }

@@ -12,7 +12,7 @@ class TacheDetail extends Component
 
     public function mount($id)
     {
-        $this->tache = Tache::with(['vehicule', 'photos'])
+        $this->tache = Tache::with(['vehicule.marque', 'vehicule.modele', 'photos'])
             ->where('chauffeur_id', Auth::user()->user_id)
             ->findOrFail($id);
     }

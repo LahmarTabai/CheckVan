@@ -55,8 +55,8 @@
                         <i class="fas fa-tasks"></i>
                         <span>Mes Tâches</span>
                     </a>
-                    <a href="{{ route('chauffeur.dommage-interface') }}"
-                        class="nav-item-2050 {{ request()->routeIs('chauffeur.dommage-interface') ? 'active' : '' }}">
+                    <a href="{{ route('chauffeur.dommages', 0) }}"
+                        class="nav-item-2050 {{ request()->routeIs('chauffeur.dommages') ? 'active' : '' }}">
                         <i class="fas fa-exclamation-triangle"></i>
                         <span>Dommages</span>
                     </a>

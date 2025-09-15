@@ -4,84 +4,119 @@
 <head>
     <meta charset="UTF-8">
     <title>Admin - CheckVan 2050</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {{-- Bootstrap CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    {{-- Font Awesome --}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    {{-- Google Fonts --}}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    {{-- Style 2050 --}}
     <link href="{{ asset('css/checkvan-2050.css') }}" rel="stylesheet">
+
     @livewireStyles
 </head>
 
-<body>
+<body class="body-2050">
     <div class="d-flex">
         {{-- Sidebar Futuriste --}}
-        <div class="sidebar-2050 p-3 vh-100" style="width: 280px;">
-            <div class="text-center mb-4">
-                <h3 class="text-gradient mb-0">🚐 CheckVan</h3>
-                <small class="text-muted">2050 Edition</small>
+        <div class="sidebar-2050">
+            <div class="sidebar-header-2050">
+                <div class="logo-2050">
+                    <i class="fas fa-truck-fast"></i>
+                    <span>CheckVan</span>
+                    <small>2050</small>
+                </div>
             </div>
-            <ul class="nav flex-column">
-                <li class="nav-item">
+
+            <div class="sidebar-content-2050">
+                <div class="user-info-2050">
+                    <div class="user-avatar-2050">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="user-details-2050">
+                        <h6>{{ Auth::user()->nom ?? 'Admin' }} {{ Auth::user()->prenom ?? '' }}</h6>
+                        <small class="text-muted">Administrateur</small>
+                    </div>
+                </div>
+
+                <nav class="nav-2050">
                     <a href="{{ route('admin.dashboard') }}"
-                        class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                        <i class="fas fa-home me-2"></i>Tableau de bord
+                        class="nav-item-2050 {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                        <i class="fas fa-home"></i>
+                        <span>Tableau de bord</span>
                     </a>
-                </li>
-                <li class="nav-item">
                     <a href="{{ route('admin.vehicules') }}"
-                        class="nav-link {{ request()->routeIs('admin.vehicules') ? 'active' : '' }}">
-                        <i class="fas fa-car me-2"></i>Véhicules
+                        class="nav-item-2050 {{ request()->routeIs('admin.vehicules') ? 'active' : '' }}">
+                        <i class="fas fa-car"></i>
+                        <span>Véhicules</span>
                     </a>
-                </li>
-                <li class="nav-item">
                     <a href="{{ route('admin.chauffeurs') }}"
-                        class="nav-link {{ request()->routeIs('admin.chauffeurs') ? 'active' : '' }}">
-                        <i class="fas fa-user-tie me-2"></i>Chauffeurs
+                        class="nav-item-2050 {{ request()->routeIs('admin.chauffeurs') ? 'active' : '' }}">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Chauffeurs</span>
                     </a>
-                </li>
-                <li class="nav-item">
                     <a href="{{ route('admin.affectations') }}"
-                        class="nav-link {{ request()->routeIs('admin.affectations') ? 'active' : '' }}">
-                        <i class="fas fa-link me-2"></i>Affectations
+                        class="nav-item-2050 {{ request()->routeIs('admin.affectations') ? 'active' : '' }}">
+                        <i class="fas fa-link"></i>
+                        <span>Affectations</span>
                     </a>
-                </li>
-                <li class="nav-item">
                     <a href="{{ route('admin.taches') }}"
-                        class="nav-link {{ request()->routeIs('admin.taches') ? 'active' : '' }}">
-                        <i class="fas fa-tasks me-2"></i>Tâches
+                        class="nav-item-2050 {{ request()->routeIs('admin.taches') ? 'active' : '' }}">
+                        <i class="fas fa-tasks"></i>
+                        <span>Tâches</span>
                     </a>
-                </li>
-                <li class="nav-item">
                     <a href="{{ route('admin.dommages') }}"
-                        class="nav-link {{ request()->routeIs('admin.dommages') ? 'active' : '' }}">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Dommages
+                        class="nav-item-2050 {{ request()->routeIs('admin.dommages') ? 'active' : '' }}">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Dommages</span>
                     </a>
-                </li>
-                <li class="nav-item">
                     <a href="{{ route('admin.map') }}"
-                        class="nav-link {{ request()->routeIs('admin.map') ? 'active' : '' }}">
-                        <i class="fas fa-map me-2"></i>Carte
+                        class="nav-item-2050 {{ request()->routeIs('admin.map') ? 'active' : '' }}">
+                        <i class="fas fa-map"></i>
+                        <span>Carte</span>
                     </a>
-                </li>
-                <li class="nav-item">
                     <a href="{{ route('admin.notifications') }}"
-                        class="nav-link {{ request()->routeIs('admin.notifications') ? 'active' : '' }}">
-                        <i class="fas fa-bell me-2"></i>Notifications
+                        class="nav-item-2050 {{ request()->routeIs('admin.notifications') ? 'active' : '' }}">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
                     </a>
-                </li>
-                <li class="nav-item mt-4">
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button class="btn btn-outline-2050 w-100">
-                            <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
-                        </button>
-                    </form>
-                </li>
-            </ul>
+                </nav>
+            </div>
+
+            <div class="sidebar-footer-2050">
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-2050 w-100">
+                        <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                    </button>
+                </form>
+            </div>
         </div>
 
-        {{-- Contenu principal --}}
-        <div class="main-content animate-fade-in-up">
-            {{ $slot }}
+        {{-- Contenu Principal --}}
+        <div class="main-content-2050">
+            {{-- Header --}}
+            <header class="header-2050">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-0 text-gradient">Interface Administrateur</h4>
+                        <small class="text-muted">Gestion de flotte et supervision</small>
+                    </div>
+                    <div class="header-actions-2050">
+                        <div class="status-indicator-2050">
+                            <i class="fas fa-circle text-success"></i>
+                            <span>En ligne</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            {{-- Contenu --}}
+            <main class="content-2050">
+                {{ $slot }}
+            </main>
         </div>
     </div>
 

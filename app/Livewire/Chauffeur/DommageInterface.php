@@ -37,16 +37,35 @@ class DommageInterface extends Component
         'coord_z' => 'nullable|numeric|between:0,100',
     ];
 
-    public function mount($affectationId)
+    public function mount($affectationId = null)
     {
         $this->affectationId = $affectationId;
-        $this->affectation = Affectation::with(['vehicule', 'dommages'])->findOrFail($affectationId);
-        $this->loadDommages();
+
+        if ($affectationId && $affectationId != 0) {
+            $this->affectation = Affectation::with(['vehicule', 'dommages'])->findOrFail($affectationId);
+            $this->loadDommages();
+        } else {
+            // Si pas d'affectation spécifique, récupérer la dernière affectation du chauffeur
+            $this->affectation = Affectation::with(['vehicule', 'dommages'])
+                ->where('chauffeur_id', auth()->user()->user_id)
+                ->where('status', 'en_cours')
+                ->latest()
+                ->first();
+
+            if ($this->affectation) {
+                $this->affectationId = $this->affectation->id;
+                $this->loadDommages();
+            }
+        }
     }
 
     public function loadDommages()
     {
-        $this->dommages = $this->affectation->dommages()->orderBy('created_at', 'desc')->get();
+        if ($this->affectation) {
+            $this->dommages = $this->affectation->dommages()->orderBy('created_at', 'desc')->get();
+        } else {
+            $this->dommages = collect();
+        }
     }
 
     public function toggleForm()
@@ -82,11 +101,16 @@ class DommageInterface extends Component
 
     public function saveDommage()
     {
+        if (!$this->affectation) {
+            session()->flash('error', 'Aucune affectation trouvée. Vous devez d\'abord prendre un véhicule en charge.');
+            return;
+        }
+
         $this->validate();
 
         $data = [
             'affectation_id' => $this->affectationId,
-            'chauffeur_id' => auth()->user()->id,
+            'chauffeur_id' => auth()->user()->user_id,
             'type' => $this->type,
             'description' => $this->description,
             'severite' => $this->severite,

@@ -32,10 +32,15 @@ class PriseEnCharge extends Component
     public function render()
     {
         $adminId = Auth::user()->admin_id;
-        $vehicules = Vehicule::where('admin_id', $adminId)->get();
+        $vehicules = Vehicule::with(['marque', 'modele'])
+            ->where('admin_id', $adminId)
+            ->whereDoesntHave('affectations', function ($query) {
+                $query->where('status', 'en_cours');
+            })
+            ->get();
+
         $affectation = Affectation::where('chauffeur_id', Auth::user()->user_id)
                             ->where('status', 'en_cours')->first();
-
 
         return view('livewire.chauffeur.prise-en-charge', compact('vehicules', 'affectation'))->layout('layouts.chauffeur');
     }

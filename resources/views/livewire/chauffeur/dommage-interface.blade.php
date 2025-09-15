@@ -1,419 +1,405 @@
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">
-                        <i class="fas fa-car-crash me-2"></i>
-                        Signalement de Dommages - {{ $affectation->vehicule->marque }}
-                        {{ $affectation->vehicule->modele }}
-                    </h4>
-                    <button class="btn btn-primary" wire:click="toggleForm">
-                        <i class="fas fa-plus me-1"></i>
-                        Nouveau Dommage
-                    </button>
+<div>
+    <!-- En-tête -->
+    <div class="d-flex align-items-center mb-4">
+        <div class="me-3">
+            <div class="glass-effect rounded-circle p-3">
+                <i class="fas fa-car-crash text-gradient fs-4"></i>
+            </div>
+        </div>
+        <div>
+            <h1 class="text-gradient mb-0">Signalement de Dommages</h1>
+            <p class="text-muted mb-0">
+                @if ($affectation)
+                    {{ $affectation->vehicule->marque->nom ?? 'N/A' }}
+                    {{ $affectation->vehicule->modele->nom ?? 'N/A' }}
+                @else
+                    Interface de signalement 2050
+                @endif
+            </p>
+        </div>
+    </div>
+
+    @if (session()->has('message'))
+        <div class="alert alert-success-2050 alert-dismissible fade show animate-fade-in-up" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ session('message') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if (session()->has('error'))
+        <div class="alert alert-danger-2050 alert-dismissible fade show animate-fade-in-up" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if (!$affectation)
+        <!-- Aucun véhicule assigné -->
+        <div class="card-2050 hover-lift">
+            <div class="card-body text-center py-5">
+                <div class="glass-effect rounded-circle p-4 mx-auto mb-4" style="width: 120px; height: 120px;">
+                    <i class="fas fa-car-crash text-warning fs-1"></i>
                 </div>
-
-                <div class="card-body">
-                    @if (session()->has('message'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ session('message') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
-
-                    <!-- Interface 2D Tactile -->
-                    <div class="row mb-4">
-                        <div class="col-md-8">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">
-                                        <i class="fas fa-mouse-pointer me-2"></i>
-                                        Interface Tactile - Cliquez sur le véhicule pour marquer un dommage
-                                    </h5>
-                                </div>
-                                <div class="card-body p-0">
-                                    <div id="vehicle-canvas-container"
-                                        style="position: relative; background: #f8f9fa; min-height: 400px;">
-                                        <canvas id="vehicle-canvas" width="100%" height="400"
-                                            style="width: 100%; height: 400px; cursor: crosshair;">
-                                        </canvas>
-
-                                        @foreach ($dommages as $dommage)
-                                            @if ($dommage->coord_x && $dommage->coord_y)
-                                                <div class="damage-marker"
-                                                    style="position: absolute;
-                                                            left: {{ $dommage->coord_x }}%;
-                                                            top: {{ $dommage->coord_y }}%;
-                                                            transform: translate(-50%, -50%);
-                                                            z-index: 10;">
-                                                    <div class="damage-icon
-                                                                @if ($dommage->severite == 'majeur') bg-danger
-                                                                @elseif($dommage->severite == 'moyen') bg-warning
-                                                                @else bg-info @endif
-                                                                rounded-circle d-flex align-items-center justify-content-center text-white"
-                                                        style="width: 30px; height: 30px; font-size: 12px;"
-                                                        title="{{ ucfirst($dommage->type) }} - {{ ucfirst($dommage->severite) }}"
-                                                        data-bs-toggle="tooltip">
-                                                        @if ($dommage->type == 'rayure')
-                                                            <i class="fas fa-cut"></i>
-                                                        @elseif($dommage->type == 'bosse')
-                                                            <i class="fas fa-circle"></i>
-                                                        @elseif($dommage->type == 'choc')
-                                                            <i class="fas fa-exclamation"></i>
-                                                        @else
-                                                            <i class="fas fa-question"></i>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="mb-0">Légende des Dommages</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="bg-danger rounded-circle me-2" style="width: 20px; height: 20px;">
-                                        </div>
-                                        <small>Majeur</small>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="bg-warning rounded-circle me-2" style="width: 20px; height: 20px;">
-                                        </div>
-                                        <small>Moyen</small>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="bg-info rounded-circle me-2" style="width: 20px; height: 20px;">
-                                        </div>
-                                        <small>Mineur</small>
-                                    </div>
-
-                                    <hr>
-
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="fas fa-cut text-primary me-2"></i>
-                                        <small>Rayure</small>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="fas fa-circle text-primary me-2"></i>
-                                        <small>Bosse</small>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="fas fa-exclamation text-primary me-2"></i>
-                                        <small>Choc</small>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="fas fa-question text-primary me-2"></i>
-                                        <small>Autre</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <h3 class="text-gradient mb-3">Aucun véhicule assigné</h3>
+                <p class="text-muted mb-4">Vous devez d'abord prendre un véhicule en charge pour pouvoir signaler des
+                    dommages.</p>
+                <a href="{{ route('chauffeur.prise-en-charge') }}" class="btn btn-primary-2050">
+                    <i class="fas fa-hand-paper me-2"></i>Prendre un véhicule en charge
+                </a>
+            </div>
+        </div>
+    @else
+        <!-- Interface de signalement -->
+        <div class="row g-4">
+            <!-- Interface 2D Tactile -->
+            <div class="col-lg-8">
+                <div class="card-2050 hover-lift">
+                    <div class="card-header-2050">
+                        <h6 class="mb-0">
+                            <i class="fas fa-mouse-pointer me-2"></i>Interface Tactile 2050
+                        </h6>
+                        <small class="text-muted">Cliquez sur le véhicule pour marquer un dommage</small>
                     </div>
+                    <div class="card-body p-4">
+                        <div class="position-relative">
+                            <canvas id="vehicleCanvas" width="600" height="400" class="border rounded glass-effect"
+                                style="cursor: crosshair; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+                            </canvas>
 
-                    <!-- Formulaire de dommage -->
-                    @if ($showForm)
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="mb-0">
-                                    {{ $editingDommage ? 'Modifier le Dommage' : 'Nouveau Dommage' }}
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <form wire:submit.prevent="saveDommage">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Type de Dommage</label>
-                                                <select class="form-select" wire:model="type">
-                                                    <option value="rayure">Rayure</option>
-                                                    <option value="bosse">Bosse</option>
-                                                    <option value="choc">Choc</option>
-                                                    <option value="autre">Autre</option>
-                                                </select>
-                                                @error('type')
-                                                    <span class="text-danger">{{ $message }}</span>
-                                                @enderror
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Sévérité</label>
-                                                <select class="form-select" wire:model="severite">
-                                                    <option value="mineur">Mineur</option>
-                                                    <option value="moyen">Moyen</option>
-                                                    <option value="majeur">Majeur</option>
-                                                </select>
-                                                @error('severite')
-                                                    <span class="text-danger">{{ $message }}</span>
-                                                @enderror
-                                            </div>
+                            <!-- Légende des zones -->
+                            <div class="mt-3">
+                                <div class="row g-2">
+                                    <div class="col-md-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="glass-effect rounded-circle p-2 me-2"
+                                                style="width: 20px; height: 20px; background: #ff6b6b;"></div>
+                                            <small class="text-muted">Avant</small>
                                         </div>
                                     </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">Description</label>
-                                        <textarea class="form-control" wire:model="description" rows="3" placeholder="Décrivez le dommage observé..."></textarea>
-                                        @error('description')
-                                            <span class="text-danger">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">Photo du Dommage</label>
-                                        <input type="file" class="form-control" wire:model="photo" accept="image/*">
-                                        @error('photo')
-                                            <span class="text-danger">{{ $message }}</span>
-                                        @enderror
-                                        @if ($photo)
-                                            <div class="mt-2">
-                                                <img src="{{ $photo->temporaryUrl() }}" class="img-thumbnail"
-                                                    style="max-width: 200px;">
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label class="form-label">Position X (%)</label>
-                                                <input type="number" class="form-control" wire:model="coord_x"
-                                                    min="0" max="100" step="0.1"
-                                                    placeholder="0-100">
-                                                @error('coord_x')
-                                                    <span class="text-danger">{{ $message }}</span>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label class="form-label">Position Y (%)</label>
-                                                <input type="number" class="form-control" wire:model="coord_y"
-                                                    min="0" max="100" step="0.1"
-                                                    placeholder="0-100">
-                                                @error('coord_y')
-                                                    <span class="text-danger">{{ $message }}</span>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label class="form-label">Position Z (%)</label>
-                                                <input type="number" class="form-control" wire:model="coord_z"
-                                                    min="0" max="100" step="0.1"
-                                                    placeholder="0-100">
-                                                @error('coord_z')
-                                                    <span class="text-danger">{{ $message }}</span>
-                                                @enderror
-                                            </div>
+                                    <div class="col-md-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="glass-effect rounded-circle p-2 me-2"
+                                                style="width: 20px; height: 20px; background: #4ecdc4;"></div>
+                                            <small class="text-muted">Arrière</small>
                                         </div>
                                     </div>
-
-                                    <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-success">
-                                            <i class="fas fa-save me-1"></i>
-                                            {{ $editingDommage ? 'Modifier' : 'Enregistrer' }}
-                                        </button>
-                                        <button type="button" class="btn btn-secondary" wire:click="resetForm">
-                                            <i class="fas fa-times me-1"></i>
-                                            Annuler
-                                        </button>
+                                    <div class="col-md-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="glass-effect rounded-circle p-2 me-2"
+                                                style="width: 20px; height: 20px; background: #45b7d1;"></div>
+                                            <small class="text-muted">Côté Gauche</small>
+                                        </div>
                                     </div>
-                                </form>
-                            </div>
-                        </div>
-                    @endif
-
-                    <!-- Liste des dommages existants -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Dommages Signalés</h5>
-                        </div>
-                        <div class="card-body">
-                            @if ($dommages->count() > 0)
-                                <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Type</th>
-                                                <th>Sévérité</th>
-                                                <th>Description</th>
-                                                <th>Position</th>
-                                                <th>Photo</th>
-                                                <th>Statut</th>
-                                                <th>Date</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($dommages as $dommage)
-                                                <tr>
-                                                    <td>
-                                                        <span class="badge bg-primary">
-                                                            {{ ucfirst($dommage->type) }}
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <span
-                                                            class="badge
-                                                            @if ($dommage->severite == 'majeur') bg-danger
-                                                            @elseif($dommage->severite == 'moyen') bg-warning
-                                                            @else bg-info @endif">
-                                                            {{ ucfirst($dommage->severite) }}
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <small>{{ Str::limit($dommage->description, 50) }}</small>
-                                                    </td>
-                                                    <td>
-                                                        @if ($dommage->coord_x && $dommage->coord_y)
-                                                            <small>X: {{ $dommage->coord_x }}%<br>Y:
-                                                                {{ $dommage->coord_y }}%</small>
-                                                        @else
-                                                            <small class="text-muted">Non défini</small>
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if ($dommage->photo_path)
-                                                            <img src="{{ Storage::url($dommage->photo_path) }}"
-                                                                class="img-thumbnail"
-                                                                style="width: 50px; height: 50px;">
-                                                        @else
-                                                            <small class="text-muted">Aucune</small>
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if ($dommage->reparé)
-                                                            <span class="badge bg-success">Réparé</span>
-                                                        @else
-                                                            <span class="badge bg-warning">En attente</span>
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        <small>{{ $dommage->created_at->format('d/m/Y H:i') }}</small>
-                                                    </td>
-                                                    <td>
-                                                        <div class="btn-group btn-group-sm">
-                                                            <button class="btn btn-outline-primary"
-                                                                wire:click="editDommage({{ $dommage->id }})"
-                                                                title="Modifier">
-                                                                <i class="fas fa-edit"></i>
-                                                            </button>
-                                                            @if (!$dommage->reparé)
-                                                                <button class="btn btn-outline-success"
-                                                                    wire:click="markAsRepared({{ $dommage->id }})"
-                                                                    title="Marquer comme réparé">
-                                                                    <i class="fas fa-check"></i>
-                                                                </button>
-                                                            @endif
-                                                            <button class="btn btn-outline-danger"
-                                                                wire:click="deleteDommage({{ $dommage->id }})"
-                                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce dommage ?')"
-                                                                title="Supprimer">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
+                                    <div class="col-md-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="glass-effect rounded-circle p-2 me-2"
+                                                style="width: 20px; height: 20px; background: #f9ca24;"></div>
+                                            <small class="text-muted">Côté Droit</small>
+                                        </div>
+                                    </div>
                                 </div>
-                            @else
-                                <div class="text-center py-4">
-                                    <i class="fas fa-car-crash fa-3x text-muted mb-3"></i>
-                                    <p class="text-muted">Aucun dommage signalé pour ce véhicule.</p>
-                                </div>
-                            @endif
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Formulaire et liste des dommages -->
+            <div class="col-lg-4">
+                <!-- Formulaire de dommage -->
+                @if ($showForm)
+                    <div class="card-2050 hover-lift mb-4">
+                        <div class="card-header-2050">
+                            <h6 class="mb-0">
+                                <i class="fas fa-{{ $editingDommage ? 'edit' : 'plus' }} me-2"></i>
+                                {{ $editingDommage ? 'Modifier le dommage' : 'Nouveau dommage' }}
+                            </h6>
+                        </div>
+                        <div class="card-body p-4">
+                            <form wire:submit.prevent="saveDommage">
+                                <div class="mb-3">
+                                    <label class="form-label-2050">Type de dommage <span
+                                            class="text-danger">*</span></label>
+                                    <select wire:model="type" class="form-control-2050">
+                                        <option value="rayure">Rayure</option>
+                                        <option value="bosse">Bosse</option>
+                                        <option value="choc">Choc</option>
+                                        <option value="autre">Autre</option>
+                                    </select>
+                                    @error('type')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label-2050">Sévérité <span class="text-danger">*</span></label>
+                                    <select wire:model="severite" class="form-control-2050">
+                                        <option value="mineur">Mineur</option>
+                                        <option value="moyen">Moyen</option>
+                                        <option value="majeur">Majeur</option>
+                                    </select>
+                                    @error('severite')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label-2050">Description</label>
+                                    <textarea wire:model="description" class="form-control-2050" rows="3" placeholder="Décrivez le dommage..."></textarea>
+                                    @error('description')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label-2050">Photo du dommage</label>
+                                    <input type="file" wire:model="photo" class="form-control-2050"
+                                        accept="image/*">
+                                    <small class="text-muted">Formats acceptés : JPG, PNG, GIF. Taille max :
+                                        2MB.</small>
+                                    @error('photo')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- Coordonnées sur le véhicule -->
+                                <div class="row g-3 mb-3">
+                                    <div class="col-4">
+                                        <label class="form-label-2050">X (%)</label>
+                                        <input type="number" wire:model="coord_x" class="form-control-2050"
+                                            min="0" max="100" placeholder="0">
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="form-label-2050">Y (%)</label>
+                                        <input type="number" wire:model="coord_y" class="form-control-2050"
+                                            min="0" max="100" placeholder="0">
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="form-label-2050">Z (%)</label>
+                                        <input type="number" wire:model="coord_z" class="form-control-2050"
+                                            min="0" max="100" placeholder="0">
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary-2050 flex-fill">
+                                        <i class="fas fa-save me-2"></i>
+                                        {{ $editingDommage ? 'Modifier' : 'Enregistrer' }}
+                                    </button>
+                                    <button type="button" wire:click="toggleForm" class="btn btn-outline-2050">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Liste des dommages -->
+                <div class="card-2050 hover-lift">
+                    <div class="card-header-2050">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="fas fa-list me-2"></i>Dommages signalés
+                            </h6>
+                            @if (!$showForm)
+                                <button wire:click="toggleForm" class="btn btn-primary-2050 btn-sm">
+                                    <i class="fas fa-plus me-1"></i>Nouveau
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        @forelse($dommages as $dommage)
+                            <div class="border-bottom p-3 {{ $loop->last ? 'border-0' : '' }}">
+                                <div class="d-flex align-items-start justify-content-between">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center mb-2">
+                                            @php
+                                                $severiteClasses = [
+                                                    'mineur' => 'badge-success-2050',
+                                                    'moyen' => 'badge-warning-2050',
+                                                    'majeur' => 'badge-danger-2050',
+                                                ];
+                                                $severiteIcons = [
+                                                    'mineur' => 'info-circle',
+                                                    'moyen' => 'exclamation-triangle',
+                                                    'majeur' => 'exclamation-circle',
+                                                ];
+                                            @endphp
+                                            <span
+                                                class="badge {{ $severiteClasses[$dommage->severite] ?? 'badge-secondary-2050' }} me-2">
+                                                <i
+                                                    class="fas fa-{{ $severiteIcons[$dommage->severite] ?? 'question' }} me-1"></i>
+                                                {{ ucfirst($dommage->severite) }}
+                                            </span>
+                                            <span class="badge badge-info-2050">
+                                                {{ ucfirst($dommage->type) }}
+                                            </span>
+                                        </div>
+
+                                        @if ($dommage->description)
+                                            <p class="text-muted mb-2 small">{{ $dommage->description }}</p>
+                                        @endif
+
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="fas fa-map-marker-alt me-1"></i>
+                                            <span>X: {{ $dommage->coord_x ?? 0 }}% | Y: {{ $dommage->coord_y ?? 0 }}%
+                                                | Z: {{ $dommage->coord_z ?? 0 }}%</span>
+                                        </div>
+
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ $dommage->created_at->format('d/m/Y H:i') }}
+                                        </small>
+                                    </div>
+
+                                    <div class="btn-group-actions">
+                                        <button wire:click="editDommage({{ $dommage->id }})"
+                                            class="btn btn-warning-2050 btn-sm" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button wire:click="deleteDommage({{ $dommage->id }})"
+                                            class="btn btn-danger-2050 btn-sm"
+                                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce dommage ?')"
+                                            title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                @if ($dommage->photo_path)
+                                    <div class="mt-2">
+                                        <img src="{{ Storage::url($dommage->photo_path) }}" alt="Photo du dommage"
+                                            class="img-fluid rounded" style="max-height: 100px; cursor: pointer;"
+                                            data-bs-toggle="modal" data-bs-target="#photoModal{{ $dommage->id }}">
+                                    </div>
+
+                                    <!-- Modal pour afficher la photo en grand -->
+                                    <div class="modal fade" id="photoModal{{ $dommage->id }}" tabindex="-1">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Photo du dommage</h5>
+                                                    <button type="button" class="btn-close"
+                                                        data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body text-center">
+                                                    <img src="{{ Storage::url($dommage->photo_path) }}"
+                                                        alt="Photo du dommage" class="img-fluid">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        @empty
+                            <div class="text-center py-4">
+                                <div class="glass-effect rounded-circle p-4 mx-auto mb-3"
+                                    style="width: 80px; height: 80px;">
+                                    <i class="fas fa-shield-alt text-muted fs-2"></i>
+                                </div>
+                                <h5 class="text-muted mb-3">Aucun dommage</h5>
+                                <p class="text-muted">Aucun dommage n'a été signalé sur ce véhicule.</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+    @endif
 </div>
 
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const canvas = document.getElementById('vehicle-canvas');
-            const ctx = canvas.getContext('2d');
+            const canvas = document.getElementById('vehicleCanvas');
+            if (!canvas) return;
 
-            // Dessiner le véhicule (vue de côté simplifiée)
+            const ctx = canvas.getContext('2d');
+            const dommages = @json($dommages ?? []);
+
+            // Dessiner le véhicule
             function drawVehicle() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Couleur de fond
-                ctx.fillStyle = '#e9ecef';
+                // Gradient de fond
+                const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                gradient.addColorStop(0, '#667eea');
+                gradient.addColorStop(1, '#764ba2');
+                ctx.fillStyle = gradient;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // Dessiner le véhicule (forme de van)
-                ctx.fillStyle = '#6c757d';
-                ctx.strokeStyle = '#495057';
+                // Dessiner le véhicule (vue de côté)
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
                 ctx.lineWidth = 2;
 
-                // Corps principal du véhicule
-                ctx.fillRect(50, 150, 300, 100);
-                ctx.strokeRect(50, 150, 300, 100);
+                // Corps du véhicule
+                ctx.beginPath();
+                ctx.roundRect(100, 150, 400, 100, 20);
+                ctx.fill();
+                ctx.stroke();
 
                 // Cabine
-                ctx.fillRect(50, 100, 120, 50);
-                ctx.strokeRect(50, 100, 120, 50);
+                ctx.beginPath();
+                ctx.roundRect(120, 120, 120, 80, 15);
+                ctx.fill();
+                ctx.stroke();
 
                 // Roues
-                ctx.fillStyle = '#343a40';
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
                 ctx.beginPath();
-                ctx.arc(100, 260, 25, 0, 2 * Math.PI);
+                ctx.arc(150, 270, 25, 0, 2 * Math.PI);
                 ctx.fill();
-                ctx.stroke();
-
                 ctx.beginPath();
-                ctx.arc(300, 260, 25, 0, 2 * Math.PI);
+                ctx.arc(450, 270, 25, 0, 2 * Math.PI);
                 ctx.fill();
-                ctx.stroke();
 
-                // Fenêtres
-                ctx.fillStyle = '#87ceeb';
-                ctx.fillRect(60, 110, 100, 30);
-                ctx.strokeRect(60, 110, 100, 30);
+                // Dessiner les dommages existants
+                dommages.forEach(dommage => {
+                    if (dommage.coord_x && dommage.coord_y) {
+                        const x = (dommage.coord_x / 100) * canvas.width;
+                        const y = (dommage.coord_y / 100) * canvas.height;
 
-                // Porte
-                ctx.strokeRect(200, 160, 60, 80);
+                        ctx.fillStyle = getDommageColor(dommage.severite);
+                        ctx.beginPath();
+                        ctx.arc(x, y, 8, 0, 2 * Math.PI);
+                        ctx.fill();
+                        ctx.strokeStyle = '#fff';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
+                });
+            }
 
-                // Ajouter du texte
-                ctx.fillStyle = '#495057';
-                ctx.font = '14px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('Vue de côté du véhicule', canvas.width / 2, 30);
-                ctx.fillText('Cliquez pour marquer un dommage', canvas.width / 2, 50);
+            function getDommageColor(severite) {
+                switch (severite) {
+                    case 'mineur':
+                        return '#28a745';
+                    case 'moyen':
+                        return '#ffc107';
+                    case 'majeur':
+                        return '#dc3545';
+                    default:
+                        return '#6c757d';
+                }
             }
 
             // Gérer les clics sur le canvas
-            canvas.addEventListener('click', function(event) {
+            canvas.addEventListener('click', function(e) {
                 const rect = canvas.getBoundingClientRect();
-                const x = event.clientX - rect.left;
-                const y = event.clientY - rect.top;
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-                // Convertir en pourcentages
-                const xPercent = (x / canvas.width) * 100;
-                const yPercent = (y / canvas.height) * 100;
+                // Mettre à jour les coordonnées dans le formulaire
+                @this.set('coord_x', Math.round(x));
+                @this.set('coord_y', Math.round(y));
 
-                // Mettre à jour les coordonnées dans Livewire
-                @this.set('coord_x', xPercent.toFixed(1));
-                @this.set('coord_y', yPercent.toFixed(1));
-
-                // Dessiner un marqueur temporaire
-                ctx.fillStyle = '#dc3545';
+                // Dessiner un point temporaire
+                ctx.fillStyle = '#ff6b6b';
                 ctx.beginPath();
-                ctx.arc(x, y, 8, 0, 2 * Math.PI);
+                ctx.arc((x / 100) * canvas.width, (y / 100) * canvas.height, 8, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.strokeStyle = '#fff';
                 ctx.lineWidth = 2;
@@ -428,16 +414,27 @@
             // Initialiser le dessin
             drawVehicle();
 
-            // Redessiner quand la fenêtre change de taille
-            window.addEventListener('resize', function() {
+            // Redessiner quand les dommages changent
+            Livewire.on('dommageUpdated', () => {
                 drawVehicle();
             });
         });
 
-        // Initialiser les tooltips Bootstrap
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
+        // Polyfill pour roundRect si pas supporté
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+                this.beginPath();
+                this.moveTo(x + radius, y);
+                this.lineTo(x + width - radius, y);
+                this.quadraticCurveTo(x + width, y, x + width, y + radius);
+                this.lineTo(x + width, y + height - radius);
+                this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                this.lineTo(x + radius, y + height);
+                this.quadraticCurveTo(x, y + height, x, y + height - radius);
+                this.lineTo(x, y + radius);
+                this.quadraticCurveTo(x, y, x + radius, y);
+                this.closePath();
+            };
+        }
     </script>
 @endpush
