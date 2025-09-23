@@ -252,67 +252,113 @@
                             </div>
 
                             {{-- Kilométrage et Carburant --}}
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-6">
-                                    <label class="form-label-2050">Kilométrage de début <span
-                                            class="text-danger">*</span></label>
-                                    <input type="number" wire:model="debut_kilometrage" class="form-control-2050"
-                                        placeholder="Ex: 50000" min="0" required>
-                                    @error('debut_kilometrage')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label-2050">Carburant de début (%) <span
-                                            class="text-danger">*</span></label>
-                                    <input type="number" wire:model="debut_carburant" class="form-control-2050"
-                                        placeholder="Ex: 75" min="0" max="100" step="0.1" required>
-                                    @error('debut_carburant')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                    @enderror
+                            <div class="form-section-2050 mb-4">
+                                <h6 class="section-title-2050">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Données véhicule
+                                </h6>
+
+                                <div class="form-row-2050">
+                                    <div class="form-col-2050 col-md-6">
+                                        <div class="form-group-2050">
+                                            <label class="form-label-2050">
+                                                Kilométrage de début <span class="required">*</span>
+                                            </label>
+                                            <input type="number" wire:model="debut_kilometrage"
+                                                class="form-control-2050" placeholder="Ex: 50000" min="0"
+                                                required>
+                                            <small class="form-help-2050">Kilométrage actuel du véhicule</small>
+                                            @error('debut_kilometrage')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="form-col-2050 col-md-6">
+                                        <div class="form-group-2050">
+                                            <label class="form-label-2050">
+                                                Carburant de début (%) <span class="required">*</span>
+                                            </label>
+                                            <input type="number" wire:model="debut_carburant"
+                                                class="form-control-2050" placeholder="Ex: 75" min="0"
+                                                max="100" step="0.1" required>
+                                            <small class="form-help-2050">Niveau de carburant actuel</small>
+                                            @error('debut_carburant')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
                             {{-- Géolocalisation --}}
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-6">
-                                    <label class="form-label-2050">Latitude <span class="text-danger">*</span></label>
-                                    <input type="number" wire:model="start_latitude" class="form-control-2050"
-                                        step="any" placeholder="Ex: 48.8566" required>
-                                    @error('start_latitude')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label-2050">Longitude <span
-                                            class="text-danger">*</span></label>
-                                    <input type="number" wire:model="start_longitude" class="form-control-2050"
-                                        step="any" placeholder="Ex: 2.3522" required>
-                                    @error('start_longitude')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                    @enderror
+                            <div class="form-section-2050 mb-4">
+                                <h6 class="section-title-2050">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Position GPS
+                                </h6>
+
+                                <div class="form-row-2050">
+                                    <div class="form-col-2050 col-md-6">
+                                        <div class="form-group-2050">
+                                            <label class="form-label-2050">
+                                                Latitude <span class="required">*</span>
+                                            </label>
+                                            <input type="number" wire:model="start_latitude"
+                                                class="form-control-2050" step="any" placeholder="Ex: 48.8566"
+                                                required>
+                                            <small class="form-help-2050">Position GPS automatique</small>
+                                            @error('start_latitude')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="form-col-2050 col-md-6">
+                                        <div class="form-group-2050">
+                                            <label class="form-label-2050">
+                                                Longitude <span class="required">*</span>
+                                            </label>
+                                            <input type="number" wire:model="start_longitude"
+                                                class="form-control-2050" step="any" placeholder="Ex: 2.3522"
+                                                required>
+                                            <small class="form-help-2050">Position GPS automatique</small>
+                                            @error('start_longitude')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
                             {{-- Photos --}}
-                            <div class="mb-4">
-                                <label class="form-label-2050">Photos de début <span
-                                        class="text-danger">*</span></label>
-                                <small class="text-muted d-block mb-2">Prenez au moins 3 photos : kilométrage,
-                                    carburant, plaque d'immatriculation</small>
-                                <input type="file" wire:model="start_photos" class="form-control-2050" multiple
-                                    accept="image/*" required>
-                                @error('start_photos')
-                                    <div class="text-danger mt-1">{{ $message }}</div>
-                                @enderror
-                                @error('start_photos.*')
-                                    <div class="text-danger mt-1">{{ $message }}</div>
-                                @enderror
+                            <div class="form-section-2050 mb-4">
+                                <h6 class="section-title-2050">
+                                    <i class="fas fa-camera me-2"></i>Photos de début
+                                </h6>
+
+                                <div class="form-row-2050">
+                                    <div class="form-col-2050 col-12">
+                                        <div class="form-group-2050">
+                                            <label class="form-label-2050">
+                                                Photos de début <span class="required">*</span>
+                                            </label>
+                                            <input type="file" wire:model="start_photos" class="form-control-2050"
+                                                multiple accept="image/*" required>
+                                            <small class="form-help-2050">Prenez au moins 3 photos : kilométrage,
+                                                carburant, plaque d'immatriculation</small>
+                                            @error('start_photos')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                            @error('start_photos.*')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             {{-- Boutons --}}
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-primary-2050 flex-fill">
+                            <div class="form-actions-2050">
+                                <button type="submit" class="btn btn-primary-2050">
                                     <i class="fas fa-play me-2"></i>Démarrer la Tâche
                                 </button>
                                 <button type="button" wire:click="closeStartModal" class="btn btn-outline-2050">
@@ -358,77 +404,134 @@
                             </div>
 
                             {{-- Kilométrage et Carburant --}}
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-6">
-                                    <label class="form-label-2050">Kilométrage de fin <span
-                                            class="text-danger">*</span></label>
-                                    <input type="number" wire:model="fin_kilometrage" class="form-control-2050"
-                                        placeholder="Ex: 50150" min="0" required>
-                                    @error('fin_kilometrage')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label-2050">Carburant de fin (%) <span
-                                            class="text-danger">*</span></label>
-                                    <input type="number" wire:model="fin_carburant" class="form-control-2050"
-                                        placeholder="Ex: 70" min="0" max="100" step="0.1" required>
-                                    @error('fin_carburant')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                    @enderror
+                            <div class="form-section-2050 mb-4">
+                                <h6 class="section-title-2050">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Données véhicule finales
+                                </h6>
+
+                                <div class="form-row-2050">
+                                    <div class="form-col-2050 col-md-6">
+                                        <div class="form-group-2050">
+                                            <label class="form-label-2050">
+                                                Kilométrage de fin <span class="required">*</span>
+                                            </label>
+                                            <input type="number" wire:model="fin_kilometrage"
+                                                class="form-control-2050" placeholder="Ex: 50150" min="0"
+                                                required>
+                                            <small class="form-help-2050">Kilométrage final du véhicule</small>
+                                            @error('fin_kilometrage')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="form-col-2050 col-md-6">
+                                        <div class="form-group-2050">
+                                            <label class="form-label-2050">
+                                                Carburant de fin (%) <span class="required">*</span>
+                                            </label>
+                                            <input type="number" wire:model="fin_carburant"
+                                                class="form-control-2050" placeholder="Ex: 70" min="0"
+                                                max="100" step="0.1" required>
+                                            <small class="form-help-2050">Niveau de carburant final</small>
+                                            @error('fin_carburant')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
                             {{-- Géolocalisation --}}
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-6">
-                                    <label class="form-label-2050">Latitude <span class="text-danger">*</span></label>
-                                    <input type="number" wire:model="end_latitude" class="form-control-2050"
-                                        step="any" placeholder="Ex: 48.8566" required>
-                                    @error('end_latitude')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label-2050">Longitude <span
-                                            class="text-danger">*</span></label>
-                                    <input type="number" wire:model="end_longitude" class="form-control-2050"
-                                        step="any" placeholder="Ex: 2.3522" required>
-                                    @error('end_longitude')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                    @enderror
+                            <div class="form-section-2050 mb-4">
+                                <h6 class="section-title-2050">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Position GPS finale
+                                </h6>
+
+                                <div class="form-row-2050">
+                                    <div class="form-col-2050 col-md-6">
+                                        <div class="form-group-2050">
+                                            <label class="form-label-2050">
+                                                Latitude <span class="required">*</span>
+                                            </label>
+                                            <input type="number" wire:model="end_latitude" class="form-control-2050"
+                                                step="any" placeholder="Ex: 48.8566" required>
+                                            <small class="form-help-2050">Position GPS automatique</small>
+                                            @error('end_latitude')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="form-col-2050 col-md-6">
+                                        <div class="form-group-2050">
+                                            <label class="form-label-2050">
+                                                Longitude <span class="required">*</span>
+                                            </label>
+                                            <input type="number" wire:model="end_longitude"
+                                                class="form-control-2050" step="any" placeholder="Ex: 2.3522"
+                                                required>
+                                            <small class="form-help-2050">Position GPS automatique</small>
+                                            @error('end_longitude')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
                             {{-- Photos --}}
-                            <div class="mb-4">
-                                <label class="form-label-2050">Photos de fin <span
-                                        class="text-danger">*</span></label>
-                                <small class="text-muted d-block mb-2">Prenez au moins 3 photos : kilométrage,
-                                    carburant, plaque d'immatriculation</small>
-                                <input type="file" wire:model="end_photos" class="form-control-2050" multiple
-                                    accept="image/*" required>
-                                @error('end_photos')
-                                    <div class="text-danger mt-1">{{ $message }}</div>
-                                @enderror
-                                @error('end_photos.*')
-                                    <div class="text-danger mt-1">{{ $message }}</div>
-                                @enderror
+                            <div class="form-section-2050 mb-4">
+                                <h6 class="section-title-2050">
+                                    <i class="fas fa-camera me-2"></i>Photos de fin
+                                </h6>
+
+                                <div class="form-row-2050">
+                                    <div class="form-col-2050 col-12">
+                                        <div class="form-group-2050">
+                                            <label class="form-label-2050">
+                                                Photos de fin <span class="required">*</span>
+                                            </label>
+                                            <input type="file" wire:model="end_photos" class="form-control-2050"
+                                                multiple accept="image/*" required>
+                                            <small class="form-help-2050">Prenez au moins 3 photos : kilométrage,
+                                                carburant, plaque d'immatriculation</small>
+                                            @error('end_photos')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                            @error('end_photos.*')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             {{-- Description --}}
-                            <div class="mb-4">
-                                <label class="form-label-2050">Description de fin</label>
-                                <textarea wire:model="description_fin" class="form-control-2050" rows="3"
-                                    placeholder="Décrivez les détails de la tâche terminée..."></textarea>
-                                @error('description_fin')
-                                    <div class="text-danger mt-1">{{ $message }}</div>
-                                @enderror
+                            <div class="form-section-2050 mb-4">
+                                <h6 class="section-title-2050">
+                                    <i class="fas fa-align-left me-2"></i>Description de fin
+                                </h6>
+
+                                <div class="form-row-2050">
+                                    <div class="form-col-2050 col-12">
+                                        <div class="form-group-2050">
+                                            <label class="form-label-2050">Description de fin</label>
+                                            <textarea wire:model="description_fin" class="form-control-2050" rows="3"
+                                                placeholder="Décrivez les détails de la tâche terminée..."></textarea>
+                                            <small class="form-help-2050">Décrivez ce qui a été fait pendant cette
+                                                tâche</small>
+                                            @error('description_fin')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             {{-- Boutons --}}
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-success-2050 flex-fill">
+                            <div class="form-actions-2050">
+                                <button type="submit" class="btn btn-success-2050">
                                     <i class="fas fa-stop me-2"></i>Terminer la Tâche
                                 </button>
                                 <button type="button" wire:click="closeEndModal" class="btn btn-outline-2050">

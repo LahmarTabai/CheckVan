@@ -50,117 +50,163 @@
             </div>
             <div class="card-body p-4">
                 <form wire:submit.prevent="{{ $isEdit ? 'update' : 'save' }}">
-                    <div class="row g-4">
-                        <div class="col-md-4">
-                            <label class="form-label-2050">Chauffeur *</label>
-                            <div class="position-relative">
-                                <input type="text" wire:model.live="searchChauffeur"
-                                    wire:focus="showChauffeurDropdown = true" class="form-control-2050"
-                                    placeholder="Rechercher un chauffeur..." autocomplete="off">
+                    <div class="form-section-2050">
+                        <h6 class="section-title-2050">
+                            <i class="fas fa-user-tie me-2"></i>Sélection du chauffeur
+                        </h6>
 
-                                @if ($showChauffeurDropdown && $chauffeurs->count() > 0)
-                                    <div class="dropdown-menu-2050 show w-100"
-                                        style="max-height: 200px; overflow-y: auto;">
-                                        @foreach ($chauffeurs as $c)
-                                            <div class="dropdown-item-2050"
-                                                wire:click="selectChauffeur({{ $c->user_id }}, '{{ $c->nom }} {{ $c->prenom }}')"
-                                                style="cursor: pointer;">
-                                                {{ $c->nom }} {{ $c->prenom }}
+                        <div class="form-row-2050">
+                            <div class="form-col-2050 col-md-4">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Chauffeur <span class="required">*</span>
+                                    </label>
+                                    <div class="position-relative">
+                                        <input type="text" wire:model.live="searchChauffeur"
+                                            wire:focus="showChauffeurDropdown = true" class="form-control-2050"
+                                            placeholder="Rechercher un chauffeur..." autocomplete="off">
+
+                                        @if ($showChauffeurDropdown && $chauffeurs->count() > 0)
+                                            <div class="dropdown-menu-2050 show w-100"
+                                                style="max-height: 200px; overflow-y: auto;">
+                                                @foreach ($chauffeurs as $c)
+                                                    <div class="dropdown-item-2050"
+                                                        wire:click="selectChauffeur({{ $c->user_id }}, '{{ $c->nom }} {{ $c->prenom }}')"
+                                                        style="cursor: pointer;">
+                                                        {{ $c->nom }} {{ $c->prenom }}
+                                                    </div>
+                                                @endforeach
                                             </div>
-                                        @endforeach
+                                        @endif
+
+                                        @if ($chauffeur_id)
+                                            <small class="text-success">
+                                                <i class="fas fa-check-circle me-1"></i>
+                                                Chauffeur sélectionné
+                                            </small>
+                                        @endif
                                     </div>
-                                @endif
-
-                                @if ($chauffeur_id)
-                                    <small class="text-success">
-                                        <i class="fas fa-check-circle me-1"></i>
-                                        Chauffeur sélectionné
-                                    </small>
-                                @endif
+                                    @error('chauffeur_id')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
-                            <small class="text-muted">Chauffeurs disponibles : {{ $chauffeurs->count() }}</small>
-                            @error('chauffeur_id')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
 
-                        <div class="col-md-4">
-                            <label class="form-label-2050">Véhicule *</label>
-                            <div class="position-relative">
-                                <input type="text" wire:model.live="searchVehicule"
-                                    wire:focus="showVehiculeDropdown = true" class="form-control-2050"
-                                    placeholder="Rechercher un véhicule..." autocomplete="off">
+                            <div class="form-col-2050 col-md-4">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Véhicule <span class="required">*</span>
+                                    </label>
+                                    <div class="position-relative">
+                                        <input type="text" wire:model.live="searchVehicule"
+                                            wire:focus="showVehiculeDropdown = true" class="form-control-2050"
+                                            placeholder="Rechercher un véhicule..." autocomplete="off">
 
-                                @if ($showVehiculeDropdown && $vehicules->count() > 0)
-                                    <div class="dropdown-menu-2050 show w-100"
-                                        style="max-height: 200px; overflow-y: auto;">
-                                        @foreach ($vehicules as $v)
-                                            <div class="dropdown-item-2050"
-                                                wire:click="selectVehicule({{ $v->id }}, '{{ $v->marque->nom ?? 'N/A' }} {{ $v->modele->nom ?? '' }} - {{ $v->immatriculation }}')"
-                                                style="cursor: pointer;">
-                                                {{ $v->marque->nom ?? 'N/A' }} {{ $v->modele->nom ?? '' }} -
-                                                {{ $v->immatriculation }}
+                                        @if ($showVehiculeDropdown && $vehicules->count() > 0)
+                                            <div class="dropdown-menu-2050 show w-100"
+                                                style="max-height: 200px; overflow-y: auto;">
+                                                @foreach ($vehicules as $v)
+                                                    <div class="dropdown-item-2050"
+                                                        wire:click="selectVehicule({{ $v->id }}, '{{ $v->marque->nom ?? 'N/A' }} {{ $v->modele->nom ?? '' }} - {{ $v->immatriculation }}')"
+                                                        style="cursor: pointer;">
+                                                        {{ $v->marque->nom ?? 'N/A' }} {{ $v->modele->nom ?? '' }} -
+                                                        {{ $v->immatriculation }}
+                                                    </div>
+                                                @endforeach
                                             </div>
-                                        @endforeach
+                                        @endif
+
+                                        @if ($vehicule_id)
+                                            <small class="text-success">
+                                                <i class="fas fa-check-circle me-1"></i>
+                                                Véhicule sélectionné
+                                            </small>
+                                        @endif
                                     </div>
-                                @endif
-
-                                @if ($vehicule_id)
-                                    <small class="text-success">
-                                        <i class="fas fa-check-circle me-1"></i>
-                                        Véhicule sélectionné
-                                    </small>
-                                @endif
+                                    <small class="form-help-2050">Véhicules disponibles :
+                                        {{ $vehicules->count() }}</small>
+                                    @error('vehicule_id')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
-                            <small class="text-muted">Véhicules disponibles : {{ $vehicules->count() }}</small>
-                            @error('vehicule_id')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
 
-                        <div class="col-md-4">
-                            <label class="form-label-2050">Statut</label>
-                            <select wire:model="status" class="form-control-2050 select2-2050">
-                                <option value="en_cours">En cours</option>
-                                <option value="terminée">Terminée</option>
-                            </select>
+                            <div class="form-col-2050 col-md-4">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Statut</label>
+                                    <select wire:model="status" class="form-control-2050 select2-2050">
+                                        <option value="en_cours">En cours</option>
+                                        <option value="terminée">Terminée</option>
+                                    </select>
+                                    @error('status')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
+                    </div>
 
-                        <div class="col-md-6">
-                            <label class="form-label-2050">Date de début *</label>
-                            <input type="date" wire:model="date_debut" class="form-control-2050">
-                            @error('date_debut')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
+                    <div class="form-section-2050">
+                        <h6 class="section-title-2050">
+                            <i class="fas fa-calendar-alt me-2"></i>Planning de l'affectation
+                        </h6>
+
+                        <div class="form-row-2050">
+                            <div class="form-col-2050 col-md-6">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Date de début <span class="required">*</span>
+                                    </label>
+                                    <input type="date" wire:model="date_debut" class="form-control-2050">
+                                    <small class="form-help-2050">Date de début de l'affectation</small>
+                                    @error('date_debut')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-6">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Date de fin</label>
+                                    <input type="date" wire:model="date_fin" class="form-control-2050">
+                                    <small class="form-help-2050">Date de fin de l'affectation (optionnel)</small>
+                                    @error('date_fin')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
+                    </div>
 
-                        <div class="col-md-6">
-                            <label class="form-label-2050">Date de fin</label>
-                            <input type="date" wire:model="date_fin" class="form-control-2050">
-                            @error('date_fin')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
+                    <div class="form-section-2050">
+                        <h6 class="section-title-2050">
+                            <i class="fas fa-align-left me-2"></i>Description
+                        </h6>
+
+                        <div class="form-row-2050">
+                            <div class="form-col-2050 col-12">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Description</label>
+                                    <textarea wire:model="description" class="form-control-2050" rows="3"
+                                        placeholder="Description de l'affectation..."></textarea>
+                                    <small class="form-help-2050">Décrivez les détails de cette affectation</small>
+                                    @error('description')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
+                    </div>
 
-                        <div class="col-12">
-                            <label class="form-label-2050">Description</label>
-                            <textarea wire:model="description" class="form-control-2050" rows="3"
-                                placeholder="Description de l'affectation..."></textarea>
-                            @error('description')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary-2050 me-3">
-                                <i class="fas fa-save me-2"></i>{{ $isEdit ? 'Modifier' : 'Ajouter' }} Affectation
+                    <div class="form-actions-2050">
+                        <button type="submit" class="btn btn-primary-2050">
+                            <i class="fas fa-save me-2"></i>{{ $isEdit ? 'Modifier' : 'Ajouter' }} Affectation
+                        </button>
+                        @if ($isEdit)
+                            <button type="button" wire:click="resetForm" class="btn btn-outline-2050">
+                                <i class="fas fa-times me-2"></i>Annuler
                             </button>
-                            @if ($isEdit)
-                                <button type="button" wire:click="resetForm" class="btn btn-outline-2050">
-                                    <i class="fas fa-times me-2"></i>Annuler
-                                </button>
-                            @endif
-                        </div>
+                        @endif
                     </div>
                 </form>
             </div>
@@ -174,29 +220,38 @@
                 </h6>
             </div>
             <div class="card-body p-4">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label-2050">Statut</label>
-                        <select wire:model.live="filterStatus" class="form-control-2050 select2-2050">
-                            <option value="">Tous</option>
-                            <option value="en_cours">En cours</option>
-                            <option value="terminée">Terminée</option>
-                        </select>
+                <div class="form-row-2050">
+                    <div class="form-col-2050 col-md-4">
+                        <div class="form-group-2050">
+                            <label class="form-label-2050">Statut</label>
+                            <select wire:model.live="filterStatus" class="form-control-2050 select2-2050">
+                                <option value="">Tous</option>
+                                <option value="en_cours">En cours</option>
+                                <option value="terminée">Terminée</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label-2050">Chauffeur</label>
-                        <select wire:model.live="filterChauffeur" class="form-control-2050 select2-2050">
-                            <option value="">Tous</option>
-                            @foreach ($chauffeurs as $c)
-                                <option value="{{ $c->user_id }}">{{ $c->nom }} {{ $c->prenom }}</option>
-                            @endforeach
-                        </select>
+
+                    <div class="form-col-2050 col-md-4">
+                        <div class="form-group-2050">
+                            <label class="form-label-2050">Chauffeur</label>
+                            <select wire:model.live="filterChauffeur" class="form-control-2050 select2-2050">
+                                <option value="">Tous</option>
+                                @foreach ($chauffeurs as $c)
+                                    <option value="{{ $c->user_id }}">{{ $c->nom }} {{ $c->prenom }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label-2050">&nbsp;</label>
-                        <button wire:click="resetFilters" class="btn btn-outline-2050 w-100">
-                            <i class="fas fa-times me-2"></i>Effacer les filtres
-                        </button>
+
+                    <div class="form-col-2050 col-md-4">
+                        <div class="form-group-2050">
+                            <label class="form-label-2050">&nbsp;</label>
+                            <button wire:click="resetFilters" class="btn btn-outline-2050 w-100">
+                                <i class="fas fa-times me-2"></i>Effacer les filtres
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

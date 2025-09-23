@@ -28,197 +28,313 @@
             </div>
             <div class="card-body p-4">
                 <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}">
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <label class="form-label-2050">Immatriculation *</label>
-                            <input type="text" wire:model="immatriculation" class="form-control-2050"
-                                placeholder="Ex: AB-123-CD">
-                            @error('immatriculation')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
+                    <div class="form-section-2050">
+                        <h6 class="section-title-2050">
+                            <i class="fas fa-info-circle me-2"></i>Informations de base
+                        </h6>
 
-                        <div class="col-md-6">
-                            <label class="form-label-2050">Type de véhicule *</label>
-                            <select wire:model.live="type" class="form-control-2050 select2-2050">
-                                <option value="">-- Sélectionner le type --</option>
-                                <option value="propriete">Propriété</option>
-                                <option value="location">Location</option>
-                            </select>
-                            @error('type')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label-2050"> Marque *</label>
-                            <select wire:model.live="marque_id" class="form-control-2050 select2-2050">
-                                <option value="">-- Sélectionner une marque --</option>
-                                @foreach ($marques as $marque)
-                                    <option value="{{ $marque->id }}">{{ $marque->nom }}</option>
-                                @endforeach
-                            </select>
-                            @error('marque_id')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label-2050">Modèle *</label>
-                            <select wire:model="modele_id" class="form-control-2050 select2-2050">
-                                <option value="">-- Sélectionner un modèle --</option>
-                                @foreach ($modeles as $modele)
-                                    <option value="{{ $modele->id }}">{{ $modele->nom }}</option>
-                                @endforeach
-                            </select>
-                            @error('modele_id')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label-2050">Couleur *</label>
-                            <select wire:model="couleur" class="form-control-2050 select2-2050">
-                                <option value="">-- Sélectionner une couleur --</option>
-                                @foreach ($couleurs as $couleur)
-                                    <option value="{{ $couleur }}">{{ $couleur }}</option>
-                                @endforeach
-                            </select>
-                            @error('couleur')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label-2050">Année *</label>
-                            <input type="number" wire:model="annee" class="form-control-2050" min="1990"
-                                max="{{ date('Y') + 1 }}" placeholder="2024">
-                            @error('annee')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label-2050">Kilométrage</label>
-                            <input type="number" wire:model="kilometrage" class="form-control-2050" placeholder="0">
-                            @error('kilometrage')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label-2050">Statut *</label>
-                            <select wire:model="statut" class="form-control-2050 select2-2050">
-                                <option value="">-- Sélectionner le statut --</option>
-                                <option value="disponible">Disponible</option>
-                                <option value="en_mission">En mission</option>
-                                <option value="en_maintenance">En maintenance</option>
-                                <option value="hors_service">Hors service</option>
-                            </select>
-                            @error('statut')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label-2050">Prochaine révision</label>
-                            <input type="date" wire:model="prochaine_revision" class="form-control-2050">
-                            @error('prochaine_revision')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label-2050">Numéro de châssis</label>
-                            <input type="text" wire:model="numero_chassis" class="form-control-2050"
-                                placeholder="Ex: VF1234567890123456">
-                            @error('numero_chassis')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label-2050">Numéro de moteur</label>
-                            <input type="text" wire:model="numero_moteur" class="form-control-2050"
-                                placeholder="Ex: MOTEUR123456">
-                            @error('numero_moteur')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label-2050">Dernière révision</label>
-                            <input type="date" wire:model="derniere_revision" class="form-control-2050">
-                            @error('derniere_revision')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label-2050">Description</label>
-                            <textarea wire:model="description" class="form-control-2050" rows="3"
-                                placeholder="Description du véhicule, équipements, état général..."></textarea>
-                            @error('description')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        @if ($type === 'propriete')
-                            <div class="col-md-6">
-                                <label class="form-label-2050">Prix d'achat (€)</label>
-                                <input type="number" wire:model="prix_achat" class="form-control-2050"
-                                    step="0.01" placeholder="0.00">
-                                @error('prix_achat')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
+                        <div class="form-row-2050">
+                            <div class="form-col-2050 col-md-6">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Immatriculation <span class="required">*</span>
+                                    </label>
+                                    <input type="text" wire:model="immatriculation" class="form-control-2050"
+                                        placeholder="Ex: AB-123-CD">
+                                    <small class="form-help-2050">Numéro d'immatriculation du véhicule</small>
+                                    @error('immatriculation')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label-2050">Date d'achat</label>
-                                <input type="date" wire:model="date_achat" class="form-control-2050">
-                                @error('date_achat')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
-                            </div>
-                        @elseif($type === 'location')
-                            <div class="col-md-6">
-                                <label class="form-label-2050">Prix de location/jour (€)</label>
-                                <input type="number" wire:model="prix_location" class="form-control-2050"
-                                    step="0.01" placeholder="0.00">
-                                @error('prix_location')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label-2050">Date de location</label>
-                                <input type="date" wire:model="date_location" class="form-control-2050">
-                                @error('date_location')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
-                            </div>
-                        @endif
 
-                        <div class="col-12">
-                            <label class="form-label-2050">Photos du véhicule</label>
-                            <input type="file" wire:model="photos" class="form-control-2050" multiple
-                                accept="image/*">
-                            <small class="text-muted">Formats acceptés : JPG, PNG, GIF. Taille max : 8MB par
-                                photo.</small>
-                            @error('photos.*')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary-2050 me-3">
-                                <i class="fas fa-save me-2"></i>{{ $isEdit ? 'Modifier' : 'Ajouter' }} Véhicule
-                            </button>
-                            @if ($isEdit)
-                                <button type="button" wire:click="resetForm" class="btn btn-outline-2050">
-                                    <i class="fas fa-times me-2"></i>Annuler
-                                </button>
-                            @endif
+                            <div class="form-col-2050 col-md-6">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Type de véhicule <span class="required">*</span>
+                                    </label>
+                                    <select wire:model.live="type" class="form-control-2050 select2-2050">
+                                        <option value="">-- Sélectionner le type --</option>
+                                        <option value="propriete">Propriété</option>
+                                        <option value="location">Location</option>
+                                    </select>
+                                    <small class="form-help-2050">Propriété de l'entreprise ou véhicule en
+                                        location</small>
+                                    @error('type')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    <div class="form-section-2050">
+                        <h6 class="section-title-2050">
+                            <i class="fas fa-car me-2"></i>Caractéristiques du véhicule
+                        </h6>
+
+                        <div class="form-row-2050">
+                            <div class="form-col-2050 col-md-4">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Marque <span class="required">*</span>
+                                    </label>
+                                    <select wire:model.live="marque_id" class="form-control-2050 select2-2050">
+                                        <option value="">-- Sélectionner une marque --</option>
+                                        @foreach ($marques as $marque)
+                                            <option value="{{ $marque->id }}">{{ $marque->nom }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('marque_id')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-4">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Modèle <span class="required">*</span>
+                                    </label>
+                                    <select wire:model="modele_id" class="form-control-2050 select2-2050">
+                                        <option value="">-- Sélectionner un modèle --</option>
+                                        @foreach ($modeles as $modele)
+                                            <option value="{{ $modele->id }}">{{ $modele->nom }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('modele_id')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-4">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Couleur <span class="required">*</span>
+                                    </label>
+                                    <select wire:model="couleur" class="form-control-2050 select2-2050">
+                                        <option value="">-- Sélectionner une couleur --</option>
+                                        @foreach ($couleurs as $couleur)
+                                            <option value="{{ $couleur }}">{{ $couleur }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('couleur')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row-2050">
+                            <div class="form-col-2050 col-md-3">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Année <span class="required">*</span>
+                                    </label>
+                                    <input type="number" wire:model="annee" class="form-control-2050" min="1990"
+                                        max="{{ date('Y') + 1 }}" placeholder="2024">
+                                    <small class="form-help-2050">Année de fabrication du véhicule</small>
+                                    @error('annee')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-3">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Kilométrage</label>
+                                    <input type="number" wire:model="kilometrage" class="form-control-2050"
+                                        placeholder="0">
+                                    <small class="form-help-2050">Kilométrage actuel du véhicule</small>
+                                    @error('kilometrage')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-3">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Statut <span class="required">*</span>
+                                    </label>
+                                    <select wire:model="statut" class="form-control-2050 select2-2050">
+                                        <option value="">-- Sélectionner le statut --</option>
+                                        <option value="disponible">Disponible</option>
+                                        <option value="en_mission">En mission</option>
+                                        <option value="en_maintenance">En maintenance</option>
+                                        <option value="hors_service">Hors service</option>
+                                    </select>
+                                    @error('statut')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section-2050">
+                        <h6 class="section-title-2050">
+                            <i class="fas fa-cogs me-2"></i>Informations techniques
+                        </h6>
+
+                        <div class="form-row-2050">
+                            <div class="form-col-2050 col-md-3">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Prochaine révision</label>
+                                    <input type="date" wire:model="prochaine_revision" class="form-control-2050">
+                                    <small class="form-help-2050">Date de la prochaine révision prévue</small>
+                                    @error('prochaine_revision')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-3">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Dernière révision</label>
+                                    <input type="date" wire:model="derniere_revision" class="form-control-2050">
+                                    <small class="form-help-2050">Date de la dernière révision effectuée</small>
+                                    @error('derniere_revision')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-6">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Numéro de châssis</label>
+                                    <input type="text" wire:model="numero_chassis" class="form-control-2050"
+                                        placeholder="Ex: VF1234567890123456">
+                                    <small class="form-help-2050">Numéro d'identification du châssis (VIN)</small>
+                                    @error('numero_chassis')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row-2050">
+                            <div class="form-col-2050 col-md-6">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Numéro de moteur</label>
+                                    <input type="text" wire:model="numero_moteur" class="form-control-2050"
+                                        placeholder="Ex: MOTEUR123456">
+                                    <small class="form-help-2050">Numéro d'identification du moteur</small>
+                                    @error('numero_moteur')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-6">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Description</label>
+                                    <textarea wire:model="description" class="form-control-2050" rows="3"
+                                        placeholder="Description du véhicule, équipements, état général..."></textarea>
+                                    <small class="form-help-2050">Informations complémentaires sur le véhicule</small>
+                                    @error('description')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if ($type === 'propriete')
+                        <div class="form-section-2050">
+                            <h6 class="section-title-2050">
+                                <i class="fas fa-euro-sign me-2"></i>Informations d'achat
+                            </h6>
+
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-md-6">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Prix d'achat (€)</label>
+                                        <input type="number" wire:model="prix_achat" class="form-control-2050"
+                                            step="0.01" placeholder="0.00">
+                                        <small class="form-help-2050">Prix d'achat du véhicule en euros</small>
+                                        @error('prix_achat')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-col-2050 col-md-6">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Date d'achat</label>
+                                        <input type="date" wire:model="date_achat" class="form-control-2050">
+                                        <small class="form-help-2050">Date d'acquisition du véhicule</small>
+                                        @error('date_achat')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @elseif($type === 'location')
+                        <div class="form-section-2050">
+                            <h6 class="section-title-2050">
+                                <i class="fas fa-handshake me-2"></i>Informations de location
+                            </h6>
+
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-md-6">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Prix de location/jour (€)</label>
+                                        <input type="number" wire:model="prix_location" class="form-control-2050"
+                                            step="0.01" placeholder="0.00">
+                                        <small class="form-help-2050">Coût de location par jour en euros</small>
+                                        @error('prix_location')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-col-2050 col-md-6">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Date de location</label>
+                                        <input type="date" wire:model="date_location" class="form-control-2050">
+                                        <small class="form-help-2050">Date de début de la location</small>
+                                        @error('date_location')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="form-section-2050">
+                        <h6 class="section-title-2050">
+                            <i class="fas fa-images me-2"></i>Photos du véhicule
+                        </h6>
+
+                        <div class="form-row-2050">
+                            <div class="form-col-2050 col-12">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Photos du véhicule</label>
+                                    <input type="file" wire:model="photos" class="form-control-2050" multiple
+                                        accept="image/*">
+                                    <small class="form-help-2050">Formats acceptés : JPG, PNG, GIF. Taille max : 8MB
+                                        par photo.</small>
+                                    @error('photos.*')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions-2050">
+                        <button type="submit" class="btn btn-primary-2050">
+                            <i class="fas fa-save me-2"></i>{{ $isEdit ? 'Modifier' : 'Ajouter' }} Véhicule
+                        </button>
+                        @if ($isEdit)
+                            <button type="button" wire:click="resetForm" class="btn btn-outline-2050">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </button>
+                        @endif
                 </form>
             </div>
         </div>
@@ -231,53 +347,69 @@
                 </h6>
             </div>
             <div class="card-body p-4">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label-2050">Recherche générale</label>
-                        <input type="text" wire:model.live="search" class="form-control-2050"
-                            placeholder="Immatriculation, marque, modèle...">
+                <div class="form-row-2050">
+                    <div class="form-col-2050 col-md-3">
+                        <div class="form-group-2050">
+                            <label class="form-label-2050">Recherche générale</label>
+                            <input type="text" wire:model.live="search" class="form-control-2050"
+                                placeholder="Immatriculation, marque, modèle...">
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label-2050">Type</label>
-                        <select wire:model.live="filterType" class="form-control-2050 select2-2050">
-                            <option value="">Tous</option>
-                            <option value="propriete">Propriété</option>
-                            <option value="location">Location</option>
-                        </select>
+
+                    <div class="form-col-2050 col-md-2">
+                        <div class="form-group-2050">
+                            <label class="form-label-2050">Type</label>
+                            <select wire:model.live="filterType" class="form-control-2050 select2-2050">
+                                <option value="">Tous</option>
+                                <option value="propriete">Propriété</option>
+                                <option value="location">Location</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label-2050">Statut</label>
-                        <select wire:model.live="filterStatut" class="form-control-2050 select2-2050">
-                            <option value="">Tous</option>
-                            <option value="disponible">Disponible</option>
-                            <option value="en_mission">En mission</option>
-                            <option value="en_maintenance">En maintenance</option>
-                            <option value="hors_service">Hors service</option>
-                        </select>
+
+                    <div class="form-col-2050 col-md-2">
+                        <div class="form-group-2050">
+                            <label class="form-label-2050">Statut</label>
+                            <select wire:model.live="filterStatut" class="form-control-2050 select2-2050">
+                                <option value="">Tous</option>
+                                <option value="disponible">Disponible</option>
+                                <option value="en_mission">En mission</option>
+                                <option value="en_maintenance">En maintenance</option>
+                                <option value="hors_service">Hors service</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label-2050">Marque</label>
-                        <select wire:model.live="filterMarque" class="form-control-2050 select2-2050">
-                            <option value="">Toutes</option>
-                            @foreach ($marques as $marque)
-                                <option value="{{ $marque->id }}">{{ $marque->nom }}</option>
-                            @endforeach
-                        </select>
+                    <div class="form-col-2050 col-md-2">
+                        <div class="form-group-2050">
+                            <label class="form-label-2050">Marque</label>
+                            <select wire:model.live="filterMarque" class="form-control-2050 select2-2050">
+                                <option value="">Toutes</option>
+                                @foreach ($marques as $marque)
+                                    <option value="{{ $marque->id }}">{{ $marque->nom }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label-2050">Modèle</label>
-                        <select wire:model.live="filterModele" class="form-control-2050 select2-2050">
-                            <option value="">Tous</option>
-                            @foreach ($modeles as $modele)
-                                <option value="{{ $modele->id }}">{{ $modele->nom }}</option>
-                            @endforeach
-                        </select>
+
+                    <div class="form-col-2050 col-md-2">
+                        <div class="form-group-2050">
+                            <label class="form-label-2050">Modèle</label>
+                            <select wire:model.live="filterModele" class="form-control-2050 select2-2050">
+                                <option value="">Tous</option>
+                                @foreach ($modeles as $modele)
+                                    <option value="{{ $modele->id }}">{{ $modele->nom }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-1">
-                        <label class="form-label-2050">&nbsp;</label>
-                        <button wire:click="resetFilters" class="btn btn-outline-2050 w-100">
-                            <i class="fas fa-times"></i>
-                        </button>
+
+                    <div class="form-col-2050 col-md-1">
+                        <div class="form-group-2050">
+                            <label class="form-label-2050">&nbsp;</label>
+                            <button wire:click="resetFilters" class="btn btn-outline-2050 w-100">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

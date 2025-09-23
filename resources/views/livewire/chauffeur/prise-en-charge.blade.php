@@ -30,24 +30,38 @@
                 </div>
                 <div class="card-body p-4">
                     <form wire:submit.prevent="prendreEnCharge">
-                        <div class="mb-4">
-                            <label class="form-label-2050">Véhicule disponible <span
-                                    class="text-danger">*</span></label>
-                            <select wire:model="vehicule_id" class="form-control-2050 select2-2050">
-                                <option value="">-- Choisir un véhicule --</option>
-                                @foreach ($vehicules as $vehicule)
-                                    <option value="{{ $vehicule->id }}">
-                                        {{ $vehicule->immatriculation }} - {{ $vehicule->marque->nom ?? 'N/A' }}
-                                        {{ $vehicule->modele->nom ?? 'N/A' }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('vehicule_id')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
+                        <div class="form-section-2050">
+                            <h6 class="section-title-2050">
+                                <i class="fas fa-car me-2"></i>Sélection du véhicule
+                            </h6>
+
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-12">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Véhicule disponible <span class="required">*</span>
+                                        </label>
+                                        <select wire:model="vehicule_id" class="form-control-2050 select2-2050">
+                                            <option value="">-- Choisir un véhicule --</option>
+                                            @foreach ($vehicules as $vehicule)
+                                                <option value="{{ $vehicule->id }}">
+                                                    {{ $vehicule->immatriculation }} -
+                                                    {{ $vehicule->marque->nom ?? 'N/A' }}
+                                                    {{ $vehicule->modele->nom ?? 'N/A' }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <small class="form-help-2050">Sélectionnez le véhicule que vous souhaitez
+                                            prendre en charge</small>
+                                        @error('vehicule_id')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="d-flex gap-3">
+                        <div class="form-actions-2050">
                             <button type="submit" class="btn btn-primary-2050" {{ !$vehicule_id ? 'disabled' : '' }}>
                                 <i class="fas fa-hand-paper me-2"></i>Prendre en Charge
                             </button>

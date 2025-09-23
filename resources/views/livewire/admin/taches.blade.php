@@ -29,110 +29,166 @@
             </div>
             <div class="card-body p-4">
                 <form wire:submit.prevent="{{ $isEdit ? 'update' : 'create' }}">
-                    <div class="row g-4">
-                        <div class="col-md-4">
-                            <label class="form-label-2050">Chauffeur <span class="text-danger">*</span></label>
-                            <select wire:model="chauffeur_id" class="form-control-2050 select2-2050">
-                                <option value="">Sélectionner un chauffeur</option>
-                                @foreach ($chauffeurs as $chauffeur)
-                                    <option value="{{ $chauffeur->user_id }}">
-                                        {{ $chauffeur->nom }} {{ $chauffeur->prenom }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('chauffeur_id')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label-2050">Véhicule <span class="text-danger">*</span></label>
-                            <select wire:model="vehicule_id" class="form-control-2050 select2-2050">
-                                <option value="">Sélectionner un véhicule</option>
-                                @foreach ($vehicules as $vehicule)
-                                    <option value="{{ $vehicule->id }}">
-                                        {{ $vehicule->immatriculation }} - {{ $vehicule->marque->nom ?? 'N/A' }}
-                                        {{ $vehicule->modele->nom ?? 'N/A' }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('vehicule_id')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label-2050">Date de début <span class="text-danger">*</span></label>
-                            <input type="datetime-local" wire:model="start_date" class="form-control-2050">
-                            @error('start_date')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
+                    <div class="form-section-2050">
+                        <h6 class="section-title-2050">
+                            <i class="fas fa-info-circle me-2"></i>Informations de base
+                        </h6>
+
+                        <div class="form-row-2050">
+                            <div class="form-col-2050 col-md-4">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Chauffeur <span class="required">*</span>
+                                    </label>
+                                    <select wire:model="chauffeur_id" class="form-control-2050 select2-2050">
+                                        <option value="">Sélectionner un chauffeur</option>
+                                        @foreach ($chauffeurs as $chauffeur)
+                                            <option value="{{ $chauffeur->user_id }}">
+                                                {{ $chauffeur->nom }} {{ $chauffeur->prenom }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('chauffeur_id')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-4">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Véhicule <span class="required">*</span>
+                                    </label>
+                                    <select wire:model="vehicule_id" class="form-control-2050 select2-2050">
+                                        <option value="">Sélectionner un véhicule</option>
+                                        @foreach ($vehicules as $vehicule)
+                                            <option value="{{ $vehicule->id }}">
+                                                {{ $vehicule->immatriculation }} -
+                                                {{ $vehicule->marque->nom ?? 'N/A' }}
+                                                {{ $vehicule->modele->nom ?? 'N/A' }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('vehicule_id')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-4">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Date de début <span class="required">*</span>
+                                    </label>
+                                    <input type="datetime-local" wire:model="start_date" class="form-control-2050">
+                                    @error('start_date')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Ligne 2: Type de tâche et description -->
-                    <div class="row g-4 mt-2">
-                        <div class="col-md-4">
-                            <label class="form-label-2050">Type de tâche <span class="text-danger">*</span></label>
-                            <select wire:model="type_tache" class="form-control-2050">
-                                <option value="autre">Autre</option>
-                                <option value="maintenance">Maintenance</option>
-                                <option value="livraison">Livraison</option>
-                                <option value="inspection">Inspection</option>
-                            </select>
-                            @error('type_tache')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-8">
-                            <label class="form-label-2050">Description</label>
-                            <textarea wire:model="description" class="form-control-2050" rows="2" placeholder="Description de la tâche..."></textarea>
-                            @error('description')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
+                    <div class="form-section-2050">
+                        <h6 class="section-title-2050">
+                            <i class="fas fa-tasks me-2"></i>Détails de la tâche
+                        </h6>
+
+                        <div class="form-row-2050">
+                            <div class="form-col-2050 col-md-4">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Type de tâche <span class="required">*</span>
+                                    </label>
+                                    <select wire:model="type_tache" class="form-control-2050 select2-2050">
+                                        <option value="autre">Autre</option>
+                                        <option value="maintenance">Maintenance</option>
+                                        <option value="livraison">Livraison</option>
+                                        <option value="inspection">Inspection</option>
+                                    </select>
+                                    @error('type_tache')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-8">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Description</label>
+                                    <textarea wire:model="description" class="form-control-2050" rows="3"
+                                        placeholder="Décrivez les détails de la tâche..."></textarea>
+                                    <small class="form-help-2050">Décrivez les instructions spécifiques pour cette
+                                        tâche</small>
+                                    @error('description')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Ligne 3: Kilométrage et carburant de début -->
-                    <div class="row g-4 mt-2">
-                        <div class="col-md-3">
-                            <label class="form-label-2050">Kilométrage de début</label>
-                            <input type="number" wire:model="debut_kilometrage" class="form-control-2050"
-                                placeholder="Ex: 50000" min="0">
-                            @error('debut_kilometrage')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label-2050">Carburant de début (%)</label>
-                            <input type="number" wire:model="debut_carburant" class="form-control-2050"
-                                placeholder="Ex: 75" min="0" max="100" step="0.1">
-                            @error('debut_carburant')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label-2050">Kilométrage de fin</label>
-                            <input type="number" wire:model="fin_kilometrage" class="form-control-2050"
-                                placeholder="Ex: 50150" min="0">
-                            @error('fin_kilometrage')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label-2050">Carburant de fin (%)</label>
-                            <input type="number" wire:model="fin_carburant" class="form-control-2050"
-                                placeholder="Ex: 70" min="0" max="100" step="0.1">
-                            @error('fin_carburant')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
+                    <div class="form-section-2050">
+                        <h6 class="section-title-2050">
+                            <i class="fas fa-tachometer-alt me-2"></i>Données véhicule
+                        </h6>
+
+                        <div class="form-row-2050">
+                            <div class="form-col-2050 col-md-3">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Kilométrage de début</label>
+                                    <input type="number" wire:model="debut_kilometrage" class="form-control-2050"
+                                        placeholder="Ex: 50000" min="0">
+                                    <small class="form-help-2050">Kilométrage au début de la tâche</small>
+                                    @error('debut_kilometrage')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-3">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Carburant de début (%)</label>
+                                    <input type="number" wire:model="debut_carburant" class="form-control-2050"
+                                        placeholder="Ex: 75" min="0" max="100" step="0.1">
+                                    <small class="form-help-2050">Niveau de carburant au début</small>
+                                    @error('debut_carburant')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-3">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Kilométrage de fin</label>
+                                    <input type="number" wire:model="fin_kilometrage" class="form-control-2050"
+                                        placeholder="Ex: 50150" min="0">
+                                    <small class="form-help-2050">Kilométrage à la fin de la tâche</small>
+                                    @error('fin_kilometrage')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-3">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Carburant de fin (%)</label>
+                                    <input type="number" wire:model="fin_carburant" class="form-control-2050"
+                                        placeholder="Ex: 70" min="0" max="100" step="0.1">
+                                    <small class="form-help-2050">Niveau de carburant à la fin</small>
+                                    @error('fin_carburant')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="mt-4 d-flex gap-2">
+                    <div class="form-actions-2050">
                         <button type="submit" class="btn btn-primary-2050">
                             <i class="fas fa-{{ $isEdit ? 'save' : 'plus' }} me-2"></i>
                             {{ $isEdit ? 'Mettre à jour' : 'Créer' }} la tâche
                         </button>
                         @if ($isEdit)
-                            <button type="button" wire:click="resetForm" class="btn btn-secondary-2050">
+                            <button type="button" wire:click="resetForm" class="btn btn-outline-2050">
                                 <i class="fas fa-times me-2"></i>Annuler
                             </button>
                         @endif
@@ -149,57 +205,73 @@
                 </h6>
             </div>
             <div class="card-body p-4">
-                <div class="row g-3">
-                    <!-- Ligne 1 -->
-                    <div class="col-md-3">
-                        <label class="form-label-2050">Recherche générale</label>
-                        <input type="text" wire:model.live="search" class="form-control-2050"
-                            placeholder="Chauffeur, véhicule, immatriculation...">
+                <div class="form-row-2050">
+                    <div class="form-col-2050 col-md-3">
+                        <div class="form-group-2050">
+                            <label class="form-label-2050">Recherche générale</label>
+                            <input type="text" wire:model.live="search" class="form-control-2050"
+                                placeholder="Chauffeur, véhicule, immatriculation...">
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label-2050">Statut</label>
-                        <select wire:model.live="statusFilter" class="form-control-2050 select2-2050">
-                            <option value="">Tous</option>
-                            <option value="en_attente">En attente</option>
-                            <option value="en_cours">En cours</option>
-                            <option value="terminée">Terminée</option>
-                        </select>
+
+                    <div class="form-col-2050 col-md-2">
+                        <div class="form-group-2050">
+                            <label class="form-label-2050">Statut</label>
+                            <select wire:model.live="statusFilter" class="form-control-2050 select2-2050">
+                                <option value="">Tous</option>
+                                <option value="en_attente">En attente</option>
+                                <option value="en_cours">En cours</option>
+                                <option value="terminée">Terminée</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label-2050">Validation</label>
-                        <select wire:model.live="validationFilter" class="form-control-2050 select2-2050">
-                            <option value="">Toutes</option>
-                            <option value="1">Validées</option>
-                            <option value="0">Non validées</option>
-                        </select>
+
+                    <div class="form-col-2050 col-md-2">
+                        <div class="form-group-2050">
+                            <label class="form-label-2050">Validation</label>
+                            <select wire:model.live="validationFilter" class="form-control-2050 select2-2050">
+                                <option value="">Toutes</option>
+                                <option value="1">Validées</option>
+                                <option value="0">Non validées</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label-2050">Chauffeur</label>
-                        <select wire:model.live="chauffeurFilter" class="form-control-2050 select2-2050">
-                            <option value="">Tous</option>
-                            @foreach ($chauffeurs as $chauffeur)
-                                <option value="{{ $chauffeur->user_id }}">
-                                    {{ $chauffeur->nom }} {{ $chauffeur->prenom }}
-                                </option>
-                            @endforeach
-                        </select>
+
+                    <div class="form-col-2050 col-md-2">
+                        <div class="form-group-2050">
+                            <label class="form-label-2050">Chauffeur</label>
+                            <select wire:model.live="chauffeurFilter" class="form-control-2050 select2-2050">
+                                <option value="">Tous</option>
+                                @foreach ($chauffeurs as $chauffeur)
+                                    <option value="{{ $chauffeur->user_id }}">
+                                        {{ $chauffeur->nom }} {{ $chauffeur->prenom }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label-2050">Véhicule</label>
-                        <select wire:model.live="vehiculeFilter" class="form-control-2050 select2-2050">
-                            <option value="">Tous</option>
-                            @foreach ($vehicules as $vehicule)
-                                <option value="{{ $vehicule->id }}">
-                                    {{ $vehicule->immatriculation }}
-                                </option>
-                            @endforeach
-                        </select>
+
+                    <div class="form-col-2050 col-md-2">
+                        <div class="form-group-2050">
+                            <label class="form-label-2050">Véhicule</label>
+                            <select wire:model.live="vehiculeFilter" class="form-control-2050 select2-2050">
+                                <option value="">Tous</option>
+                                @foreach ($vehicules as $vehicule)
+                                    <option value="{{ $vehicule->id }}">
+                                        {{ $vehicule->immatriculation }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-1">
-                        <label class="form-label-2050">&nbsp;</label>
-                        <button wire:click="resetFilters" class="btn btn-outline-2050 w-100">
-                            <i class="fas fa-times"></i>
-                        </button>
+
+                    <div class="form-col-2050 col-md-1">
+                        <div class="form-group-2050">
+                            <label class="form-label-2050">&nbsp;</label>
+                            <button wire:click="resetFilters" class="btn btn-outline-2050 w-100">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <!-- Ligne 2 -->
