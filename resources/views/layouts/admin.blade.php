@@ -175,38 +175,58 @@
         checkJQuery();
     </script>
 
-    {{-- Select2 2050 Initialization --}}
+    {{-- Select2 2050 - Solution robuste --}}
     <script>
-        // Attendre que jQuery soit disponible
+        // Fonction pour détruire proprement Select2
+        function destroySelect2() {
+            if (typeof jQuery !== 'undefined') {
+                $('.select2-2050').each(function() {
+                    if ($(this).hasClass('select2-hidden-accessible')) {
+                        try {
+                            $(this).select2('destroy');
+                        } catch (e) {
+                            console.log('Select2 déjà détruit');
+                        }
+                    }
+                });
+            }
+        }
+
+        // Fonction pour initialiser Select2
         function initializeSelect2() {
             if (typeof jQuery === 'undefined') {
-                console.error('❌ jQuery non disponible pour Select2 - réessai dans 100ms...');
-                setTimeout(initializeSelect2, 100);
+                console.error('❌ jQuery non disponible pour Select2');
                 return;
             }
 
             console.log('✅ Initialisation de Select2...');
 
-            // Initialize Select2 with 2050 theme
-            $('.select2-2050').select2({
-                theme: 'bootstrap-5',
-                width: '100%',
-                placeholder: 'Sélectionner...',
-                allowClear: true,
-                language: {
-                    noResults: function() {
-                        return "Aucun résultat trouvé";
-                    },
-                    searching: function() {
-                        return "Recherche en cours...";
-                    }
-                }
-            });
+            // Détruire d'abord les instances existantes
+            destroySelect2();
 
-            // Custom styling for 2050 theme
-            $('.select2-2050').on('select2:open', function() {
-                $('.select2-dropdown').addClass('select2-dropdown-2050');
-            });
+            // Attendre un peu que le DOM soit stable
+            setTimeout(function() {
+                // Initialize Select2 with 2050 theme
+                $('.select2-2050').select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: 'Sélectionner...',
+                    allowClear: true,
+                    language: {
+                        noResults: function() {
+                            return "Aucun résultat trouvé";
+                        },
+                        searching: function() {
+                            return "Recherche en cours...";
+                        }
+                    }
+                });
+
+                // Custom styling for 2050 theme
+                $('.select2-2050').on('select2:open', function() {
+                    $('.select2-dropdown').addClass('select2-dropdown-2050');
+                });
+            }, 100);
         }
 
         // Initialiser Select2 quand le DOM est prêt
@@ -214,15 +234,29 @@
             initializeSelect2();
         });
 
-        // Reinitialize Select2 after Livewire updates
-        document.addEventListener('livewire:navigated', function() {
-            initializeSelect2();
+        // Solution simple : Réinitialiser Select2 après chaque action Livewire
+        document.addEventListener('livewire:updated', function() {
+            console.log('🔄 Livewire updated - réinitialisation Select2...');
+            setTimeout(initializeSelect2, 100);
         });
 
-        // Reinitialize Select2 after Livewire component updates
-        document.addEventListener('livewire:updated', function() {
-            $('.select2-2050').select2('destroy');
-            initializeSelect2();
+        // Réinitialiser Select2 après la navigation Livewire
+        document.addEventListener('livewire:navigated', function() {
+            console.log('🔄 Livewire navigated - réinitialisation Select2...');
+            setTimeout(initializeSelect2, 100);
+        });
+
+        // Solution spécifique : Réinitialiser Select2 après les clics sur les boutons
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('button[wire\\:click], button[wire\\:click\\.prevent]')) {
+                console.log('🔄 Clic sur bouton Livewire détecté...');
+
+                // Attendre que Livewire traite l'action puis réinitialiser
+                setTimeout(function() {
+                    console.log('🔄 Réinitialisation Select2 après action...');
+                    initializeSelect2();
+                }, 500);
+            }
         });
 
         // Initialiser les modals Bootstrap
