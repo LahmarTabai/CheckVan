@@ -553,10 +553,9 @@
                                                 class="btn btn-warning-2050 btn-sm" title="Modifier">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <button wire:click="destroy({{ $vehicule->id }})"
-                                                class="btn btn-danger-2050 btn-sm"
-                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce véhicule ?')"
-                                                title="Supprimer">
+                                            <button type="button"
+                                                wire:click.prevent="confirmDelete({{ $vehicule->id }})"
+                                                class="btn btn-danger-2050 btn-sm" title="Supprimer">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
@@ -714,4 +713,38 @@
             });
         });
     </script>
+
+    <!-- Modal Confirmation Suppression -->
+    @if ($showDeleteModal && $vehiculeToDelete)
+        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5); z-index: 9999;"
+            wire:click.self="cancelDelete">
+            <div class="modal-dialog">
+                <div class="modal-content card-2050">
+                    <div class="modal-header card-header-2050">
+                        <h5 class="modal-title">
+                            <i class="fas fa-exclamation-triangle me-2 text-warning"></i>Confirmation de suppression
+                        </h5>
+                        <button type="button" class="btn-close" wire:click="cancelDelete"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="text-center">
+                            <i class="fas fa-car fa-3x text-danger mb-3"></i>
+                            <h5>Êtes-vous sûr de vouloir supprimer ce véhicule ?</h5>
+                            <p class="text-muted">Cette action est irréversible et supprimera également toutes les
+                                photos associées.</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer card-header-2050">
+                        <button type="button" class="btn btn-outline-2050" wire:click="cancelDelete">
+                            <i class="fas fa-times me-2"></i>Annuler
+                        </button>
+                        <button type="button" class="btn btn-danger-2050"
+                            wire:click="destroy({{ $vehiculeToDelete }})">
+                            <i class="fas fa-trash me-2"></i>Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

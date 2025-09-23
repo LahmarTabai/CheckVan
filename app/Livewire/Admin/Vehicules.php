@@ -28,6 +28,10 @@ class Vehicules extends Component
     // Photos multiples
     public $photos = [];
 
+    // Modal suppression
+    public $showDeleteModal = false;
+    public $vehiculeToDelete = null;
+
     // Interface
     public $isEdit = false;
     public $search = '';
@@ -131,6 +135,17 @@ class Vehicules extends Component
 
     public function render()
     {
+        // Charger les modèles pour les filtres si une marque est sélectionnée
+        if ($this->filterMarque) {
+            $this->modeles = Modele::where('marque_id', $this->filterMarque)
+                ->where('is_active', true)
+                ->orderBy('nom')
+                ->get();
+        } else {
+            // Initialiser avec une collection vide si aucune marque n'est sélectionnée
+            $this->modeles = collect();
+        }
+
         $query = Vehicule::with(['marque', 'modele', 'photos'])
             ->where('admin_id', Auth::user()->user_id);
 
@@ -382,6 +397,12 @@ class Vehicules extends Component
         $this->dispatch('vehicule-updated');
     }
 
+    public function confirmDelete($id)
+    {
+        $this->vehiculeToDelete = (int) $id;
+        $this->showDeleteModal = true;
+    }
+
     public function destroy($id)
     {
         $vehicule = Vehicule::findOrFail($id);
@@ -394,6 +415,14 @@ class Vehicules extends Component
         $vehicule->delete();
         session()->flash('success', 'Véhicule supprimé avec succès.');
         $this->dispatch('vehicule-deleted');
+        $this->showDeleteModal = false;
+        $this->vehiculeToDelete = null;
+    }
+
+    public function cancelDelete()
+    {
+        $this->showDeleteModal = false;
+        $this->vehiculeToDelete = null;
     }
 
     public function deletePhoto($photoId)

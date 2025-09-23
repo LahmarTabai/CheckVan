@@ -30,7 +30,11 @@ class Dashboard extends Component
                                           ->where('status', 'en_cours')
                                           ->count();
 
-        $dernieresTaches = (clone $taches)->latest()->take(5)->get();
+        $dernieresTaches = (clone $taches)
+            ->with(['chauffeur', 'vehicule.marque', 'vehicule.modele'])
+            ->latest()
+            ->take(5)
+            ->get();
 
         return view('livewire.admin.dashboard', compact(
             'chauffeursCount', 'vehiculesCount',

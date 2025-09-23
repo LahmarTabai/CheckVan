@@ -124,12 +124,69 @@
         </div>
     </div>
 
+    {{-- jQuery (requis pour Select2) - CDN alternatif plus fiable --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     {{-- Select2 JS --}}
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    {{-- Vérification et fallback jQuery --}}
+    <script>
+        // Attendre que jQuery soit chargé avec timeout
+        let jqueryLoaded = false;
+        let attempts = 0;
+        const maxAttempts = 10;
+
+        function checkJQuery() {
+            attempts++;
+            if (typeof jQuery !== 'undefined') {
+                jqueryLoaded = true;
+                console.log('✅ jQuery chargé avec succès');
+                return true;
+            } else if (attempts < maxAttempts) {
+                console.log(`⏳ Tentative ${attempts}/${maxAttempts} - jQuery pas encore chargé...`);
+                setTimeout(checkJQuery, 100);
+                return false;
+            } else {
+                console.error('❌ jQuery n\'a pas pu être chargé après', maxAttempts, 'tentatives');
+                // Fallback : charger jQuery depuis un autre CDN
+                loadJQueryFallback();
+                return false;
+            }
+        }
+
+        function loadJQueryFallback() {
+            console.log('🔄 Tentative de chargement jQuery depuis un CDN de fallback...');
+            const script = document.createElement('script');
+            script.src = 'https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js';
+            script.onload = function() {
+                console.log('✅ jQuery chargé depuis le CDN de fallback');
+                jqueryLoaded = true;
+            };
+            script.onerror = function() {
+                console.error('❌ Échec du chargement jQuery depuis le CDN de fallback');
+            };
+            document.head.appendChild(script);
+        }
+
+        // Démarrer la vérification
+        checkJQuery();
+    </script>
+
     {{-- Select2 2050 Initialization --}}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        // Attendre que jQuery soit disponible
+        function initializeSelect2() {
+            if (typeof jQuery === 'undefined') {
+                console.error('❌ jQuery non disponible pour Select2 - réessai dans 100ms...');
+                setTimeout(initializeSelect2, 100);
+                return;
+            }
+
+            console.log('✅ Initialisation de Select2...');
+
             // Initialize Select2 with 2050 theme
             $('.select2-2050').select2({
                 theme: 'bootstrap-5',
@@ -150,41 +207,32 @@
             $('.select2-2050').on('select2:open', function() {
                 $('.select2-dropdown').addClass('select2-dropdown-2050');
             });
+        }
 
-            // Reinitialize Select2 after Livewire updates
-            document.addEventListener('livewire:navigated', function() {
-                $('.select2-2050').select2({
-                    theme: 'bootstrap-5',
-                    width: '100%',
-                    placeholder: 'Sélectionner...',
-                    allowClear: true,
-                    language: {
-                        noResults: function() {
-                            return "Aucun résultat trouvé";
-                        },
-                        searching: function() {
-                            return "Recherche en cours...";
-                        }
-                    }
-                });
-            });
+        // Initialiser Select2 quand le DOM est prêt
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSelect2();
+        });
 
-            // Reinitialize Select2 after Livewire component updates
-            document.addEventListener('livewire:updated', function() {
-                $('.select2-2050').select2('destroy').select2({
-                    theme: 'bootstrap-5',
-                    width: '100%',
-                    placeholder: 'Sélectionner...',
-                    allowClear: true,
-                    language: {
-                        noResults: function() {
-                            return "Aucun résultat trouvé";
-                        },
-                        searching: function() {
-                            return "Recherche en cours...";
-                        }
-                    }
-                });
+        // Reinitialize Select2 after Livewire updates
+        document.addEventListener('livewire:navigated', function() {
+            initializeSelect2();
+        });
+
+        // Reinitialize Select2 after Livewire component updates
+        document.addEventListener('livewire:updated', function() {
+            $('.select2-2050').select2('destroy');
+            initializeSelect2();
+        });
+
+        // Initialiser les modals Bootstrap
+        document.addEventListener('DOMContentLoaded', function() {
+            // S'assurer que les modals Bootstrap sont initialisées
+            var modalElements = document.querySelectorAll('.modal');
+            modalElements.forEach(function(modal) {
+                if (modal.classList.contains('show')) {
+                    modal.style.display = 'block';
+                }
             });
         });
     </script>

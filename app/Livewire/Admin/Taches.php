@@ -28,6 +28,10 @@ class Taches extends Component
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
 
+    // Modal suppression
+    public $showDeleteModal = false;
+    public $tacheToDelete = null;
+
     // Formulaire
     public $tacheId;
     public $chauffeur_id, $vehicule_id, $start_date;
@@ -302,10 +306,24 @@ class Taches extends Component
         $this->resetForm();
     }
 
+    public function confirmDelete($id)
+    {
+        $this->tacheToDelete = (int) $id;
+        $this->showDeleteModal = true;
+    }
+
     public function delete($id)
     {
         Tache::findOrFail($id)->delete();
         session()->flash('success', 'Tâche supprimée.');
+        $this->showDeleteModal = false;
+        $this->tacheToDelete = null;
+    }
+
+    public function cancelDelete()
+    {
+        $this->showDeleteModal = false;
+        $this->tacheToDelete = null;
     }
 
     public function valider($id)

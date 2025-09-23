@@ -32,6 +32,10 @@ class Chauffeurs extends Component
     public $showDetailsModal = false;
     public $selectedChauffeur = null;
 
+    // Modal suppression
+    public $showDeleteModal = false;
+    public $chauffeurToDelete = null;
+
     // Tri
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
@@ -240,10 +244,25 @@ class Chauffeurs extends Component
         $this->isEdit = true;
     }
 
-    public function delete($id)
+    public function confirmDelete($id)
+    {
+        $this->chauffeurToDelete = (int) $id;
+        $this->showDeleteModal = true;
+
+    }
+
+    public function destroy($id)
     {
         User::findOrFail($id)->delete();
         session()->flash('success', 'Chauffeur supprimé');
+        $this->showDeleteModal = false;
+        $this->chauffeurToDelete = null;
+    }
+
+    public function cancelDelete()
+    {
+        $this->showDeleteModal = false;
+        $this->chauffeurToDelete = null;
     }
 
     public function resetFilters()
@@ -285,8 +304,10 @@ class Chauffeurs extends Component
 
     public function showDetails($id)
     {
+        $id = (int) $id;
         $this->selectedChauffeur = User::findOrFail($id);
         $this->showDetailsModal = true;
+
     }
 
     public function closeDetailsModal()

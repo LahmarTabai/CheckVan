@@ -28,6 +28,20 @@ class Tache extends Model
         'type_tache',
     ];
 
+    protected $casts = [
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+        'is_validated' => 'boolean',
+        'start_latitude' => 'float',
+        'start_longitude' => 'float',
+        'end_latitude' => 'float',
+        'end_longitude' => 'float',
+        'debut_kilometrage' => 'integer',
+        'fin_kilometrage' => 'integer',
+        'debut_carburant' => 'integer',
+        'fin_carburant' => 'integer',
+    ];
+
     /**
      * Relation : Tâche → Chauffeur
      */

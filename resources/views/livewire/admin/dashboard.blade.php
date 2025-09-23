@@ -14,85 +14,99 @@
     <!-- Statistiques Principales -->
     <div class="row g-4 mb-5">
         <div class="col-lg-3 col-md-6">
-            <div class="card-2050 hover-lift">
-                <div class="card-body-2050 text-center p-4">
-                    <div class="stat-icon-2050 mb-3">
-                        <i class="fas fa-users text-primary"></i>
+            <a href="{{ route('admin.chauffeurs') }}" class="dashboard-link">
+                <div class="card-2050 hover-lift">
+                    <div class="card-body-2050 text-center p-4">
+                        <div class="stat-icon-2050 mb-3">
+                            <i class="fas fa-users text-primary"></i>
+                        </div>
+                        <h3 class="stat-number-2050 mb-1">{{ $chauffeursCount }}</h3>
+                        <p class="stat-label-2050 mb-0">Chauffeurs Actifs</p>
                     </div>
-                    <h3 class="stat-number-2050 mb-1">{{ $chauffeursCount }}</h3>
-                    <p class="stat-label-2050 mb-0">Chauffeurs Actifs</p>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-lg-3 col-md-6">
-            <div class="card-2050 hover-lift">
-                <div class="card-body-2050 text-center p-4">
-                    <div class="stat-icon-2050 mb-3">
-                        <i class="fas fa-car text-success"></i>
+            <a href="{{ route('admin.vehicules') }}" class="dashboard-link">
+                <div class="card-2050 hover-lift">
+                    <div class="card-body-2050 text-center p-4">
+                        <div class="stat-icon-2050 mb-3">
+                            <i class="fas fa-car text-success"></i>
+                        </div>
+                        <h3 class="stat-number-2050 mb-1">{{ $vehiculesCount }}</h3>
+                        <p class="stat-label-2050 mb-0">Véhicules en Flotte</p>
                     </div>
-                    <h3 class="stat-number-2050 mb-1">{{ $vehiculesCount }}</h3>
-                    <p class="stat-label-2050 mb-0">Véhicules en Flotte</p>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-lg-3 col-md-6">
-            <div class="card-2050 hover-lift">
-                <div class="card-body-2050 text-center p-4">
-                    <div class="stat-icon-2050 mb-3">
-                        <i class="fas fa-link text-warning"></i>
+            <a href="{{ route('admin.affectations') }}" class="dashboard-link">
+                <div class="card-2050 hover-lift">
+                    <div class="card-body-2050 text-center p-4">
+                        <div class="stat-icon-2050 mb-3">
+                            <i class="fas fa-link text-warning"></i>
+                        </div>
+                        <h3 class="stat-number-2050 mb-1">{{ $affectationsActives }}</h3>
+                        <p class="stat-label-2050 mb-0">Affectations Actives</p>
                     </div>
-                    <h3 class="stat-number-2050 mb-1">{{ $affectationsActives }}</h3>
-                    <p class="stat-label-2050 mb-0">Affectations Actives</p>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-lg-3 col-md-6">
-            <div class="card-2050 hover-lift">
-                <div class="card-body-2050 text-center p-4">
-                    <div class="stat-icon-2050 mb-3">
-                        <i class="fas fa-tasks text-info"></i>
+            <a href="{{ route('admin.taches') }}" class="dashboard-link">
+                <div class="card-2050 hover-lift">
+                    <div class="card-body-2050 text-center p-4">
+                        <div class="stat-icon-2050 mb-3">
+                            <i class="fas fa-tasks text-info"></i>
+                        </div>
+                        <h3 class="stat-number-2050 mb-1">{{ $tachesEnCours }}</h3>
+                        <p class="stat-label-2050 mb-0">Tâches en Cours</p>
                     </div>
-                    <h3 class="stat-number-2050 mb-1">{{ $tachesEnCours }}</h3>
-                    <p class="stat-label-2050 mb-0">Tâches en Cours</p>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 
     <!-- Statistiques des Tâches -->
     <div class="row g-4 mb-5">
         <div class="col-lg-4 col-md-4">
-            <div class="card-2050 hover-lift">
-                <div class="card-body-2050 text-center p-4">
-                    <div class="stat-icon-2050 mb-3">
-                        <i class="fas fa-clock text-warning"></i>
+            <a href="{{ route('admin.taches') }}?filter=en_attente" class="dashboard-link">
+                <div class="card-2050 hover-lift">
+                    <div class="card-body-2050 text-center p-4">
+                        <div class="stat-icon-2050 mb-3">
+                            <i class="fas fa-clock text-warning"></i>
+                        </div>
+                        <h4 class="stat-number-2050 mb-1">{{ $tachesEnAttente }}</h4>
+                        <p class="stat-label-2050 mb-0">En Attente</p>
                     </div>
-                    <h4 class="stat-number-2050 mb-1">{{ $tachesEnAttente }}</h4>
-                    <p class="stat-label-2050 mb-0">En Attente</p>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-lg-4 col-md-4">
-            <div class="card-2050 hover-lift">
-                <div class="card-body-2050 text-center p-4">
-                    <div class="stat-icon-2050 mb-3">
-                        <i class="fas fa-play text-primary"></i>
+            <a href="{{ route('admin.taches') }}?filter=en_cours" class="dashboard-link">
+                <div class="card-2050 hover-lift">
+                    <div class="card-body-2050 text-center p-4">
+                        <div class="stat-icon-2050 mb-3">
+                            <i class="fas fa-play text-primary"></i>
+                        </div>
+                        <h4 class="stat-number-2050 mb-1">{{ $tachesEnCours }}</h4>
+                        <p class="stat-label-2050 mb-0">En Cours</p>
                     </div>
-                    <h4 class="stat-number-2050 mb-1">{{ $tachesEnCours }}</h4>
-                    <p class="stat-label-2050 mb-0">En Cours</p>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-lg-4 col-md-4">
-            <div class="card-2050 hover-lift">
-                <div class="card-body-2050 text-center p-4">
-                    <div class="stat-icon-2050 mb-3">
-                        <i class="fas fa-check-circle text-success"></i>
+            <a href="{{ route('admin.taches') }}?filter=terminée" class="dashboard-link">
+                <div class="card-2050 hover-lift">
+                    <div class="card-body-2050 text-center p-4">
+                        <div class="stat-icon-2050 mb-3">
+                            <i class="fas fa-check-circle text-success"></i>
+                        </div>
+                        <h4 class="stat-number-2050 mb-1">{{ $tachesTerminees }}</h4>
+                        <p class="stat-label-2050 mb-0">Terminées</p>
                     </div>
-                    <h4 class="stat-number-2050 mb-1">{{ $tachesTerminees }}</h4>
-                    <p class="stat-label-2050 mb-0">Terminées</p>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 

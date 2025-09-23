@@ -28,6 +28,10 @@ class Affectations extends Component
     public $showChauffeurDropdown = false;
     public $showVehiculeDropdown = false;
 
+    // Modal suppression
+    public $showDeleteModal = false;
+    public $affectationToDelete = null;
+
     // Tri
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
@@ -234,10 +238,24 @@ class Affectations extends Component
         $this->resetForm();
     }
 
+    public function confirmDelete($id)
+    {
+        $this->affectationToDelete = (int) $id;
+        $this->showDeleteModal = true;
+    }
+
     public function delete($id)
     {
         Affectation::findOrFail($id)->delete();
         session()->flash('success', 'Affectation supprimée');
+        $this->showDeleteModal = false;
+        $this->affectationToDelete = null;
+    }
+
+    public function cancelDelete()
+    {
+        $this->showDeleteModal = false;
+        $this->affectationToDelete = null;
     }
 
     public function terminerAffectation($id)

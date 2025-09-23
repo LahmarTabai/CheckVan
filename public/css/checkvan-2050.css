@@ -1421,6 +1421,38 @@ body::before {
 }
 
 /* ========================================
+   DASHBOARD LINKS & INTERACTIONS
+   ======================================== */
+
+/* Liens cliquables sur les cartes du dashboard */
+.dashboard-link {
+  text-decoration: none !important;
+  color: inherit !important;
+  transition: all 0.3s ease;
+}
+
+.dashboard-link:hover {
+  text-decoration: none !important;
+  color: inherit !important;
+  transform: translateY(-2px);
+}
+
+.dashboard-link:hover .card-2050 {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-4px);
+}
+
+.dashboard-link:hover .stat-icon-2050 i {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.dashboard-link:hover .stat-number-2050 {
+  color: var(--primary-color);
+  transition: color 0.3s ease;
+}
+
+/* ========================================
    ANIMATIONS
    ======================================== */
 

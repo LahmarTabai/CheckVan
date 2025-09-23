@@ -23,6 +23,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Route de test FCM (à supprimer en production)
+Route::get('/test-fcm', function () {
+    return view('test-fcm');
+});
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
