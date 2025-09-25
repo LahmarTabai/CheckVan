@@ -48,7 +48,8 @@ class Vehicules extends Component
 
     // Données pour les listes déroulantes
     public $marques = [];
-    public $modeles = [];
+    public $formModeles = [];
+    public $filterModeles = [];
     public $couleurs = [
         'Blanc', 'Noir', 'Gris', 'Rouge', 'Bleu', 'Vert', 'Jaune', 'Orange',
         'Marron', 'Beige', 'Argent', 'Or', 'Violet', 'Rose', 'Turquoise'
@@ -81,6 +82,7 @@ class Vehicules extends Component
     protected $listeners = [
         'vehicule-added' => '$refresh',
         'vehicule-updated' => '$refresh',
+        'marque-changed' => 'handleMarqueChanged',
         'vehicule-deleted' => '$refresh',
     ];
 
@@ -92,36 +94,56 @@ class Vehicules extends Component
 
     public function loadMarques()
     {
+        \Log::info('=== loadMarques appelé ===');
         // Utiliser directement la base de données pour éviter les problèmes de conversion
         $this->marques = Marque::where('is_active', true)
             ->orderBy('nom')
             ->get();
     }
 
-    public function updatedMarqueId()
+    public function updatedMarqueId($value = null)
     {
-        if ($this->marque_id) {
-            // Charger les modèles de la marque sélectionnée
-            $this->modeles = Modele::where('marque_id', $this->marque_id)
-                ->where('is_active', true)
-                ->orderBy('nom')
-                ->get();
-        } else {
-            $this->modeles = collect();
-        }
+        \Log::info('=== updatedMarqueId DÉBUT ===', ['marque_id' => $this->marque_id]);
+
         $this->modele_id = null;
+
+        if (!$this->marque_id) {
+            $this->formModeles = collect();
+            \Log::info('Marque ID vide, modèles (form) vidés');
+            return;
+        }
+
+        try {
+            app(\App\Services\VehiculeApiService::class)
+                ->syncModelesFromApi($this->marque_id);
+        } catch (\Exception $e) {
+            \Log::error('Erreur sync API modèles: '.$e->getMessage());
+        }
+
+        $this->formModeles = \App\Models\Modele::where('marque_id', $this->marque_id)
+            ->where('is_active', true)
+            ->orderBy('nom')
+            ->get(['id','nom']);
+
+        \Log::info('Modèles (form) chargés depuis BDD', ['count' => $this->formModeles->count()]);
+    }
+
+    public function handleMarqueChanged($marqueId)
+    {
+        \Log::info('=== handleMarqueChanged appelé ===', ['marqueId' => $marqueId]);
+        $this->marque_id = $marqueId;
+        $this->updatedMarqueId();
     }
 
     public function updatedFilterMarque()
     {
         if ($this->filterMarque) {
-            // Charger les modèles de la marque sélectionnée pour les filtres
-            $this->modeles = Modele::where('marque_id', $this->filterMarque)
+            $this->filterModeles = Modele::where('marque_id', $this->filterMarque)
                 ->where('is_active', true)
                 ->orderBy('nom')
-                ->get();
+                ->get(['id','nom']);
         } else {
-            $this->modeles = collect();
+            $this->filterModeles = collect();
         }
         $this->filterModele = null;
     }
@@ -135,16 +157,6 @@ class Vehicules extends Component
 
     public function render()
     {
-        // Charger les modèles pour les filtres si une marque est sélectionnée
-        if ($this->filterMarque) {
-            $this->modeles = Modele::where('marque_id', $this->filterMarque)
-                ->where('is_active', true)
-                ->orderBy('nom')
-                ->get();
-        } else {
-            // Initialiser avec une collection vide si aucune marque n'est sélectionnée
-            $this->modeles = collect();
-        }
 
         $query = Vehicule::with(['marque', 'modele', 'photos'])
             ->where('admin_id', Auth::user()->user_id);
@@ -262,6 +274,7 @@ class Vehicules extends Component
     {
         $this->marque_id = null;
         $this->modele_id = null;
+        $this->formModeles = [];
         $this->immatriculation = '';
         $this->type = 'propriete';
         $this->annee = null;

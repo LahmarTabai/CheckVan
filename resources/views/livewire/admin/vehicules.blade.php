@@ -79,7 +79,8 @@
                                     <label class="form-label-2050">
                                         Marque <span class="required">*</span>
                                     </label>
-                                    <select wire:model.live="marque_id" class="form-control-2050 select2-2050">
+                                    <select wire:model.live="marque_id" class="form-control-2050 select2-2050"
+                                        onchange="Livewire.dispatch('marque-changed', { marqueId: this.value })">
                                         <option value="">-- Sélectionner une marque --</option>
                                         @foreach ($marques as $marque)
                                             <option value="{{ $marque->id }}">{{ $marque->nom }}</option>
@@ -96,10 +97,18 @@
                                     <label class="form-label-2050">
                                         Modèle <span class="required">*</span>
                                     </label>
-                                    <select wire:model="modele_id" class="form-control-2050 select2-2050">
+
+                                    <div wire:loading wire:target="marque_id" class="mb-2">
+                                        <span class="spinner-border spinner-border-sm text-primary"></span>
+                                        <small class="text-muted">Chargement des modèles...</small>
+                                    </div>
+
+                                    <select wire:model="modele_id" class="form-control-2050 select2-2050"
+                                        @disabled(!$marque_id)>
                                         <option value="">-- Sélectionner un modèle --</option>
-                                        @foreach ($modeles as $modele)
-                                            <option value="{{ $modele->id }}">{{ $modele->nom }}</option>
+                                        @foreach ($formModeles as $modele)
+                                            <option wire:key="form-modele-{{ $modele->id }}"
+                                                value="{{ $modele->id }}">{{ $modele->nom }}</option>
                                         @endforeach
                                     </select>
                                     @error('modele_id')
@@ -394,10 +403,12 @@
                     <div class="form-col-2050 col-md-2">
                         <div class="form-group-2050">
                             <label class="form-label-2050">Modèle</label>
-                            <select wire:model.live="filterModele" class="form-control-2050 select2-2050">
+                            <select wire:model.live="filterModele" class="form-control-2050 select2-2050"
+                                @disabled(!$filterMarque)>
                                 <option value="">Tous</option>
-                                @foreach ($modeles as $modele)
-                                    <option value="{{ $modele->id }}">{{ $modele->nom }}</option>
+                                @foreach ($filterModeles as $modele)
+                                    <option wire:key="filter-modele-{{ $modele->id }}"
+                                        value="{{ $modele->id }}">{{ $modele->nom }}</option>
                                 @endforeach
                             </select>
                         </div>

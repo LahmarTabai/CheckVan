@@ -84,6 +84,7 @@ class VehiculeApiService
     private function fetchMarquesFromNhtsa(): array
     {
         $response = Http::timeout(self::API_TIMEOUT)
+            ->withOptions(['verify' => false])
             ->get('https://vpic.nhtsa.dot.gov/api/vehicles/getallmakes?format=json');
 
         if ($response->successful()) {
@@ -111,6 +112,7 @@ class VehiculeApiService
     private function fetchModelesFromNhtsa(string $marqueNom): array
     {
         $response = Http::timeout(self::API_TIMEOUT)
+            ->withOptions(['verify' => false])
             ->get("https://vpic.nhtsa.dot.gov/api/vehicles/getmodelsformake/{$marqueNom}?format=json");
 
         if ($response->successful()) {
@@ -139,6 +141,7 @@ class VehiculeApiService
     private function fetchMarquesFromCarQuery(): array
     {
         $response = Http::timeout(self::API_TIMEOUT)
+            ->withOptions(['verify' => false])
             ->get('https://www.carqueryapi.com/api/0.3/?cmd=getMakes');
 
         if ($response->successful()) {
@@ -166,6 +169,7 @@ class VehiculeApiService
     private function fetchModelesFromCarQuery(string $marqueNom): array
     {
         $response = Http::timeout(self::API_TIMEOUT)
+            ->withOptions(['verify' => false])
             ->get("https://www.carqueryapi.com/api/0.3/?cmd=getModels&make={$marqueNom}");
 
         if ($response->successful()) {
