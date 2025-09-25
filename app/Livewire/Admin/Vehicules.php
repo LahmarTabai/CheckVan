@@ -35,6 +35,10 @@ class Vehicules extends Component
     public $showDeleteModal = false;
     public $vehiculeToDelete = null;
 
+    // Affichage du formulaire
+    public $showForm = false;
+
+
     // Interface
     public $search = '';
     public $filterType = '';
@@ -154,6 +158,19 @@ class Vehicules extends Component
 
         session()->flash('success', 'Photo supprimée avec succès.');
         $this->dispatch('vehicule-updated');
+    }
+
+    // Méthodes pour contrôler l'affichage du formulaire
+    public function showAddForm()
+    {
+        $this->resetForm();
+        $this->showForm = true;
+    }
+
+    public function hideForm()
+    {
+        $this->showForm = false;
+        $this->resetForm();
     }
 
     protected $listeners = [
@@ -415,6 +432,7 @@ class Vehicules extends Component
 
             session()->flash('success', 'Véhicule ajouté avec succès.');
             $this->resetForm();
+            $this->showForm = false;
             $this->dispatch('vehicule-added');
         } catch (\Exception $e) {
             session()->flash('error', 'Erreur lors de l\'ajout du véhicule: ' . $e->getMessage());
@@ -444,8 +462,14 @@ class Vehicules extends Component
         $this->derniere_revision = $vehicule->derniere_revision ? $vehicule->derniere_revision->format('Y-m-d') : null;
         $this->prochaine_revision = $vehicule->prochaine_revision ? $vehicule->prochaine_revision->format('Y-m-d') : null;
 
+        // Sauvegarder le modele_id avant de charger les modèles
+        $savedModeleId = $this->modele_id;
+
         // Charger les modèles pour la marque sélectionnée
         $this->updatedMarqueId();
+
+        // Restaurer le modele_id après avoir chargé les modèles
+        $this->modele_id = $savedModeleId;
 
         $this->isEdit = true;
         $this->selectedVehicule = $vehicule; // Pour afficher les photos existantes
@@ -498,6 +522,7 @@ class Vehicules extends Component
 
         session()->flash('success', 'Véhicule modifié avec succès.');
         $this->resetForm();
+        $this->showForm = false;
         $this->dispatch('vehicule-updated');
     }
 

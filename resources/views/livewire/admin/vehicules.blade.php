@@ -20,854 +20,876 @@
             </div>
         @endif
 
-        <!-- Formulaire Futuriste -->
-        <div class="card-2050 mb-4 hover-lift">
-            <div class="card-header-2050">
-                <h6 class="mb-0">
-                    <i class="fas fa-plus me-2"></i>{{ $isEdit ? 'Modifier le véhicule' : 'Ajouter un véhicule' }}
-                </h6>
+        <!-- Bouton Ajouter Véhicule -->
+        @if (!$showForm && !$isEdit)
+            <div class="d-flex justify-content-end mb-4">
+                <button type="button" wire:click="showAddForm" class="btn btn-primary-2050">
+                    <i class="fas fa-plus me-2"></i>Ajouter un véhicule
+                </button>
             </div>
-            <div class="card-body p-4">
-                <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}" id="vehicule-form">
-                    <div class="form-section-2050">
-                        <h6 class="section-title-2050">
-                            <i class="fas fa-info-circle me-2"></i>Informations de base
-                        </h6>
+        @endif
 
-                        <div class="form-row-2050">
-                            <div class="form-col-2050 col-md-6">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Immatriculation <span class="required">*</span>
-                                    </label>
-                                    <input type="text" wire:model="immatriculation" class="form-control-2050"
-                                        placeholder="Ex: AB-123-CD">
-                                    <small class="form-help-2050">Numéro d'immatriculation du véhicule</small>
-                                    @error('immatriculation')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
+        <!-- Formulaire Futuriste -->
+        @if ($showForm || $isEdit)
+            <div class="card-2050 mb-4 hover-lift">
+                <div class="card-header-2050">
+                    <h6 class="mb-0">
+                        <i class="fas fa-plus me-2"></i>{{ $isEdit ? 'Modifier le véhicule' : 'Ajouter un véhicule' }}
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}" id="vehicule-form">
+                        <div class="form-section-2050">
+                            <h6 class="section-title-2050">
+                                <i class="fas fa-info-circle me-2"></i>Informations de base
+                            </h6>
 
-                            <div class="form-col-2050 col-md-6">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Type de véhicule <span class="required">*</span>
-                                    </label>
-                                    <select id="select-type" class="form-control-2050 select2-2050">
-                                        <option value="">-- Sélectionner le type --</option>
-                                        <option value="propriete" @selected($type === 'propriete')>Propriété</option>
-                                        <option value="location" @selected($type === 'location')>Location</option>
-                                    </select>
-                                    <small class="form-help-2050">Propriété de l'entreprise ou véhicule en
-                                        location</small>
-                                    @error('type')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-section-2050">
-                        <h6 class="section-title-2050">
-                            <i class="fas fa-car me-2"></i>Caractéristiques du véhicule
-                        </h6>
-
-                        <div class="form-row-2050">
-                            <div class="form-col-2050 col-md-4">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Marque <span class="required">*</span>
-                                    </label>
-                                    <select wire:model.live="marque_id" class="form-control-2050 select2-2050"
-                                        onchange="Livewire.dispatch('marque-changed', { marqueId: this.value })">
-                                        <option value="">-- Sélectionner une marque --</option>
-                                        @foreach ($marques as $marque)
-                                            <option value="{{ $marque->id }}">{{ $marque->nom }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('marque_id')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="form-col-2050 col-md-4">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Modèle <span class="required">*</span>
-                                    </label>
-
-                                    <div wire:loading wire:target="marque_id" class="mb-2">
-                                        <span class="spinner-border spinner-border-sm text-primary"></span>
-                                        <small class="text-muted">Chargement des modèles...</small>
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-md-6">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Immatriculation <span class="required">*</span>
+                                        </label>
+                                        <input type="text" wire:model="immatriculation" class="form-control-2050"
+                                            placeholder="Ex: AB-123-CD">
+                                        <small class="form-help-2050">Numéro d'immatriculation du véhicule</small>
+                                        @error('immatriculation')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
                                     </div>
-
-                                    <select wire:model.live="modele_id" class="form-control-2050 select2-2050"
-                                        @disabled(!$marque_id)>
-                                        <option value="">-- Sélectionner un modèle --</option>
-                                        @foreach ($formModeles as $modele)
-                                            <option wire:key="form-modele-{{ $modele->id }}"
-                                                value="{{ $modele->id }}">{{ $modele->nom }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('modele_id')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
                                 </div>
-                            </div>
 
-                            <div class="form-col-2050 col-md-4">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Couleur <span class="required">*</span>
-                                    </label>
-                                    <select wire:model="couleur" class="form-control-2050 select2-2050">
-                                        <option value="">-- Sélectionner une couleur --</option>
-                                        @foreach ($couleurs as $couleur)
-                                            <option value="{{ $couleur }}">{{ $couleur }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('couleur')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                                <div class="form-col-2050 col-md-6">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Type de véhicule <span class="required">*</span>
+                                        </label>
+                                        <select id="select-type" class="form-control-2050 select2-2050">
+                                            <option value="">-- Sélectionner le type --</option>
+                                            <option value="propriete" @selected($type === 'propriete')>Propriété</option>
+                                            <option value="location" @selected($type === 'location')>Location</option>
+                                        </select>
+                                        <small class="form-help-2050">Propriété de l'entreprise ou véhicule en
+                                            location</small>
+                                        @error('type')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-row-2050">
-                            <div class="form-col-2050 col-md-3">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Année <span class="required">*</span>
-                                    </label>
-                                    <input type="number" wire:model="annee" class="form-control-2050" min="1990"
-                                        max="{{ date('Y') + 1 }}" placeholder="2024">
-                                    <small class="form-help-2050">Année de fabrication du véhicule</small>
-                                    @error('annee')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                        <div class="form-section-2050">
+                            <h6 class="section-title-2050">
+                                <i class="fas fa-car me-2"></i>Caractéristiques du véhicule
+                            </h6>
+
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-md-4">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Marque <span class="required">*</span>
+                                        </label>
+                                        <select wire:model.live="marque_id" class="form-control-2050 select2-2050"
+                                            onchange="Livewire.dispatch('marque-changed', { marqueId: this.value })">
+                                            <option value="">-- Sélectionner une marque --</option>
+                                            @foreach ($marques as $marque)
+                                                <option value="{{ $marque->id }}">{{ $marque->nom }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('marque_id')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-col-2050 col-md-4">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Modèle <span class="required">*</span>
+                                        </label>
+
+                                        <div wire:loading wire:target="marque_id" class="mb-2">
+                                            <span class="spinner-border spinner-border-sm text-primary"></span>
+                                            <small class="text-muted">Chargement des modèles...</small>
+                                        </div>
+
+                                        <select wire:model.live="modele_id" class="form-control-2050 select2-2050"
+                                            @disabled(!$marque_id)>
+                                            <option value="">-- Sélectionner un modèle --</option>
+                                            @foreach ($formModeles as $modele)
+                                                <option wire:key="form-modele-{{ $modele->id }}"
+                                                    value="{{ $modele->id }}">{{ $modele->nom }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('modele_id')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-col-2050 col-md-4">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Couleur <span class="required">*</span>
+                                        </label>
+                                        <select wire:model="couleur" class="form-control-2050 select2-2050">
+                                            <option value="">-- Sélectionner une couleur --</option>
+                                            @foreach ($couleurs as $couleur)
+                                                <option value="{{ $couleur }}">{{ $couleur }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('couleur')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="form-col-2050 col-md-3">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">Kilométrage</label>
-                                    <input type="number" wire:model="kilometrage" class="form-control-2050"
-                                        placeholder="0">
-                                    <small class="form-help-2050">Kilométrage actuel du véhicule</small>
-                                    @error('kilometrage')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-md-3">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Année <span class="required">*</span>
+                                        </label>
+                                        <input type="number" wire:model="annee" class="form-control-2050"
+                                            min="1990" max="{{ date('Y') + 1 }}" placeholder="2024">
+                                        <small class="form-help-2050">Année de fabrication du véhicule</small>
+                                        @error('annee')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-col-2050 col-md-3">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Statut <span class="required">*</span>
-                                    </label>
-                                    <select wire:model="statut" class="form-control-2050 select2-2050">
-                                        <option value="">-- Sélectionner le statut --</option>
-                                        <option value="disponible">Disponible</option>
-                                        <option value="en_mission">En mission</option>
-                                        <option value="en_maintenance">En maintenance</option>
-                                        <option value="hors_service">Hors service</option>
-                                    </select>
-                                    @error('statut')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                                <div class="form-col-2050 col-md-3">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Kilométrage</label>
+                                        <input type="number" wire:model="kilometrage" class="form-control-2050"
+                                            placeholder="0">
+                                        <small class="form-help-2050">Kilométrage actuel du véhicule</small>
+                                        @error('kilometrage')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-col-2050 col-md-3">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Statut <span class="required">*</span>
+                                        </label>
+                                        <select wire:model="statut" class="form-control-2050 select2-2050">
+                                            <option value="">-- Sélectionner le statut --</option>
+                                            <option value="disponible">Disponible</option>
+                                            <option value="en_mission">En mission</option>
+                                            <option value="en_maintenance">En maintenance</option>
+                                            <option value="hors_service">Hors service</option>
+                                        </select>
+                                        @error('statut')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-section-2050">
-                        <h6 class="section-title-2050">
-                            <i class="fas fa-cogs me-2"></i>Informations techniques
-                        </h6>
+                        <div class="form-section-2050">
+                            <h6 class="section-title-2050">
+                                <i class="fas fa-cogs me-2"></i>Informations techniques
+                            </h6>
 
-                        <div class="form-row-2050">
-                            <div class="form-col-2050 col-md-3">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">Prochaine révision</label>
-                                    <input type="date" wire:model="prochaine_revision" class="form-control-2050">
-                                    <small class="form-help-2050">Date de la prochaine révision prévue</small>
-                                    @error('prochaine_revision')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-md-3">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Prochaine révision</label>
+                                        <input type="date" wire:model="prochaine_revision"
+                                            class="form-control-2050">
+                                        <small class="form-help-2050">Date de la prochaine révision prévue</small>
+                                        @error('prochaine_revision')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-col-2050 col-md-3">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Dernière révision</label>
+                                        <input type="date" wire:model="derniere_revision"
+                                            class="form-control-2050">
+                                        <small class="form-help-2050">Date de la dernière révision effectuée</small>
+                                        @error('derniere_revision')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-col-2050 col-md-6">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Numéro de châssis</label>
+                                        <input type="text" wire:model="numero_chassis" class="form-control-2050"
+                                            placeholder="Ex: VF1234567890123456">
+                                        <small class="form-help-2050">Numéro d'identification du châssis (VIN)</small>
+                                        @error('numero_chassis')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="form-col-2050 col-md-3">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">Dernière révision</label>
-                                    <input type="date" wire:model="derniere_revision" class="form-control-2050">
-                                    <small class="form-help-2050">Date de la dernière révision effectuée</small>
-                                    @error('derniere_revision')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-md-6">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Numéro de moteur</label>
+                                        <input type="text" wire:model="numero_moteur" class="form-control-2050"
+                                            placeholder="Ex: MOTEUR123456">
+                                        <small class="form-help-2050">Numéro d'identification du moteur</small>
+                                        @error('numero_moteur')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-col-2050 col-md-6">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">Numéro de châssis</label>
-                                    <input type="text" wire:model="numero_chassis" class="form-control-2050"
-                                        placeholder="Ex: VF1234567890123456">
-                                    <small class="form-help-2050">Numéro d'identification du châssis (VIN)</small>
-                                    @error('numero_chassis')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                                <div class="form-col-2050 col-md-6">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Description</label>
+                                        <textarea wire:model="description" class="form-control-2050" rows="3"
+                                            placeholder="Description du véhicule, équipements, état général..."></textarea>
+                                        <small class="form-help-2050">Informations complémentaires sur le
+                                            véhicule</small>
+                                        @error('description')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-row-2050">
-                            <div class="form-col-2050 col-md-6">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">Numéro de moteur</label>
-                                    <input type="text" wire:model="numero_moteur" class="form-control-2050"
-                                        placeholder="Ex: MOTEUR123456">
-                                    <small class="form-help-2050">Numéro d'identification du moteur</small>
-                                    @error('numero_moteur')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
 
-                            <div class="form-col-2050 col-md-6">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">Description</label>
-                                    <textarea wire:model="description" class="form-control-2050" rows="3"
-                                        placeholder="Description du véhicule, équipements, état général..."></textarea>
-                                    <small class="form-help-2050">Informations complémentaires sur le véhicule</small>
-                                    @error('description')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        <script>
+                            // Fonction pour synchroniser les valeurs Select2 avant soumission
+                            function syncSelect2Values() {
+                                console.log('=== SYNC SELECT2 VALUES ===');
 
-
-                    <script>
-                        // Fonction pour synchroniser les valeurs Select2 avant soumission
-                        function syncSelect2Values() {
-                            console.log('=== SYNC SELECT2 VALUES ===');
-
-                            try {
-                                const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'));
-                                if (livewireComponent) {
-                                    // Synchroniser le type
-                                    const typeValue = $('#select-type').val();
-                                    console.log('Type Select2:', typeValue);
-                                    if (typeValue) {
-                                        livewireComponent.set('type', typeValue);
-                                        console.log('Type synchronisé vers Livewire');
-                                    }
-
-                                    // Synchroniser la marque
-                                    const marqueValue = $('select[wire\\:model\\.live="marque_id"]').val();
-                                    console.log('Marque Select2:', marqueValue);
-                                    if (marqueValue) {
-                                        livewireComponent.set('marque_id', marqueValue);
-                                        console.log('Marque synchronisée vers Livewire');
-                                    }
-
-                                    // Synchroniser le modèle
-                                    const modeleValue = $('select[wire\\:model\\.live="modele_id"]').val();
-                                    console.log('Modèle Select2:', modeleValue);
-                                    if (modeleValue) {
-                                        // Utiliser dispatch au lieu de set
-                                        livewireComponent.dispatch('sync-modele', {
-                                            modeleId: modeleValue
-                                        });
-                                        console.log('Modèle synchronisé vers Livewire via dispatch');
-
-                                        // Forcer la mise à jour du DOM Select2
-                                        $('select[wire\\:model\\.live="modele_id"]').val(modeleValue).trigger('change');
-                                    }
-
-                                    // Synchroniser la couleur
-                                    const couleurValue = $('select[wire\\:model="couleur"]').val();
-                                    console.log('Couleur Select2:', couleurValue);
-                                    if (couleurValue) {
-                                        livewireComponent.set('couleur', couleurValue);
-                                        console.log('Couleur synchronisée vers Livewire');
-                                    }
-
-                                    // Synchroniser le statut
-                                    const statutValue = $('select[wire\\:model="statut"]').val();
-                                    console.log('Statut Select2:', statutValue);
-                                    if (statutValue) {
-                                        livewireComponent.set('statut', statutValue);
-                                        console.log('Statut synchronisé vers Livewire');
-                                    }
-
-                                    console.log('=== SYNC TERMINÉ ===');
-
-                                    // Attendre un peu pour que Livewire traite les changements
-                                    setTimeout(function() {
-                                        console.log('Synchronisation terminée, soumission du formulaire...');
-                                    }, 100);
-
-                                    return true;
-                                } else {
-                                    console.error('Composant Livewire non trouvé');
-                                    return false;
-                                }
-                            } catch (error) {
-                                console.error('Erreur lors de la synchronisation:', error);
-                                return false;
-                            }
-                        }
-
-                        // Fonction pour initialiser les événements Livewire
-                        function initLivewireEvents() {
-                            if (typeof Livewire !== 'undefined') {
-                                console.log('Livewire disponible, initialisation des événements...');
-
-                                // Synchronisation manuelle Select2 → Livewire
-                                $('#select-type').off('change').on('change', function() {
-                                    const selectedValue = $(this).val();
-                                    console.log('Type changé vers:', selectedValue);
-
-                                    // Trouver le composant Livewire et mettre à jour la propriété
-                                    const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
-                                        'wire:id'));
+                                try {
+                                    const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'));
                                     if (livewireComponent) {
-                                        livewireComponent.set('type', selectedValue);
-                                        console.log('Type synchronisé vers Livewire');
-                                    }
-                                });
-
-                                // Synchronisation Livewire → Select2 (pour les mises à jour côté serveur)
-                                Livewire.hook('message.processed', (message, component) => {
-                                    if (message.updateQueue.some(update => update.payload.name === 'type')) {
-                                        console.log('Type mis à jour côté serveur');
-                                        // Mettre à jour Select2 si nécessaire
-                                        const currentValue = $('#select-type').val();
-                                        const livewireValue = component.get('type');
-                                        if (currentValue !== livewireValue) {
-                                            $('#select-type').val(livewireValue).trigger('change');
-                                        }
-                                    }
-                                });
-
-                                // Écouter l'événement de synchronisation des Select2
-                                Livewire.on('sync-select2-values', () => {
-                                    console.log('Synchronisation des Select2 pour l\'édition...');
-                                    setTimeout(function() {
-                                        // Récupérer le composant Livewire
-                                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]')
-                                            .getAttribute('wire:id'));
-                                        if (!livewireComponent) {
-                                            console.error('Composant Livewire non trouvé pour la synchronisation');
-                                            return;
-                                        }
-
                                         // Synchroniser le type
-                                        const typeValue = livewireComponent.get('type');
-                                        console.log('Type Livewire:', typeValue);
+                                        const typeValue = $('#select-type').val();
+                                        console.log('Type Select2:', typeValue);
                                         if (typeValue) {
-                                            $('#select-type').val(typeValue).trigger('change');
-                                            console.log('Type Select2 mis à jour vers:', typeValue);
+                                            livewireComponent.set('type', typeValue);
+                                            console.log('Type synchronisé vers Livewire');
                                         }
 
                                         // Synchroniser la marque
-                                        const marqueValue = livewireComponent.get('marque_id');
-                                        console.log('Marque Livewire:', marqueValue);
+                                        const marqueValue = $('select[wire\\:model\\.live="marque_id"]').val();
+                                        console.log('Marque Select2:', marqueValue);
                                         if (marqueValue) {
-                                            $('select[wire\\:model\\.live="marque_id"]').val(marqueValue).trigger('change');
-                                            console.log('Marque Select2 mise à jour vers:', marqueValue);
+                                            livewireComponent.set('marque_id', marqueValue);
+                                            console.log('Marque synchronisée vers Livewire');
                                         }
 
                                         // Synchroniser le modèle
-                                        const modeleValue = livewireComponent.get('modele_id');
-                                        console.log('Modèle Livewire:', modeleValue);
+                                        const modeleValue = $('select[wire\\:model\\.live="modele_id"]').val();
+                                        console.log('Modèle Select2:', modeleValue);
                                         if (modeleValue) {
-                                            $('select[wire\\:model\\.live="modele_id"]').val(modeleValue).trigger('change');
-                                            console.log('Modèle Select2 mis à jour vers:', modeleValue);
+                                            // Utiliser set directement
+                                            livewireComponent.set('modele_id', modeleValue);
+                                            console.log('Modèle synchronisé vers Livewire via set');
                                         }
 
                                         // Synchroniser la couleur
-                                        const couleurValue = livewireComponent.get('couleur');
-                                        console.log('Couleur Livewire:', couleurValue);
+                                        const couleurValue = $('select[wire\\:model="couleur"]').val();
+                                        console.log('Couleur Select2:', couleurValue);
                                         if (couleurValue) {
-                                            $('select[wire\\:model="couleur"]').val(couleurValue).trigger('change');
-                                            console.log('Couleur Select2 mise à jour vers:', couleurValue);
+                                            livewireComponent.set('couleur', couleurValue);
+                                            console.log('Couleur synchronisée vers Livewire');
                                         }
 
                                         // Synchroniser le statut
-                                        const statutValue = livewireComponent.get('statut');
-                                        console.log('Statut Livewire:', statutValue);
+                                        const statutValue = $('select[wire\\:model="statut"]').val();
+                                        console.log('Statut Select2:', statutValue);
                                         if (statutValue) {
-                                            $('select[wire\\:model="statut"]').val(statutValue).trigger('change');
-                                            console.log('Statut Select2 mis à jour vers:', statutValue);
+                                            livewireComponent.set('statut', statutValue);
+                                            console.log('Statut synchronisé vers Livewire');
                                         }
 
-                                        console.log('Synchronisation des Select2 terminée');
-                                    }, 200);
-                                });
+                                        console.log('=== SYNC TERMINÉ ===');
 
-                                return true;
-                            }
-                            return false;
-                        }
+                                        // Attendre un peu pour que Livewire traite les changements
+                                        setTimeout(function() {
+                                            console.log('Synchronisation terminée, soumission du formulaire...');
+                                        }, 100);
 
-                        // Attendre que Livewire soit complètement chargé
-                        document.addEventListener('DOMContentLoaded', function() {
-                            // Essayer d'initialiser immédiatement
-                            if (!initLivewireEvents()) {
-                                // Si Livewire n'est pas encore disponible, réessayer
-                                let attempts = 0;
-                                const maxAttempts = 10;
-
-                                const retryInit = setInterval(function() {
-                                    attempts++;
-                                    console.log(`Tentative ${attempts}/${maxAttempts} d'initialisation Livewire...`);
-
-                                    if (initLivewireEvents() || attempts >= maxAttempts) {
-                                        clearInterval(retryInit);
-                                        if (attempts >= maxAttempts) {
-                                            console.error('Impossible d\'initialiser Livewire après', maxAttempts,
-                                                'tentatives');
-                                        }
+                                        return true;
+                                    } else {
+                                        console.error('Composant Livewire non trouvé');
+                                        return false;
                                     }
-                                }, 500);
+                                } catch (error) {
+                                    console.error('Erreur lors de la synchronisation:', error);
+                                    return false;
+                                }
                             }
 
-                            // Intercepter la soumission du formulaire
-                            $('#vehicule-form').on('submit', function(e) {
-                                e.preventDefault();
-                                console.log('=== INTERCEPTION SOUMISSION ===');
+                            // Fonction pour initialiser les événements Livewire
+                            function initLivewireEvents() {
+                                if (typeof Livewire !== 'undefined') {
+                                    console.log('Livewire disponible, initialisation des événements...');
 
-                                // Synchroniser les valeurs Select2
-                                if (syncSelect2Values()) {
-                                    // Attendre un peu pour que Livewire traite les changements
-                                    setTimeout(function() {
-                                        console.log('Synchronisation terminée, soumission du formulaire...');
-                                        // Déclencher la soumission Livewire
-                                        const livewireComponent = Livewire.find(document.querySelector(
-                                            '[wire\\:id]').getAttribute('wire:id'));
+                                    // Synchronisation manuelle Select2 → Livewire
+                                    $('#select-type').off('change').on('change', function() {
+                                        const selectedValue = $(this).val();
+                                        console.log('Type changé vers:', selectedValue);
+
+                                        // Trouver le composant Livewire et mettre à jour la propriété
+                                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                                            'wire:id'));
                                         if (livewireComponent) {
-                                            if (livewireComponent.get('isEdit')) {
-                                                livewireComponent.call('update');
-                                            } else {
-                                                livewireComponent.call('store');
+                                            livewireComponent.set('type', selectedValue);
+                                            console.log('Type synchronisé vers Livewire');
+                                        }
+                                    });
+
+                                    // Synchronisation Livewire → Select2 (pour les mises à jour côté serveur)
+                                    Livewire.hook('message.processed', (message, component) => {
+                                        if (message.updateQueue.some(update => update.payload.name === 'type')) {
+                                            console.log('Type mis à jour côté serveur');
+                                            // Mettre à jour Select2 si nécessaire
+                                            const currentValue = $('#select-type').val();
+                                            const livewireValue = component.get('type');
+                                            if (currentValue !== livewireValue) {
+                                                $('#select-type').val(livewireValue).trigger('change');
+                                            }
+                                        }
+                                    });
+
+                                    // Écouter l'événement de synchronisation des Select2
+                                    Livewire.on('sync-select2-values', () => {
+                                        console.log('Synchronisation des Select2 pour l\'édition...');
+                                        setTimeout(function() {
+                                            // Récupérer le composant Livewire
+                                            const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]')
+                                                .getAttribute('wire:id'));
+                                            if (!livewireComponent) {
+                                                console.error('Composant Livewire non trouvé pour la synchronisation');
+                                                return;
+                                            }
+
+                                            // Synchroniser le type
+                                            const typeValue = livewireComponent.get('type');
+                                            console.log('Type Livewire:', typeValue);
+                                            if (typeValue) {
+                                                $('#select-type').val(typeValue).trigger('change');
+                                                console.log('Type Select2 mis à jour vers:', typeValue);
+                                            }
+
+                                            // Synchroniser la marque
+                                            const marqueValue = livewireComponent.get('marque_id');
+                                            console.log('Marque Livewire:', marqueValue);
+                                            if (marqueValue) {
+                                                $('select[wire\\:model\\.live="marque_id"]').val(marqueValue).trigger('change');
+                                                console.log('Marque Select2 mise à jour vers:', marqueValue);
+                                            }
+
+                                            // Synchroniser le modèle
+                                            const modeleValue = livewireComponent.get('modele_id');
+                                            console.log('Modèle Livewire:', modeleValue);
+                                            if (modeleValue) {
+                                                $('select[wire\\:model\\.live="modele_id"]').val(modeleValue).trigger('change');
+                                                console.log('Modèle Select2 mis à jour vers:', modeleValue);
+                                            }
+
+                                            // Synchroniser la couleur
+                                            const couleurValue = livewireComponent.get('couleur');
+                                            console.log('Couleur Livewire:', couleurValue);
+                                            if (couleurValue) {
+                                                $('select[wire\\:model="couleur"]').val(couleurValue).trigger('change');
+                                                console.log('Couleur Select2 mise à jour vers:', couleurValue);
+                                            }
+
+                                            // Synchroniser le statut
+                                            const statutValue = livewireComponent.get('statut');
+                                            console.log('Statut Livewire:', statutValue);
+                                            if (statutValue) {
+                                                $('select[wire\\:model="statut"]').val(statutValue).trigger('change');
+                                                console.log('Statut Select2 mis à jour vers:', statutValue);
+                                            }
+
+                                            console.log('Synchronisation des Select2 terminée');
+                                        }, 200);
+                                    });
+
+                                    return true;
+                                }
+                                return false;
+                            }
+
+                            // Attendre que Livewire soit complètement chargé
+                            document.addEventListener('DOMContentLoaded', function() {
+                                // Essayer d'initialiser immédiatement
+                                if (!initLivewireEvents()) {
+                                    // Si Livewire n'est pas encore disponible, réessayer
+                                    let attempts = 0;
+                                    const maxAttempts = 10;
+
+                                    const retryInit = setInterval(function() {
+                                        attempts++;
+                                        console.log(`Tentative ${attempts}/${maxAttempts} d'initialisation Livewire...`);
+
+                                        if (initLivewireEvents() || attempts >= maxAttempts) {
+                                            clearInterval(retryInit);
+                                            if (attempts >= maxAttempts) {
+                                                console.error('Impossible d\'initialiser Livewire après', maxAttempts,
+                                                    'tentatives');
                                             }
                                         }
                                     }, 500);
                                 }
+
+                                // Intercepter la soumission du formulaire
+                                $('#vehicule-form').on('submit', function(e) {
+                                    e.preventDefault();
+                                    console.log('=== INTERCEPTION SOUMISSION ===');
+
+                                    // Synchroniser les valeurs Select2
+                                    if (syncSelect2Values()) {
+                                        // Attendre un peu pour que Livewire traite les changements
+                                        setTimeout(function() {
+                                            console.log('Synchronisation terminée, soumission du formulaire...');
+                                            // Déclencher la soumission Livewire
+                                            const livewireComponent = Livewire.find(document.querySelector(
+                                                '[wire\\:id]').getAttribute('wire:id'));
+                                            if (livewireComponent) {
+                                                if (livewireComponent.get('isEdit')) {
+                                                    livewireComponent.call('update');
+                                                } else {
+                                                    livewireComponent.call('store');
+                                                }
+                                            }
+                                        }, 500);
+                                    }
+                                });
                             });
-                        });
-                    </script>
+                        </script>
 
-                    <div wire:key="type-section-{{ $type }}">
-                        @if ($type === 'propriete')
-                            <div class="form-section-2050">
-                                <h6 class="section-title-2050">
-                                    <i class="fas fa-euro-sign me-2"></i>Informations d'achat
-                                </h6>
+                        <div wire:key="type-section-{{ $type }}">
+                            @if ($type === 'propriete')
+                                <div class="form-section-2050">
+                                    <h6 class="section-title-2050">
+                                        <i class="fas fa-euro-sign me-2"></i>Informations d'achat
+                                    </h6>
 
-                                <div class="form-row-2050">
-                                    <div class="form-col-2050 col-md-6">
-                                        <div class="form-group-2050">
-                                            <label class="form-label-2050">Prix d'achat (€)</label>
-                                            <input type="number" wire:model="prix_achat" class="form-control-2050"
-                                                step="0.01" placeholder="0.00">
-                                            <small class="form-help-2050">Prix d'achat du véhicule en euros</small>
-                                            @error('prix_achat')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
+                                    <div class="form-row-2050">
+                                        <div class="form-col-2050 col-md-6">
+                                            <div class="form-group-2050">
+                                                <label class="form-label-2050">Prix d'achat (€)</label>
+                                                <input type="number" wire:model="prix_achat"
+                                                    class="form-control-2050" step="0.01" placeholder="0.00">
+                                                <small class="form-help-2050">Prix d'achat du véhicule en euros</small>
+                                                @error('prix_achat')
+                                                    <div class="text-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="form-col-2050 col-md-6">
-                                        <div class="form-group-2050">
-                                            <label class="form-label-2050">Date d'achat</label>
-                                            <input type="date" wire:model="date_achat" class="form-control-2050">
-                                            <small class="form-help-2050">Date d'acquisition du véhicule</small>
-                                            @error('date_achat')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @elseif($type === 'location')
-                            <div class="form-section-2050">
-                                <h6 class="section-title-2050">
-                                    <i class="fas fa-handshake me-2"></i>Informations de location
-                                </h6>
-
-                                <div class="form-row-2050">
-                                    <div class="form-col-2050 col-md-6">
-                                        <div class="form-group-2050">
-                                            <label class="form-label-2050">Prix de location/jour (€)</label>
-                                            <input type="number" wire:model="prix_location_jour"
-                                                class="form-control-2050" step="0.01" placeholder="0.00">
-                                            <small class="form-help-2050">Coût de location par jour en euros</small>
-                                            @error('prix_location_jour')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-
-                                    <div class="form-col-2050 col-md-6">
-                                        <div class="form-group-2050">
-                                            <label class="form-label-2050">Date de location</label>
-                                            <input type="date" wire:model="date_location"
-                                                class="form-control-2050">
-                                            <small class="form-help-2050">Date de début de la location</small>
-                                            @error('date_location')
-                                                <div class="text-danger">{{ $message }}</div>
-                                            @enderror
+                                        <div class="form-col-2050 col-md-6">
+                                            <div class="form-group-2050">
+                                                <label class="form-label-2050">Date d'achat</label>
+                                                <input type="date" wire:model="date_achat"
+                                                    class="form-control-2050">
+                                                <small class="form-help-2050">Date d'acquisition du véhicule</small>
+                                                @error('date_achat')
+                                                    <div class="text-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        @endif
-                    </div>
+                            @elseif($type === 'location')
+                                <div class="form-section-2050">
+                                    <h6 class="section-title-2050">
+                                        <i class="fas fa-handshake me-2"></i>Informations de location
+                                    </h6>
 
-                    <div class="form-section-2050">
-                        <h6 class="section-title-2050">
-                            <i class="fas fa-images me-2"></i>Photos du véhicule
-                        </h6>
+                                    <div class="form-row-2050">
+                                        <div class="form-col-2050 col-md-6">
+                                            <div class="form-group-2050">
+                                                <label class="form-label-2050">Prix de location/jour (€)</label>
+                                                <input type="number" wire:model="prix_location_jour"
+                                                    class="form-control-2050" step="0.01" placeholder="0.00">
+                                                <small class="form-help-2050">Coût de location par jour en
+                                                    euros</small>
+                                                @error('prix_location_jour')
+                                                    <div class="text-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
 
-                        <div class="form-row-2050">
-                            <div class="form-col-2050 col-12">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">Photos du véhicule</label>
-                                    <input type="file" wire:model="photos" class="form-control-2050" multiple
-                                        accept="image/*">
-                                    <small class="form-help-2050">Formats acceptés : JPG, PNG, GIF. Taille max : 8MB
-                                        par photo.</small>
-                                    @error('photos.*')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                                        <div class="form-col-2050 col-md-6">
+                                            <div class="form-group-2050">
+                                                <label class="form-label-2050">Date de location</label>
+                                                <input type="date" wire:model="date_location"
+                                                    class="form-control-2050">
+                                                <small class="form-help-2050">Date de début de la location</small>
+                                                @error('date_location')
+                                                    <div class="text-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+                            @endif
+                        </div>
 
-                                <!-- Affichage des photos existantes -->
-                                @if ($isEdit && $selectedVehicule && $selectedVehicule->photos->count() > 0)
-                                    <div class="mt-3">
-                                        <h6 class="text-gradient mb-3">Photos existantes</h6>
-                                        <div class="row">
-                                            @foreach ($selectedVehicule->photos as $photo)
-                                                <div class="col-md-3 mb-3">
-                                                    <div class="position-relative">
-                                                        <img src="{{ Storage::url($photo->chemin) }}"
-                                                            class="img-fluid rounded"
-                                                            style="width: 100%; height: 120px; object-fit: cover;"
-                                                            alt="Photo du véhicule">
-                                                        <button type="button"
-                                                            wire:click="deletePhoto({{ $photo->id }})"
-                                                            class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
-                                                            title="Supprimer cette photo">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
+                        <div class="form-section-2050">
+                            <h6 class="section-title-2050">
+                                <i class="fas fa-images me-2"></i>Photos du véhicule
+                            </h6>
+
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-12">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Photos du véhicule</label>
+                                        <input type="file" wire:model="photos" class="form-control-2050" multiple
+                                            accept="image/*">
+                                        <small class="form-help-2050">Formats acceptés : JPG, PNG, GIF. Taille max :
+                                            8MB
+                                            par photo.</small>
+                                        @error('photos.*')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
                                     </div>
-                                @endif
 
-                                <!-- Affichage des nouvelles photos -->
-                                @if ($photos)
-                                    <div class="mt-3">
-                                        <h6 class="text-gradient mb-3">Nouvelles photos</h6>
-                                        <div class="row">
-                                            @foreach ($photos as $index => $photo)
-                                                <div class="col-md-3 mb-3">
-                                                    <div class="position-relative">
-                                                        <img src="{{ $photo->temporaryUrl() }}"
-                                                            class="img-fluid rounded"
-                                                            style="width: 100%; height: 120px; object-fit: cover;"
-                                                            alt="Nouvelle photo">
-                                                        <button type="button"
-                                                            wire:click="removePhoto({{ $index }})"
-                                                            class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
-                                                            title="Supprimer cette photo">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-actions-2050">
-                        <button type="submit" class="btn btn-primary-2050">
-                            <i class="fas fa-save me-2"></i>{{ $isEdit ? 'Modifier' : 'Ajouter' }} Véhicule
-                        </button>
-                        @if ($isEdit)
-                            <button type="button" wire:click="resetForm" class="btn btn-outline-2050">
-                                <i class="fas fa-times me-2"></i>Annuler
-                            </button>
-                        @endif
-                </form>
-            </div>
-        </div>
-
-        <!-- Filtres Futuristes -->
-        <div class="card-2050 mb-4 hover-lift">
-            <div class="card-header-2050">
-                <h6 class="mb-0">
-                    <i class="fas fa-filter me-2"></i>Filtres Intelligents
-                </h6>
-            </div>
-            <div class="card-body p-4">
-                <div class="form-row-2050">
-                    <div class="form-col-2050 col-md-3">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Recherche générale</label>
-                            <input type="text" wire:model.live="search" class="form-control-2050"
-                                placeholder="Immatriculation, marque, modèle...">
-                        </div>
-                    </div>
-
-                    <div class="form-col-2050 col-md-2">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Type</label>
-                            <select wire:model.live="filterType" class="form-control-2050 select2-2050">
-                                <option value="">Tous</option>
-                                <option value="propriete">Propriété</option>
-                                <option value="location">Location</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-col-2050 col-md-2">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Statut</label>
-                            <select wire:model.live="filterStatut" class="form-control-2050 select2-2050">
-                                <option value="">Tous</option>
-                                <option value="disponible">Disponible</option>
-                                <option value="en_mission">En mission</option>
-                                <option value="en_maintenance">En maintenance</option>
-                                <option value="hors_service">Hors service</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-col-2050 col-md-2">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Marque</label>
-                            <select wire:model.live="filterMarque" class="form-control-2050 select2-2050">
-                                <option value="">Toutes</option>
-                                @foreach ($marques as $marque)
-                                    <option value="{{ $marque->id }}">{{ $marque->nom }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-col-2050 col-md-2">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Modèle</label>
-                            <select wire:model.live="filterModele" class="form-control-2050 select2-2050"
-                                @disabled(!$filterMarque)>
-                                <option value="">Tous</option>
-                                @foreach ($filterModeles as $modele)
-                                    <option wire:key="filter-modele-{{ $modele->id }}"
-                                        value="{{ $modele->id }}">{{ $modele->nom }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-col-2050 col-md-1">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">&nbsp;</label>
-                            <button wire:click="resetFilters" class="btn btn-outline-2050 w-100">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Liste des véhicules Futuriste -->
-        <div class="card-2050 hover-lift">
-            <div class="card-header-2050">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-list me-2"></i>Liste des véhicules
-                        <span class="badge badge-success-2050 ms-2">{{ $vehicules->total() }}</span>
-                    </h5>
-                    <button wire:click="exportExcel" class="btn btn-success-2050 btn-sm">
-                        <i class="fas fa-file-excel me-2"></i>Exporter Excel
-                    </button>
-                </div>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-2050 mb-0">
-                        <thead>
-                            <tr>
-                                <th><i class="fas fa-images me-2"></i>Photos</th>
-                                <th>
-                                    <button wire:click="sortBy('immatriculation')"
-                                        class="btn btn-link p-0 text-decoration-none">
-                                        {{-- class="btn btn-link p-0 text-decoration-none text-black"> --}}
-                                        <i class="fas fa-car me-2"></i>Véhicule
-                                        @if ($sortField === 'immatriculation')
-                                            <i
-                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                        @else
-                                            <i class="fas fa-sort ms-1 text-muted"></i>
-                                        @endif
-                                    </button>
-                                </th>
-                                <th>
-                                    <button wire:click="sortBy('type')" class="btn btn-link p-0 text-decoration-none">
-                                        <i class="fas fa-info-circle me-2"></i>Type
-                                        @if ($sortField === 'type')
-                                            <i
-                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                        @else
-                                            <i class="fas fa-sort ms-1 text-muted"></i>
-                                        @endif
-                                    </button>
-                                </th>
-                                <th>
-                                    <button wire:click="sortBy('statut')"
-                                        class="btn btn-link p-0 text-decoration-none">
-                                        <i class="fas fa-chart-line me-2"></i>Statut
-                                        @if ($sortField === 'statut')
-                                            <i
-                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                        @else
-                                            <i class="fas fa-sort ms-1 text-muted"></i>
-                                        @endif
-                                    </button>
-                                </th>
-                                <th><i class="fas fa-cogs me-2"></i>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($vehicules as $vehicule)
-                                <tr class="animate-fade-in-up">
-                                    <td>
-                                        @if ($vehicule->photos->count() > 0)
-                                            <div class="d-flex">
-                                                @foreach ($vehicule->photos->take(3) as $photo)
-                                                    <div class="me-1">
-                                                        <img src="{{ $photo->url }}" class="rounded"
-                                                            style="width: 40px; height: 40px; object-fit: cover;"
-                                                            alt="Photo">
+                                    <!-- Affichage des photos existantes -->
+                                    @if ($isEdit && $selectedVehicule && $selectedVehicule->photos->count() > 0)
+                                        <div class="mt-3">
+                                            <h6 class="text-gradient mb-3">Photos existantes</h6>
+                                            <div class="row">
+                                                @foreach ($selectedVehicule->photos as $photo)
+                                                    <div class="col-md-3 mb-3">
+                                                        <div class="position-relative">
+                                                            <img src="{{ Storage::url($photo->chemin) }}"
+                                                                class="img-fluid rounded"
+                                                                style="width: 100%; height: 120px; object-fit: cover;"
+                                                                alt="Photo du véhicule">
+                                                            <button type="button"
+                                                                wire:click="deletePhoto({{ $photo->id }})"
+                                                                class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                                                                title="Supprimer cette photo">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 @endforeach
-                                                @if ($vehicule->photos->count() > 3)
-                                                    <div class="glass-effect rounded d-flex align-items-center justify-content-center"
-                                                        style="width: 40px; height: 40px;">
-                                                        <small
-                                                            class="text-muted">+{{ $vehicule->photos->count() - 3 }}</small>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    <!-- Affichage des nouvelles photos -->
+                                    @if ($photos)
+                                        <div class="mt-3">
+                                            <h6 class="text-gradient mb-3">Nouvelles photos</h6>
+                                            <div class="row">
+                                                @foreach ($photos as $index => $photo)
+                                                    <div class="col-md-3 mb-3">
+                                                        <div class="position-relative">
+                                                            <img src="{{ $photo->temporaryUrl() }}"
+                                                                class="img-fluid rounded"
+                                                                style="width: 100%; height: 120px; object-fit: cover;"
+                                                                alt="Nouvelle photo">
+                                                            <button type="button"
+                                                                wire:click="removePhoto({{ $index }})"
+                                                                class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                                                                title="Supprimer cette photo">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                @endif
-                                            </div>
-                                        @else
-                                            <span class="text-muted">Aucune photo</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="glass-effect rounded-circle p-2 me-3">
-                                                <i class="fas fa-car text-gradient"></i>
-                                            </div>
-                                            <div>
-                                                <strong>{{ $vehicule->immatriculation }}</strong>
-                                                <br><small class="text-muted">{{ $vehicule->marque->nom ?? 'N/A' }}
-                                                    {{ $vehicule->modele->nom ?? '' }}</small>
-                                                @if ($vehicule->annee)
-                                                    <br><small class="text-muted">{{ $vehicule->annee }}</small>
-                                                @endif
+                                                @endforeach
                                             </div>
                                         </div>
-                                    </td>
-                                    <td>
-                                        @if ($vehicule->type === 'propriete')
-                                            <span class="badge badge-primary-2050">
-                                                <i class="fas fa-home me-1"></i>Propriété
-                                                @if ($vehicule->prix_achat)
-                                                    <br><small>{{ number_format($vehicule->prix_achat, 2) }} €</small>
-                                                @endif
-                                            </span>
-                                        @else
-                                            <span class="badge badge-warning-2050">
-                                                <i class="fas fa-handshake me-1"></i>Location
-                                                @if ($vehicule->prix_location_jour)
-                                                    <br><small>{{ number_format($vehicule->prix_location_jour, 2) }}
-                                                        €/jour</small>
-                                                @endif
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if ($vehicule->statut === 'disponible')
-                                            <span class="badge badge-success-2050">
-                                                <i class="fas fa-check me-1"></i>Disponible
-                                            </span>
-                                        @elseif($vehicule->statut === 'en_mission')
-                                            <span class="badge badge-warning-2050">
-                                                <i class="fas fa-road me-1"></i>En mission
-                                            </span>
-                                        @elseif($vehicule->statut === 'en_maintenance')
-                                            <span class="badge badge-danger-2050">
-                                                <i class="fas fa-tools me-1"></i>Maintenance
-                                            </span>
-                                        @else
-                                            <span class="badge badge-danger-2050">
-                                                <i class="fas fa-times me-1"></i>Hors service
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="btn-group-actions">
-                                            <button wire:click="showDetails({{ $vehicule->id }})"
-                                                class="btn btn-outline-2050 btn-sm" title="Détails">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button wire:click="edit({{ $vehicule->id }})"
-                                                class="btn btn-warning-2050 btn-sm" title="Modifier">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button type="button"
-                                                wire:click.prevent="confirmDelete({{ $vehicule->id }})"
-                                                class="btn btn-danger-2050 btn-sm" title="Supprimer">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted py-5">
-                                        <div class="glass-effect rounded-circle p-4 mx-auto mb-3"
-                                            style="width: 80px; height: 80px;">
-                                            <i class="fas fa-car text-gradient fs-2"></i>
-                                        </div>
-                                        <h5>Aucun véhicule trouvé</h5>
-                                        <p class="mb-0">Ajoutez votre premier véhicule pour commencer</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions-2050">
+                            <button type="submit" class="btn btn-primary-2050">
+                                <i class="fas fa-save me-2"></i>{{ $isEdit ? 'Modifier' : 'Ajouter' }} Véhicule
+                            </button>
+                            @if ($isEdit)
+                                <button type="button" wire:click="resetForm" class="btn btn-outline-2050">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </button>
+                            @else
+                                <button type="button" wire:click="hideForm" class="btn btn-outline-2050">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </button>
+                            @endif
+                    </form>
                 </div>
             </div>
-        </div>
+        @endif
 
-        <div class="mt-4">
-            {{ $vehicules->links() }}
-        </div>
+        <!-- Filtres Futuristes -->
+        @if (!$showForm && !$isEdit)
+            <div class="card-2050 mb-4 hover-lift">
+                <div class="card-header-2050">
+                    <h6 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>Filtres Intelligents
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="form-row-2050">
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Recherche générale</label>
+                                <input type="text" wire:model.live="search" class="form-control-2050"
+                                    placeholder="Immatriculation, marque, modèle...">
+                            </div>
+                        </div>
+
+                        <div class="form-col-2050 col-md-2">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Type</label>
+                                <select wire:model.live="filterType" class="form-control-2050 select2-2050">
+                                    <option value="">Tous</option>
+                                    <option value="propriete">Propriété</option>
+                                    <option value="location">Location</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-col-2050 col-md-2">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Statut</label>
+                                <select wire:model.live="filterStatut" class="form-control-2050 select2-2050">
+                                    <option value="">Tous</option>
+                                    <option value="disponible">Disponible</option>
+                                    <option value="en_mission">En mission</option>
+                                    <option value="en_maintenance">En maintenance</option>
+                                    <option value="hors_service">Hors service</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-col-2050 col-md-2">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Marque</label>
+                                <select wire:model.live="filterMarque" class="form-control-2050 select2-2050">
+                                    <option value="">Toutes</option>
+                                    @foreach ($marques as $marque)
+                                        <option value="{{ $marque->id }}">{{ $marque->nom }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-col-2050 col-md-2">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Modèle</label>
+                                <select wire:model.live="filterModele" class="form-control-2050 select2-2050"
+                                    @disabled(!$filterMarque)>
+                                    <option value="">Tous</option>
+                                    @foreach ($filterModeles as $modele)
+                                        <option wire:key="filter-modele-{{ $modele->id }}"
+                                            value="{{ $modele->id }}">{{ $modele->nom }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-col-2050 col-md-1">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">&nbsp;</label>
+                                <button wire:click="resetFilters" class="btn btn-outline-2050 w-100">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <!-- Liste des véhicules Futuriste -->
+        @if (!$showForm && !$isEdit)
+            <div class="card-2050 hover-lift">
+                <div class="card-header-2050">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2"></i>Liste des véhicules
+                            <span class="badge badge-success-2050 ms-2">{{ $vehicules->total() }}</span>
+                        </h5>
+                        <button wire:click="exportExcel" class="btn btn-success-2050 btn-sm">
+                            <i class="fas fa-file-excel me-2"></i>Exporter Excel
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-2050 mb-0">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-images me-2"></i>Photos</th>
+                                    <th>
+                                        <button wire:click="sortBy('immatriculation')"
+                                            class="btn btn-link p-0 text-decoration-none">
+                                            {{-- class="btn btn-link p-0 text-decoration-none text-black"> --}}
+                                            <i class="fas fa-car me-2"></i>Véhicule
+                                            @if ($sortField === 'immatriculation')
+                                                <i
+                                                    class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort ms-1 text-muted"></i>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th>
+                                        <button wire:click="sortBy('type')"
+                                            class="btn btn-link p-0 text-decoration-none">
+                                            <i class="fas fa-info-circle me-2"></i>Type
+                                            @if ($sortField === 'type')
+                                                <i
+                                                    class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort ms-1 text-muted"></i>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th>
+                                        <button wire:click="sortBy('statut')"
+                                            class="btn btn-link p-0 text-decoration-none">
+                                            <i class="fas fa-chart-line me-2"></i>Statut
+                                            @if ($sortField === 'statut')
+                                                <i
+                                                    class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort ms-1 text-muted"></i>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th><i class="fas fa-cogs me-2"></i>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($vehicules as $vehicule)
+                                    <tr class="animate-fade-in-up">
+                                        <td>
+                                            @if ($vehicule->photos->count() > 0)
+                                                <div class="d-flex">
+                                                    @foreach ($vehicule->photos->take(3) as $photo)
+                                                        <div class="me-1">
+                                                            <img src="{{ $photo->url }}" class="rounded"
+                                                                style="width: 40px; height: 40px; object-fit: cover;"
+                                                                alt="Photo">
+                                                        </div>
+                                                    @endforeach
+                                                    @if ($vehicule->photos->count() > 3)
+                                                        <div class="glass-effect rounded d-flex align-items-center justify-content-center"
+                                                            style="width: 40px; height: 40px;">
+                                                            <small
+                                                                class="text-muted">+{{ $vehicule->photos->count() - 3 }}</small>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @else
+                                                <span class="text-muted">Aucune photo</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="glass-effect rounded-circle p-2 me-3">
+                                                    <i class="fas fa-car text-gradient"></i>
+                                                </div>
+                                                <div>
+                                                    <strong>{{ $vehicule->immatriculation }}</strong>
+                                                    <br><small
+                                                        class="text-muted">{{ $vehicule->marque->nom ?? 'N/A' }}
+                                                        {{ $vehicule->modele->nom ?? '' }}</small>
+                                                    @if ($vehicule->annee)
+                                                        <br><small class="text-muted">{{ $vehicule->annee }}</small>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if ($vehicule->type === 'propriete')
+                                                <span class="badge badge-primary-2050">
+                                                    <i class="fas fa-home me-1"></i>Propriété
+                                                    @if ($vehicule->prix_achat)
+                                                        <br><small>{{ number_format($vehicule->prix_achat, 2) }}
+                                                            €</small>
+                                                    @endif
+                                                </span>
+                                            @else
+                                                <span class="badge badge-warning-2050">
+                                                    <i class="fas fa-handshake me-1"></i>Location
+                                                    @if ($vehicule->prix_location_jour)
+                                                        <br><small>{{ number_format($vehicule->prix_location_jour, 2) }}
+                                                            €/jour</small>
+                                                    @endif
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($vehicule->statut === 'disponible')
+                                                <span class="badge badge-success-2050">
+                                                    <i class="fas fa-check me-1"></i>Disponible
+                                                </span>
+                                            @elseif($vehicule->statut === 'en_mission')
+                                                <span class="badge badge-warning-2050">
+                                                    <i class="fas fa-road me-1"></i>En mission
+                                                </span>
+                                            @elseif($vehicule->statut === 'en_maintenance')
+                                                <span class="badge badge-danger-2050">
+                                                    <i class="fas fa-tools me-1"></i>Maintenance
+                                                </span>
+                                            @else
+                                                <span class="badge badge-danger-2050">
+                                                    <i class="fas fa-times me-1"></i>Hors service
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="btn-group-actions">
+                                                <button wire:click="showDetails({{ $vehicule->id }})"
+                                                    class="btn btn-outline-2050 btn-sm" title="Détails">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button wire:click="edit({{ $vehicule->id }})"
+                                                    class="btn btn-warning-2050 btn-sm" title="Modifier">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button"
+                                                    wire:click.prevent="confirmDelete({{ $vehicule->id }})"
+                                                    class="btn btn-danger-2050 btn-sm" title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-5">
+                                            <div class="glass-effect rounded-circle p-4 mx-auto mb-3"
+                                                style="width: 80px; height: 80px;">
+                                                <i class="fas fa-car text-gradient fs-2"></i>
+                                            </div>
+                                            <h5>Aucun véhicule trouvé</h5>
+                                            <p class="mb-0">Ajoutez votre premier véhicule pour commencer</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                {{ $vehicules->links() }}
+            </div>
     </div>
 
     <!-- Modal de détails -->
@@ -1061,5 +1083,6 @@
                 </div>
             </div>
         </div>
+    @endif
     @endif
 </div>
