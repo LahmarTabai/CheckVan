@@ -62,8 +62,17 @@ class Affectations extends Component
         // Récupérer les chauffeurs disponibles (sans véhicule en cours)
         $chauffeursAffectes = Affectation::where('status', 'en_cours')->pluck('chauffeur_id');
         $chauffeursQuery = User::where('role', 'chauffeur')
-            ->where('admin_id', Auth::user()->user_id)
-            ->whereNotIn('user_id', $chauffeursAffectes);
+            ->where('admin_id', Auth::user()->user_id);
+
+        // Si on est en mode édition, inclure le chauffeur actuellement affecté
+        if ($this->isEdit && $this->chauffeur_id) {
+            $chauffeursQuery->where(function($query) use ($chauffeursAffectes) {
+                $query->whereNotIn('user_id', $chauffeursAffectes)
+                      ->orWhere('user_id', $this->chauffeur_id);
+            });
+        } else {
+            $chauffeursQuery->whereNotIn('user_id', $chauffeursAffectes);
+        }
 
         // Filtrer par recherche si nécessaire
         if ($this->searchChauffeur) {
@@ -78,8 +87,17 @@ class Affectations extends Component
         // Récupérer les véhicules disponibles (non affectés ou rendus)
         $vehiculesAffectes = Affectation::where('status', 'en_cours')->pluck('vehicule_id');
         $vehiculesQuery = Vehicule::with(['marque', 'modele'])
-            ->where('admin_id', Auth::user()->user_id)
-            ->whereNotIn('id', $vehiculesAffectes);
+            ->where('admin_id', Auth::user()->user_id);
+
+        // Si on est en mode édition, inclure le véhicule actuellement affecté
+        if ($this->isEdit && $this->vehicule_id) {
+            $vehiculesQuery->where(function($query) use ($vehiculesAffectes) {
+                $query->whereNotIn('id', $vehiculesAffectes)
+                      ->orWhere('id', $this->vehicule_id);
+            });
+        } else {
+            $vehiculesQuery->whereNotIn('id', $vehiculesAffectes);
+        }
 
         // Filtrer par recherche si nécessaire
         if ($this->searchVehicule) {
@@ -186,6 +204,16 @@ class Affectations extends Component
         $this->date_fin = $aff->date_fin;
         $this->description = $aff->description;
         $this->isEdit = true;
+
+        // Réinitialiser les dropdowns
+        $this->hideDropdowns();
+
+        // Réinitialiser les recherches pour afficher toutes les options
+        $this->searchChauffeur = '';
+        $this->searchVehicule = '';
+
+        // Déclencher la synchronisation des Select2 après un délai
+        $this->dispatch('sync-select2-values');
     }
 
     public function update()

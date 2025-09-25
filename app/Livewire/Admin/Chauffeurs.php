@@ -15,6 +15,7 @@ class Chauffeurs extends Component
     public $nom, $prenom, $email, $password, $password_confirmation, $chauffeur_id;
     public $tel, $adresse, $date_naissance, $numero_permis, $permis_expire_le, $statut, $date_embauche;
     public $profile_picture;
+    public $existingProfilePicture; // Pour stocker le chemin de la photo existante
     public $isEdit = false;
 
     // Filtres
@@ -241,7 +242,11 @@ class Chauffeurs extends Component
         $this->password = ''; // Reset du mot de passe
         $this->password_confirmation = ''; // Reset de la confirmation
         $this->profile_picture = null; // Reset pour éviter de garder l'ancienne photo
+        $this->existingProfilePicture = $user->profile_picture; // Stocker la photo existante
         $this->isEdit = true;
+
+        // Déclencher la synchronisation des Select2 après un délai
+        $this->dispatch('sync-select2-values');
     }
 
     public function confirmDelete($id)
@@ -249,6 +254,11 @@ class Chauffeurs extends Component
         $this->chauffeurToDelete = (int) $id;
         $this->showDeleteModal = true;
 
+    }
+
+    public function removeExistingPhoto()
+    {
+        $this->existingProfilePicture = null;
     }
 
     public function destroy($id)

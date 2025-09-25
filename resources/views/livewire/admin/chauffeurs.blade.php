@@ -237,6 +237,22 @@
                                                 <i class="fas fa-check me-1"></i>Photo sélectionnée
                                             </small>
                                         </div>
+                                    @elseif ($isEdit && $existingProfilePicture)
+                                        <div class="mt-2">
+                                            <div class="position-relative d-inline-block">
+                                                <img src="{{ asset('storage/' . $existingProfilePicture) }}"
+                                                    alt="Photo existante" class="rounded-circle"
+                                                    style="width: 80px; height: 80px; object-fit: cover;">
+                                                <button type="button" wire:click="removeExistingPhoto"
+                                                    class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                                                    title="Supprimer cette photo">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            <small class="text-info ms-2">
+                                                <i class="fas fa-image me-1"></i>Photo actuelle
+                                            </small>
+                                        </div>
                                     @endif
                                 </div>
                             </div>
@@ -256,6 +272,112 @@
                 </form>
             </div>
         </div>
+
+        <script>
+            // Fonction pour synchroniser les valeurs Select2 avant soumission
+            function syncSelect2Values() {
+                console.log('=== SYNC SELECT2 VALUES CHAUFFEURS ===');
+
+                try {
+                    const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'));
+                    if (livewireComponent) {
+                        // Synchroniser le statut
+                        const statutValue = $('select[wire\\:model="statut"]').val();
+                        console.log('Statut Select2:', statutValue);
+                        if (statutValue) {
+                            livewireComponent.set('statut', statutValue);
+                            console.log('Statut synchronisé vers Livewire');
+                        }
+
+                        console.log('=== SYNC TERMINÉ ===');
+                        return true;
+                    } else {
+                        console.error('Composant Livewire non trouvé');
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la synchronisation:', error);
+                    return false;
+                }
+            }
+
+            // Fonction pour initialiser les événements Livewire
+            function initLivewireEvents() {
+                if (typeof Livewire !== 'undefined') {
+                    console.log('Livewire disponible, initialisation des événements...');
+
+                    // Écouter l'événement de synchronisation des Select2
+                    Livewire.on('sync-select2-values', () => {
+                        console.log('Synchronisation des Select2 pour l\'édition...');
+                        setTimeout(function() {
+                            // Récupérer le composant Livewire
+                            const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]')
+                                .getAttribute('wire:id'));
+                            if (!livewireComponent) {
+                                console.error('Composant Livewire non trouvé pour la synchronisation');
+                                return;
+                            }
+
+                            // Synchroniser le statut
+                            const statutValue = livewireComponent.get('statut');
+                            console.log('Statut Livewire:', statutValue);
+                            if (statutValue) {
+                                $('select[wire\\:model="statut"]').val(statutValue).trigger('change');
+                                console.log('Statut Select2 mis à jour vers:', statutValue);
+                            }
+
+                            console.log('Synchronisation des Select2 terminée');
+                        }, 200);
+                    });
+
+                    return true;
+                }
+                return false;
+            }
+
+            // Attendre que Livewire soit complètement chargé
+            document.addEventListener('DOMContentLoaded', function() {
+                // Essayer d'initialiser immédiatement
+                if (!initLivewireEvents()) {
+                    // Si Livewire n'est pas encore disponible, réessayer
+                    let attempts = 0;
+                    const maxAttempts = 10;
+
+                    const retryInit = setInterval(function() {
+                        attempts++;
+                        console.log(`Tentative ${attempts}/${maxAttempts} d'initialisation Livewire...`);
+
+                        if (initLivewireEvents() || attempts >= maxAttempts) {
+                            clearInterval(retryInit);
+                            if (attempts >= maxAttempts) {
+                                console.error('Impossible d\'initialiser Livewire après', maxAttempts,
+                                    'tentatives');
+                            }
+                        }
+                    }, 500);
+                }
+
+                // Intercepter la soumission du formulaire
+                $('form[wire\\:submit\\.prevent="save"]').on('submit', function(e) {
+                    e.preventDefault();
+                    console.log('=== INTERCEPTION SOUMISSION CHAUFFEURS ===');
+
+                    // Synchroniser les valeurs Select2
+                    if (syncSelect2Values()) {
+                        // Attendre un peu pour que Livewire traite les changements
+                        setTimeout(function() {
+                            console.log('Synchronisation terminée, soumission du formulaire...');
+                            // Déclencher la soumission Livewire
+                            const livewireComponent = Livewire.find(document.querySelector(
+                                '[wire\\:id]').getAttribute('wire:id'));
+                            if (livewireComponent) {
+                                livewireComponent.call('save');
+                            }
+                        }, 500);
+                    }
+                });
+            });
+        </script>
 
         <!-- Filtres Futuristes -->
         <div class="card-2050 mb-4 hover-lift">

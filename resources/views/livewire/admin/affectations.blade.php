@@ -61,31 +61,13 @@
                                     <label class="form-label-2050">
                                         Chauffeur <span class="required">*</span>
                                     </label>
-                                    <div class="position-relative">
-                                        <input type="text" wire:model.live="searchChauffeur"
-                                            wire:focus="showChauffeurDropdown = true" class="form-control-2050"
-                                            placeholder="Rechercher un chauffeur..." autocomplete="off">
-
-                                        @if ($showChauffeurDropdown && $chauffeurs->count() > 0)
-                                            <div class="dropdown-menu-2050 show w-100"
-                                                style="max-height: 200px; overflow-y: auto;">
-                                                @foreach ($chauffeurs as $c)
-                                                    <div class="dropdown-item-2050"
-                                                        wire:click="selectChauffeur({{ $c->user_id }}, '{{ $c->nom }} {{ $c->prenom }}')"
-                                                        style="cursor: pointer;">
-                                                        {{ $c->nom }} {{ $c->prenom }}
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @endif
-
-                                        @if ($chauffeur_id)
-                                            <small class="text-success">
-                                                <i class="fas fa-check-circle me-1"></i>
-                                                Chauffeur sélectionné
-                                            </small>
-                                        @endif
-                                    </div>
+                                    <select wire:model="chauffeur_id" class="form-control-2050 select2-2050">
+                                        <option value="">-- Sélectionner un chauffeur --</option>
+                                        @foreach ($chauffeurs as $c)
+                                            <option value="{{ $c->user_id }}">{{ $c->nom }} {{ $c->prenom }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                     @error('chauffeur_id')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -97,32 +79,15 @@
                                     <label class="form-label-2050">
                                         Véhicule <span class="required">*</span>
                                     </label>
-                                    <div class="position-relative">
-                                        <input type="text" wire:model.live="searchVehicule"
-                                            wire:focus="showVehiculeDropdown = true" class="form-control-2050"
-                                            placeholder="Rechercher un véhicule..." autocomplete="off">
-
-                                        @if ($showVehiculeDropdown && $vehicules->count() > 0)
-                                            <div class="dropdown-menu-2050 show w-100"
-                                                style="max-height: 200px; overflow-y: auto;">
-                                                @foreach ($vehicules as $v)
-                                                    <div class="dropdown-item-2050"
-                                                        wire:click="selectVehicule({{ $v->id }}, '{{ $v->marque->nom ?? 'N/A' }} {{ $v->modele->nom ?? '' }} - {{ $v->immatriculation }}')"
-                                                        style="cursor: pointer;">
-                                                        {{ $v->marque->nom ?? 'N/A' }} {{ $v->modele->nom ?? '' }} -
-                                                        {{ $v->immatriculation }}
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @endif
-
-                                        @if ($vehicule_id)
-                                            <small class="text-success">
-                                                <i class="fas fa-check-circle me-1"></i>
-                                                Véhicule sélectionné
-                                            </small>
-                                        @endif
-                                    </div>
+                                    <select wire:model="vehicule_id" class="form-control-2050 select2-2050">
+                                        <option value="">-- Sélectionner un véhicule --</option>
+                                        @foreach ($vehicules as $v)
+                                            <option value="{{ $v->id }}">
+                                                {{ $v->marque->nom ?? 'N/A' }} {{ $v->modele->nom ?? '' }} -
+                                                {{ $v->immatriculation }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                     <small class="form-help-2050">Véhicules disponibles :
                                         {{ $vehicules->count() }}</small>
                                     @error('vehicule_id')
@@ -211,6 +176,148 @@
                 </form>
             </div>
         </div>
+
+        <script>
+            // Fonction pour synchroniser les valeurs Select2 avant soumission
+            function syncSelect2Values() {
+                console.log('=== SYNC SELECT2 VALUES AFFECTATIONS ===');
+
+                try {
+                    const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'));
+                    if (livewireComponent) {
+                        // Synchroniser le chauffeur
+                        const chauffeurValue = $('select[wire\\:model="chauffeur_id"]').val();
+                        console.log('Chauffeur Select2:', chauffeurValue);
+                        if (chauffeurValue) {
+                            livewireComponent.set('chauffeur_id', chauffeurValue);
+                            console.log('Chauffeur synchronisé vers Livewire');
+                        }
+
+                        // Synchroniser le véhicule
+                        const vehiculeValue = $('select[wire\\:model="vehicule_id"]').val();
+                        console.log('Véhicule Select2:', vehiculeValue);
+                        if (vehiculeValue) {
+                            livewireComponent.set('vehicule_id', vehiculeValue);
+                            console.log('Véhicule synchronisé vers Livewire');
+                        }
+
+                        // Synchroniser le statut
+                        const statusValue = $('select[wire\\:model="status"]').val();
+                        console.log('Statut Select2:', statusValue);
+                        if (statusValue) {
+                            livewireComponent.set('status', statusValue);
+                            console.log('Statut synchronisé vers Livewire');
+                        }
+
+                        console.log('=== SYNC TERMINÉ ===');
+                        return true;
+                    } else {
+                        console.error('Composant Livewire non trouvé');
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la synchronisation:', error);
+                    return false;
+                }
+            }
+
+            // Fonction pour initialiser les événements Livewire
+            function initLivewireEvents() {
+                if (typeof Livewire !== 'undefined') {
+                    console.log('Livewire disponible, initialisation des événements...');
+
+                    // Écouter l'événement de synchronisation des Select2
+                    Livewire.on('sync-select2-values', () => {
+                        console.log('Synchronisation des Select2 pour l\'édition...');
+                        setTimeout(function() {
+                            // Récupérer le composant Livewire
+                            const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]')
+                                .getAttribute('wire:id'));
+                            if (!livewireComponent) {
+                                console.error('Composant Livewire non trouvé pour la synchronisation');
+                                return;
+                            }
+
+                            // Synchroniser le chauffeur
+                            const chauffeurValue = livewireComponent.get('chauffeur_id');
+                            console.log('Chauffeur Livewire:', chauffeurValue);
+                            if (chauffeurValue) {
+                                $('select[wire\\:model="chauffeur_id"]').val(chauffeurValue).trigger('change');
+                                console.log('Chauffeur Select2 mis à jour vers:', chauffeurValue);
+                            }
+
+                            // Synchroniser le véhicule
+                            const vehiculeValue = livewireComponent.get('vehicule_id');
+                            console.log('Véhicule Livewire:', vehiculeValue);
+                            if (vehiculeValue) {
+                                $('select[wire\\:model="vehicule_id"]').val(vehiculeValue).trigger('change');
+                                console.log('Véhicule Select2 mis à jour vers:', vehiculeValue);
+                            }
+
+                            // Synchroniser le statut
+                            const statusValue = livewireComponent.get('status');
+                            console.log('Statut Livewire:', statusValue);
+                            if (statusValue) {
+                                $('select[wire\\:model="status"]').val(statusValue).trigger('change');
+                                console.log('Statut Select2 mis à jour vers:', statusValue);
+                            }
+
+                            console.log('Synchronisation des Select2 terminée');
+                        }, 200);
+                    });
+
+                    return true;
+                }
+                return false;
+            }
+
+            // Attendre que Livewire soit complètement chargé
+            document.addEventListener('DOMContentLoaded', function() {
+                // Essayer d'initialiser immédiatement
+                if (!initLivewireEvents()) {
+                    // Si Livewire n'est pas encore disponible, réessayer
+                    let attempts = 0;
+                    const maxAttempts = 10;
+
+                    const retryInit = setInterval(function() {
+                        attempts++;
+                        console.log(`Tentative ${attempts}/${maxAttempts} d'initialisation Livewire...`);
+
+                        if (initLivewireEvents() || attempts >= maxAttempts) {
+                            clearInterval(retryInit);
+                            if (attempts >= maxAttempts) {
+                                console.error('Impossible d\'initialiser Livewire après', maxAttempts,
+                                    'tentatives');
+                            }
+                        }
+                    }, 500);
+                }
+
+                // Intercepter la soumission du formulaire
+                $('form[wire\\:submit\\.prevent="save"]').on('submit', function(e) {
+                    e.preventDefault();
+                    console.log('=== INTERCEPTION SOUMISSION AFFECTATIONS ===');
+
+                    // Synchroniser les valeurs Select2
+                    if (syncSelect2Values()) {
+                        // Attendre un peu pour que Livewire traite les changements
+                        setTimeout(function() {
+                            console.log('Synchronisation terminée, soumission du formulaire...');
+                            // Déclencher la soumission Livewire
+                            const livewireComponent = Livewire.find(document.querySelector(
+                                '[wire\\:id]').getAttribute('wire:id'));
+                            if (livewireComponent) {
+                                if (livewireComponent.get('isEdit')) {
+                                    livewireComponent.call('update');
+                                } else {
+                                    livewireComponent.call('save');
+                                }
+                            }
+                        }, 500);
+                    }
+                });
+            });
+        </script>
 
         <!-- Filtres Futuristes -->
         <div class="card-2050 mb-4 hover-lift">
