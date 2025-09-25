@@ -129,11 +129,17 @@ class Vehicules extends Component
         $this->dispatch('type-changed');
     }
 
+    public function syncModele($modeleId)
+    {
+        $this->modele_id = $modeleId;
+    }
+
     protected $listeners = [
         'vehicule-added' => '$refresh',
         'vehicule-updated' => '$refresh',
         'marque-changed' => 'handleMarqueChanged',
         'vehicule-deleted' => '$refresh',
+        'sync-modele' => 'syncModele',
     ];
 
     public function mount()
@@ -347,6 +353,7 @@ class Vehicules extends Component
     public function store()
     {
         try {
+
             $this->validate();
 
             $data = [

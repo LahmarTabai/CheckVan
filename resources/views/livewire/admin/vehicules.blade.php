@@ -12,11 +12,6 @@
             </div>
         </div>
 
-        <!-- Debug global -->
-        <div class="alert alert-warning mb-3">
-            <strong>Debug Global:</strong> Type actuel = "{{ $type }}" | IsEdit =
-            {{ $isEdit ? 'true' : 'false' }}
-        </div>
 
         @if (session()->has('success'))
             <div class="alert alert-success-2050 alert-dismissible fade show animate-fade-in-up" role="alert">
@@ -33,7 +28,7 @@
                 </h6>
             </div>
             <div class="card-body p-4">
-                <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}">
+                <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}" id="vehicule-form">
                     <div class="form-section-2050">
                         <h6 class="section-title-2050">
                             <i class="fas fa-info-circle me-2"></i>Informations de base
@@ -109,7 +104,7 @@
                                         <small class="text-muted">Chargement des modèles...</small>
                                     </div>
 
-                                    <select wire:model="modele_id" class="form-control-2050 select2-2050"
+                                    <select wire:model.live="modele_id" class="form-control-2050 select2-2050"
                                         @disabled(!$marque_id)>
                                         <option value="">-- Sélectionner un modèle --</option>
                                         @foreach ($formModeles as $modele)
@@ -256,30 +251,95 @@
                         </div>
                     </div>
 
-                    <!-- Debug temporaire -->
-                    <div class="alert alert-info mb-3">
-                        <strong>Debug:</strong> Type actuel = "{{ $type }}" | IsEdit =
-                        {{ $isEdit ? 'true' : 'false' }}
-                    </div>
 
                     <script>
-                        // Attendre que Livewire soit complètement chargé
-                        document.addEventListener('DOMContentLoaded', function() {
-                            // Vérifier que Livewire est disponible
+                        // Fonction pour synchroniser les valeurs Select2 avant soumission
+                        function syncSelect2Values() {
+                            console.log('=== SYNC SELECT2 VALUES ===');
+
+                            try {
+                                const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'));
+                                if (livewireComponent) {
+                                    // Synchroniser le type
+                                    const typeValue = $('#select-type').val();
+                                    console.log('Type Select2:', typeValue);
+                                    if (typeValue) {
+                                        livewireComponent.set('type', typeValue);
+                                        console.log('Type synchronisé vers Livewire');
+                                    }
+
+                                    // Synchroniser la marque
+                                    const marqueValue = $('select[wire\\:model\\.live="marque_id"]').val();
+                                    console.log('Marque Select2:', marqueValue);
+                                    if (marqueValue) {
+                                        livewireComponent.set('marque_id', marqueValue);
+                                        console.log('Marque synchronisée vers Livewire');
+                                    }
+
+                                    // Synchroniser le modèle
+                                    const modeleValue = $('select[wire\\:model\\.live="modele_id"]').val();
+                                    console.log('Modèle Select2:', modeleValue);
+                                    if (modeleValue) {
+                                        // Utiliser dispatch au lieu de set
+                                        livewireComponent.dispatch('sync-modele', {
+                                            modeleId: modeleValue
+                                        });
+                                        console.log('Modèle synchronisé vers Livewire via dispatch');
+
+                                        // Forcer la mise à jour du DOM Select2
+                                        $('select[wire\\:model\\.live="modele_id"]').val(modeleValue).trigger('change');
+                                    }
+
+                                    // Synchroniser la couleur
+                                    const couleurValue = $('select[wire\\:model="couleur"]').val();
+                                    console.log('Couleur Select2:', couleurValue);
+                                    if (couleurValue) {
+                                        livewireComponent.set('couleur', couleurValue);
+                                        console.log('Couleur synchronisée vers Livewire');
+                                    }
+
+                                    // Synchroniser le statut
+                                    const statutValue = $('select[wire\\:model="statut"]').val();
+                                    console.log('Statut Select2:', statutValue);
+                                    if (statutValue) {
+                                        livewireComponent.set('statut', statutValue);
+                                        console.log('Statut synchronisé vers Livewire');
+                                    }
+
+                                    console.log('=== SYNC TERMINÉ ===');
+
+                                    // Attendre un peu pour que Livewire traite les changements
+                                    setTimeout(function() {
+                                        console.log('Synchronisation terminée, soumission du formulaire...');
+                                    }, 100);
+
+                                    return true;
+                                } else {
+                                    console.error('Composant Livewire non trouvé');
+                                    return false;
+                                }
+                            } catch (error) {
+                                console.error('Erreur lors de la synchronisation:', error);
+                                return false;
+                            }
+                        }
+
+                        // Fonction pour initialiser les événements Livewire
+                        function initLivewireEvents() {
                             if (typeof Livewire !== 'undefined') {
-                                console.log('Livewire disponible, initialisation...');
+                                console.log('Livewire disponible, initialisation des événements...');
 
                                 // Synchronisation manuelle Select2 → Livewire
-                                $('#select-type').on('change', function() {
+                                $('#select-type').off('change').on('change', function() {
                                     const selectedValue = $(this).val();
-                                    console.log('Select2 changé vers:', selectedValue);
+                                    console.log('Type changé vers:', selectedValue);
 
                                     // Trouver le composant Livewire et mettre à jour la propriété
-                                    const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]')
-                                        .getAttribute('wire:id'));
+                                    const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                                        'wire:id'));
                                     if (livewireComponent) {
                                         livewireComponent.set('type', selectedValue);
-                                        console.log('Type mis à jour dans Livewire:', selectedValue);
+                                        console.log('Type synchronisé vers Livewire');
                                     }
                                 });
 
@@ -296,15 +356,56 @@
                                     }
                                 });
 
-                            } else {
-                                console.log('Livewire pas encore chargé, réessayer...');
-                                // Réessayer après un délai
-                                setTimeout(function() {
-                                    if (typeof Livewire !== 'undefined') {
-                                        console.log('Livewire maintenant disponible');
-                                    }
-                                }, 1000);
+                                return true;
                             }
+                            return false;
+                        }
+
+                        // Attendre que Livewire soit complètement chargé
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Essayer d'initialiser immédiatement
+                            if (!initLivewireEvents()) {
+                                // Si Livewire n'est pas encore disponible, réessayer
+                                let attempts = 0;
+                                const maxAttempts = 10;
+
+                                const retryInit = setInterval(function() {
+                                    attempts++;
+                                    console.log(`Tentative ${attempts}/${maxAttempts} d'initialisation Livewire...`);
+
+                                    if (initLivewireEvents() || attempts >= maxAttempts) {
+                                        clearInterval(retryInit);
+                                        if (attempts >= maxAttempts) {
+                                            console.error('Impossible d\'initialiser Livewire après', maxAttempts,
+                                                'tentatives');
+                                        }
+                                    }
+                                }, 500);
+                            }
+
+                            // Intercepter la soumission du formulaire
+                            $('#vehicule-form').on('submit', function(e) {
+                                e.preventDefault();
+                                console.log('=== INTERCEPTION SOUMISSION ===');
+
+                                // Synchroniser les valeurs Select2
+                                if (syncSelect2Values()) {
+                                    // Attendre un peu pour que Livewire traite les changements
+                                    setTimeout(function() {
+                                        console.log('Synchronisation terminée, soumission du formulaire...');
+                                        // Déclencher la soumission Livewire
+                                        const livewireComponent = Livewire.find(document.querySelector(
+                                            '[wire\\:id]').getAttribute('wire:id'));
+                                        if (livewireComponent) {
+                                            if (livewireComponent.get('isEdit')) {
+                                                livewireComponent.call('update');
+                                            } else {
+                                                livewireComponent.call('store');
+                                            }
+                                        }
+                                    }, 500);
+                                }
+                            });
                         });
                     </script>
 
