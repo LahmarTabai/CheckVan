@@ -356,6 +356,62 @@
                                     }
                                 });
 
+                                // Écouter l'événement de synchronisation des Select2
+                                Livewire.on('sync-select2-values', () => {
+                                    console.log('Synchronisation des Select2 pour l\'édition...');
+                                    setTimeout(function() {
+                                        // Récupérer le composant Livewire
+                                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]')
+                                            .getAttribute('wire:id'));
+                                        if (!livewireComponent) {
+                                            console.error('Composant Livewire non trouvé pour la synchronisation');
+                                            return;
+                                        }
+
+                                        // Synchroniser le type
+                                        const typeValue = livewireComponent.get('type');
+                                        console.log('Type Livewire:', typeValue);
+                                        if (typeValue) {
+                                            $('#select-type').val(typeValue).trigger('change');
+                                            console.log('Type Select2 mis à jour vers:', typeValue);
+                                        }
+
+                                        // Synchroniser la marque
+                                        const marqueValue = livewireComponent.get('marque_id');
+                                        console.log('Marque Livewire:', marqueValue);
+                                        if (marqueValue) {
+                                            $('select[wire\\:model\\.live="marque_id"]').val(marqueValue).trigger('change');
+                                            console.log('Marque Select2 mise à jour vers:', marqueValue);
+                                        }
+
+                                        // Synchroniser le modèle
+                                        const modeleValue = livewireComponent.get('modele_id');
+                                        console.log('Modèle Livewire:', modeleValue);
+                                        if (modeleValue) {
+                                            $('select[wire\\:model\\.live="modele_id"]').val(modeleValue).trigger('change');
+                                            console.log('Modèle Select2 mis à jour vers:', modeleValue);
+                                        }
+
+                                        // Synchroniser la couleur
+                                        const couleurValue = livewireComponent.get('couleur');
+                                        console.log('Couleur Livewire:', couleurValue);
+                                        if (couleurValue) {
+                                            $('select[wire\\:model="couleur"]').val(couleurValue).trigger('change');
+                                            console.log('Couleur Select2 mise à jour vers:', couleurValue);
+                                        }
+
+                                        // Synchroniser le statut
+                                        const statutValue = livewireComponent.get('statut');
+                                        console.log('Statut Livewire:', statutValue);
+                                        if (statutValue) {
+                                            $('select[wire\\:model="statut"]').val(statutValue).trigger('change');
+                                            console.log('Statut Select2 mis à jour vers:', statutValue);
+                                        }
+
+                                        console.log('Synchronisation des Select2 terminée');
+                                    }, 200);
+                                });
+
                                 return true;
                             }
                             return false;
@@ -493,6 +549,56 @@
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
+
+                                <!-- Affichage des photos existantes -->
+                                @if ($isEdit && $selectedVehicule && $selectedVehicule->photos->count() > 0)
+                                    <div class="mt-3">
+                                        <h6 class="text-gradient mb-3">Photos existantes</h6>
+                                        <div class="row">
+                                            @foreach ($selectedVehicule->photos as $photo)
+                                                <div class="col-md-3 mb-3">
+                                                    <div class="position-relative">
+                                                        <img src="{{ Storage::url($photo->chemin) }}"
+                                                            class="img-fluid rounded"
+                                                            style="width: 100%; height: 120px; object-fit: cover;"
+                                                            alt="Photo du véhicule">
+                                                        <button type="button"
+                                                            wire:click="deletePhoto({{ $photo->id }})"
+                                                            class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                                                            title="Supprimer cette photo">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <!-- Affichage des nouvelles photos -->
+                                @if ($photos)
+                                    <div class="mt-3">
+                                        <h6 class="text-gradient mb-3">Nouvelles photos</h6>
+                                        <div class="row">
+                                            @foreach ($photos as $index => $photo)
+                                                <div class="col-md-3 mb-3">
+                                                    <div class="position-relative">
+                                                        <img src="{{ $photo->temporaryUrl() }}"
+                                                            class="img-fluid rounded"
+                                                            style="width: 100%; height: 120px; object-fit: cover;"
+                                                            alt="Nouvelle photo">
+                                                        <button type="button"
+                                                            wire:click="removePhoto({{ $index }})"
+                                                            class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                                                            title="Supprimer cette photo">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -814,6 +920,14 @@
                                             @if ($selectedVehicule->date_location)
                                                 <br><strong>Date location:</strong>
                                                 {{ \Carbon\Carbon::parse($selectedVehicule->date_location)->format('d/m/Y') }}
+                                            @endif
+                                            @if ($selectedVehicule->prix_location_jour && $selectedVehicule->date_location)
+                                                <br><strong>Nombre de jours:</strong>
+                                                {{ $selectedVehicule->nombre_jours_location }} jours
+                                                <br><strong>Total à payer:</strong>
+                                                <span
+                                                    class="text-success fw-bold">{{ number_format($selectedVehicule->total_location, 2) }}
+                                                    €</span>
                                             @endif
                                         @endif
                                     </p>

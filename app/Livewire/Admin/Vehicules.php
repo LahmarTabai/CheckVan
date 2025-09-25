@@ -6,12 +6,12 @@ use App\Models\Vehicule;
 use App\Models\Marque;
 use App\Models\Modele;
 use App\Models\VehiculePhoto;
+use Illuminate\Support\Facades\Storage;
 use App\Services\VehiculeApiService;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use App\Services\ExportService;
 
 class Vehicules extends Component
@@ -132,6 +132,28 @@ class Vehicules extends Component
     public function syncModele($modeleId)
     {
         $this->modele_id = $modeleId;
+    }
+
+    public function removePhoto($index)
+    {
+        unset($this->photos[$index]);
+        $this->photos = array_values($this->photos);
+    }
+
+    public function deletePhoto($photoId)
+    {
+        $photo = VehiculePhoto::findOrFail($photoId);
+
+        // Supprimer le fichier physique
+        if (Storage::exists($photo->chemin)) {
+            Storage::delete($photo->chemin);
+        }
+
+        // Supprimer l'enregistrement de la base de données
+        $photo->delete();
+
+        session()->flash('success', 'Photo supprimée avec succès.');
+        $this->dispatch('vehicule-updated');
     }
 
     protected $listeners = [
@@ -416,16 +438,20 @@ class Vehicules extends Component
         $this->prix_achat = $vehicule->prix_achat;
         $this->date_achat = $vehicule->date_achat;
         $this->prix_location_jour = $vehicule->prix_location_jour;
-        $this->date_location = $vehicule->date_location;
+        $this->date_location = $vehicule->date_location ? $vehicule->date_location->format('Y-m-d') : null;
         $this->numero_chassis = $vehicule->numero_chassis;
         $this->numero_moteur = $vehicule->numero_moteur;
-        $this->derniere_revision = $vehicule->derniere_revision;
-        $this->prochaine_revision = $vehicule->prochaine_revision;
+        $this->derniere_revision = $vehicule->derniere_revision ? $vehicule->derniere_revision->format('Y-m-d') : null;
+        $this->prochaine_revision = $vehicule->prochaine_revision ? $vehicule->prochaine_revision->format('Y-m-d') : null;
 
         // Charger les modèles pour la marque sélectionnée
         $this->updatedMarqueId();
 
         $this->isEdit = true;
+        $this->selectedVehicule = $vehicule; // Pour afficher les photos existantes
+
+        // Déclencher la synchronisation des Select2 après un délai
+        $this->dispatch('sync-select2-values');
     }
 
     public function update()
@@ -503,13 +529,6 @@ class Vehicules extends Component
         $this->vehiculeToDelete = null;
     }
 
-    public function deletePhoto($photoId)
-    {
-        $photo = VehiculePhoto::findOrFail($photoId);
-        Storage::disk('public')->delete($photo->chemin);
-        $photo->delete();
-        session()->flash('success', 'Photo supprimée avec succès.');
-    }
 
     private function savePhotos($vehicule)
     {

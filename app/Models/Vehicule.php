@@ -144,5 +144,26 @@ class Vehicule extends Model
             return $this->date_location ? \Carbon\Carbon::parse($this->date_location)->format('d/m/Y') : 'N/A';
         }
     }
+
+    public function getTotalLocationAttribute()
+    {
+        if ($this->type === 'location' && $this->prix_location_jour && $this->date_location) {
+            $dateDebut = \Carbon\Carbon::parse($this->date_location);
+            $dateFin = \Carbon\Carbon::now();
+            $nombreJours = $dateDebut->diffInDays($dateFin);
+            return $nombreJours * $this->prix_location_jour;
+        }
+        return 0;
+    }
+
+    public function getNombreJoursLocationAttribute()
+    {
+        if ($this->type === 'location' && $this->date_location) {
+            $dateDebut = \Carbon\Carbon::parse($this->date_location);
+            $dateFin = \Carbon\Carbon::now();
+            return $dateDebut->diffInDays($dateFin);
+        }
+        return 0;
+    }
 }
 
