@@ -40,7 +40,7 @@
                                     <label class="form-label-2050">
                                         Chauffeur <span class="required">*</span>
                                     </label>
-                                    <select wire:model="chauffeur_id" class="form-control-2050 select2-2050">
+                                    <select wire:model.live="chauffeur_id" class="form-control-2050 select2-2050">
                                         <option value="">Sélectionner un chauffeur</option>
                                         @foreach ($chauffeurs as $chauffeur)
                                             <option value="{{ $chauffeur->user_id }}">
@@ -59,7 +59,7 @@
                                     <label class="form-label-2050">
                                         Véhicule <span class="required">*</span>
                                     </label>
-                                    <select wire:model="vehicule_id" class="form-control-2050 select2-2050">
+                                    <select wire:model.live="vehicule_id" class="form-control-2050 select2-2050">
                                         <option value="">Sélectionner un véhicule</option>
                                         @foreach ($vehicules as $vehicule)
                                             <option value="{{ $vehicule->id }}">
@@ -100,7 +100,7 @@
                                     <label class="form-label-2050">
                                         Type de tâche <span class="required">*</span>
                                     </label>
-                                    <select wire:model="type_tache" class="form-control-2050 select2-2050">
+                                    <select wire:model.live="type_tache" class="form-control-2050 select2-2050">
                                         <option value="autre">Autre</option>
                                         <option value="maintenance">Maintenance</option>
                                         <option value="livraison">Livraison</option>
@@ -196,6 +196,151 @@
                 </form>
             </div>
         </div>
+
+        <script>
+            // Fonction pour synchroniser les valeurs Select2 avant soumission
+            function syncSelect2Values() {
+                console.log('=== SYNC SELECT2 VALUES TACHES ===');
+
+                try {
+                    const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'));
+                    if (livewireComponent) {
+                        // Synchroniser le chauffeur
+                        const chauffeurValue = $('select[wire\\:model\\.live="chauffeur_id"]').val();
+                        console.log('Chauffeur Select2:', chauffeurValue);
+                        if (chauffeurValue) {
+                            livewireComponent.set('chauffeur_id', chauffeurValue);
+                            console.log('Chauffeur synchronisé vers Livewire');
+                        }
+
+                        // Synchroniser le véhicule
+                        const vehiculeValue = $('select[wire\\:model\\.live="vehicule_id"]').val();
+                        console.log('Véhicule Select2:', vehiculeValue);
+                        if (vehiculeValue) {
+                            livewireComponent.set('vehicule_id', vehiculeValue);
+                            console.log('Véhicule synchronisé vers Livewire');
+                        }
+
+                        // Synchroniser le type de tâche
+                        const typeTacheValue = $('select[wire\\:model\\.live="type_tache"]').val();
+                        console.log('Type tâche Select2:', typeTacheValue);
+                        if (typeTacheValue) {
+                            livewireComponent.set('type_tache', typeTacheValue);
+                            console.log('Type tâche synchronisé vers Livewire');
+                        }
+
+                        console.log('=== SYNC TERMINÉ ===');
+                        return true;
+                    } else {
+                        console.error('Composant Livewire non trouvé');
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la synchronisation:', error);
+                    return false;
+                }
+            }
+
+            // Fonction pour initialiser les événements Livewire
+            function initLivewireEvents() {
+                if (typeof Livewire !== 'undefined') {
+                    console.log('Livewire disponible, initialisation des événements...');
+
+                    // Écouter l'événement de synchronisation des Select2
+                    Livewire.on('sync-select2-values', () => {
+                        console.log('Synchronisation des Select2 pour l\'édition...');
+                        setTimeout(function() {
+                            // Récupérer le composant Livewire
+                            const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]')
+                                .getAttribute('wire:id'));
+                            if (!livewireComponent) {
+                                console.error('Composant Livewire non trouvé pour la synchronisation');
+                                return;
+                            }
+
+                            // Synchroniser le chauffeur
+                            const chauffeurValue = livewireComponent.get('chauffeur_id');
+                            console.log('Chauffeur Livewire:', chauffeurValue);
+                            if (chauffeurValue) {
+                                $('select[wire\\:model\\.live="chauffeur_id"]').val(chauffeurValue).trigger(
+                                    'change');
+                                console.log('Chauffeur Select2 mis à jour vers:', chauffeurValue);
+                            }
+
+                            // Synchroniser le véhicule
+                            const vehiculeValue = livewireComponent.get('vehicule_id');
+                            console.log('Véhicule Livewire:', vehiculeValue);
+                            if (vehiculeValue) {
+                                $('select[wire\\:model\\.live="vehicule_id"]').val(vehiculeValue).trigger(
+                                    'change');
+                                console.log('Véhicule Select2 mis à jour vers:', vehiculeValue);
+                            }
+
+                            // Synchroniser le type de tâche
+                            const typeTacheValue = livewireComponent.get('type_tache');
+                            console.log('Type tâche Livewire:', typeTacheValue);
+                            if (typeTacheValue) {
+                                $('select[wire\\:model\\.live="type_tache"]').val(typeTacheValue).trigger(
+                                    'change');
+                                console.log('Type tâche Select2 mis à jour vers:', typeTacheValue);
+                            }
+
+                            console.log('Synchronisation des Select2 terminée');
+                        }, 200);
+                    });
+
+                    return true;
+                }
+                return false;
+            }
+
+            // Attendre que Livewire soit complètement chargé
+            document.addEventListener('DOMContentLoaded', function() {
+                // Essayer d'initialiser immédiatement
+                if (!initLivewireEvents()) {
+                    // Si Livewire n'est pas encore disponible, réessayer
+                    let attempts = 0;
+                    const maxAttempts = 10;
+
+                    const retryInit = setInterval(function() {
+                        attempts++;
+                        console.log(`Tentative ${attempts}/${maxAttempts} d'initialisation Livewire...`);
+
+                        if (initLivewireEvents() || attempts >= maxAttempts) {
+                            clearInterval(retryInit);
+                            if (attempts >= maxAttempts) {
+                                console.error('Impossible d\'initialiser Livewire après', maxAttempts,
+                                    'tentatives');
+                            }
+                        }
+                    }, 500);
+                }
+
+                // Intercepter la soumission du formulaire
+                $('form[wire\\:submit\\.prevent]').on('submit', function(e) {
+                    e.preventDefault();
+                    console.log('=== INTERCEPTION SOUMISSION TACHES ===');
+
+                    // Synchroniser les valeurs Select2
+                    if (syncSelect2Values()) {
+                        // Attendre un peu pour que Livewire traite les changements
+                        setTimeout(function() {
+                            console.log('Synchronisation terminée, soumission du formulaire...');
+                            // Déclencher la soumission Livewire
+                            const livewireComponent = Livewire.find(document.querySelector(
+                                '[wire\\:id]').getAttribute('wire:id'));
+                            if (livewireComponent) {
+                                if (livewireComponent.get('isEdit')) {
+                                    livewireComponent.call('update');
+                                } else {
+                                    livewireComponent.call('create');
+                                }
+                            }
+                        }, 500);
+                    }
+                });
+            });
+        </script>
 
         <!-- Filtres Futuristes -->
         <div class="card-2050 mb-4 hover-lift">
@@ -728,6 +873,6 @@
             </div>
         </div>
     @endif
-   
+
 </div>
 </div>

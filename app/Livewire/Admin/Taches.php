@@ -42,6 +42,11 @@ class Taches extends Component
 
     // Modal détails
     public $showDetailsModal = false;
+
+    public function mount()
+    {
+        $this->resetForm();
+    }
     public $selectedTache = null;
 
     public function render()
@@ -252,6 +257,9 @@ class Taches extends Component
         $this->description = $tache->description;
         $this->type_tache = $tache->type_tache;
         $this->isEdit = true;
+
+        // Déclencher la synchronisation des Select2 après un délai
+        $this->dispatch('sync-select2-values');
     }
 
     public function update()
