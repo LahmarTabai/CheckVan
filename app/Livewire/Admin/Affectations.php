@@ -36,6 +36,11 @@ class Affectations extends Component
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
 
+    public function mount()
+    {
+        $this->resetForm();
+    }
+
     public function render()
     {
         $query = Affectation::with(['chauffeur', 'vehicule.marque', 'vehicule.modele'])
@@ -131,6 +136,7 @@ class Affectations extends Component
         $this->searchVehicule = '';
         $this->showChauffeurDropdown = false;
         $this->showVehiculeDropdown = false;
+        $this->resetErrorBag();
     }
 
     public function resetFilters()
@@ -191,6 +197,7 @@ class Affectations extends Component
 
         session()->flash('success', 'Affectation enregistrée');
         $this->resetForm();
+        $this->resetErrorBag();
     }
 
     public function edit($id)
@@ -264,6 +271,7 @@ class Affectations extends Component
 
         session()->flash('success', 'Affectation mise à jour');
         $this->resetForm();
+        $this->resetErrorBag();
     }
 
     public function confirmDelete($id)

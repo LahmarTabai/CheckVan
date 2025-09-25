@@ -61,7 +61,7 @@
                                     <label class="form-label-2050">
                                         Chauffeur <span class="required">*</span>
                                     </label>
-                                    <select wire:model="chauffeur_id" class="form-control-2050 select2-2050">
+                                    <select wire:model.live="chauffeur_id" class="form-control-2050 select2-2050">
                                         <option value="">-- Sélectionner un chauffeur --</option>
                                         @foreach ($chauffeurs as $c)
                                             <option value="{{ $c->user_id }}">{{ $c->nom }} {{ $c->prenom }}
@@ -79,7 +79,7 @@
                                     <label class="form-label-2050">
                                         Véhicule <span class="required">*</span>
                                     </label>
-                                    <select wire:model="vehicule_id" class="form-control-2050 select2-2050">
+                                    <select wire:model.live="vehicule_id" class="form-control-2050 select2-2050">
                                         <option value="">-- Sélectionner un véhicule --</option>
                                         @foreach ($vehicules as $v)
                                             <option value="{{ $v->id }}">
@@ -99,7 +99,7 @@
                             <div class="form-col-2050 col-md-4">
                                 <div class="form-group-2050">
                                     <label class="form-label-2050">Statut</label>
-                                    <select wire:model="status" class="form-control-2050 select2-2050">
+                                    <select wire:model.live="status" class="form-control-2050 select2-2050">
                                         <option value="en_cours">En cours</option>
                                         <option value="terminée">Terminée</option>
                                     </select>
@@ -186,7 +186,7 @@
                     const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'));
                     if (livewireComponent) {
                         // Synchroniser le chauffeur
-                        const chauffeurValue = $('select[wire\\:model="chauffeur_id"]').val();
+                        const chauffeurValue = $('select[wire\\:model\\.live="chauffeur_id"]').val();
                         console.log('Chauffeur Select2:', chauffeurValue);
                         if (chauffeurValue) {
                             livewireComponent.set('chauffeur_id', chauffeurValue);
@@ -194,7 +194,7 @@
                         }
 
                         // Synchroniser le véhicule
-                        const vehiculeValue = $('select[wire\\:model="vehicule_id"]').val();
+                        const vehiculeValue = $('select[wire\\:model\\.live="vehicule_id"]').val();
                         console.log('Véhicule Select2:', vehiculeValue);
                         if (vehiculeValue) {
                             livewireComponent.set('vehicule_id', vehiculeValue);
@@ -202,7 +202,7 @@
                         }
 
                         // Synchroniser le statut
-                        const statusValue = $('select[wire\\:model="status"]').val();
+                        const statusValue = $('select[wire\\:model\\.live="status"]').val();
                         console.log('Statut Select2:', statusValue);
                         if (statusValue) {
                             livewireComponent.set('status', statusValue);
@@ -242,7 +242,8 @@
                             const chauffeurValue = livewireComponent.get('chauffeur_id');
                             console.log('Chauffeur Livewire:', chauffeurValue);
                             if (chauffeurValue) {
-                                $('select[wire\\:model="chauffeur_id"]').val(chauffeurValue).trigger('change');
+                                $('select[wire\\:model\\.live="chauffeur_id"]').val(chauffeurValue).trigger(
+                                    'change');
                                 console.log('Chauffeur Select2 mis à jour vers:', chauffeurValue);
                             }
 
@@ -250,7 +251,8 @@
                             const vehiculeValue = livewireComponent.get('vehicule_id');
                             console.log('Véhicule Livewire:', vehiculeValue);
                             if (vehiculeValue) {
-                                $('select[wire\\:model="vehicule_id"]').val(vehiculeValue).trigger('change');
+                                $('select[wire\\:model\\.live="vehicule_id"]').val(vehiculeValue).trigger(
+                                    'change');
                                 console.log('Véhicule Select2 mis à jour vers:', vehiculeValue);
                             }
 
@@ -258,7 +260,7 @@
                             const statusValue = livewireComponent.get('status');
                             console.log('Statut Livewire:', statusValue);
                             if (statusValue) {
-                                $('select[wire\\:model="status"]').val(statusValue).trigger('change');
+                                $('select[wire\\:model\\.live="status"]').val(statusValue).trigger('change');
                                 console.log('Statut Select2 mis à jour vers:', statusValue);
                             }
 

@@ -241,6 +241,7 @@ class Taches extends Component
 
         session()->flash('success', 'Tâche créée avec succès.');
         $this->resetForm();
+        $this->resetErrorBag();
     }
 
     public function edit($id)
@@ -312,6 +313,7 @@ class Taches extends Component
 
         session()->flash('success', 'Tâche mise à jour.');
         $this->resetForm();
+        $this->resetErrorBag();
     }
 
     public function confirmDelete($id)
