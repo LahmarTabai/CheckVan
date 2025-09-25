@@ -192,72 +192,61 @@
             }
         }
 
-        // Fonction pour initialiser Select2
-        function initializeSelect2() {
-            if (typeof jQuery === 'undefined') {
-                console.error('❌ jQuery non disponible pour Select2');
-                return;
+        // petit utilitaire debounce pour éviter les rafales
+        function debounce(fn, wait) {
+            let t;
+            return function(...args) {
+                clearTimeout(t);
+                t = setTimeout(() => fn.apply(this, args), wait);
             }
+        }
 
-            console.log('✅ Initialisation de Select2...');
+        // NE PLUS détruire ici. On (ré)initialise uniquement les selects non initialisés.
+        function initializeSelect2Once() {
+            if (typeof jQuery === 'undefined') return;
 
-            // Détruire d'abord les instances existantes
-            destroySelect2();
+            $('.select2-2050').each(function() {
+                const $el = $(this);
 
-            // Attendre un peu que le DOM soit stable
-            setTimeout(function() {
-                // Initialize Select2 with 2050 theme
-                $('.select2-2050').select2({
+                // déjà initialisé ? on ne touche à rien.
+                if ($el.hasClass('select2-hidden-accessible')) return;
+
+                $el.select2({
                     theme: 'bootstrap-5',
                     width: '100%',
                     placeholder: 'Sélectionner...',
                     allowClear: true,
+                    // évite les soucis de z-index / overflow
+                    dropdownParent: $('body'),
                     language: {
-                        noResults: function() {
-                            return "Aucun résultat trouvé";
-                        },
-                        searching: function() {
-                            return "Recherche en cours...";
-                        }
+                        noResults: () => "Aucun résultat trouvé",
+                        searching: () => "Recherche en cours..."
                     }
-                });
-
-                // Custom styling for 2050 theme
-                $('.select2-2050').on('select2:open', function() {
+                }).on('select2:open', function() {
                     $('.select2-dropdown').addClass('select2-dropdown-2050');
                 });
-            }, 100);
+            });
         }
 
-        // Initialiser Select2 quand le DOM est prêt
+        const initSelect2Debounced = debounce(initializeSelect2Once, 120);
+
+        // Initialisation au chargement
         document.addEventListener('DOMContentLoaded', function() {
-            initializeSelect2();
+            initSelect2Debounced();
         });
 
-        // Solution simple : Réinitialiser Select2 après chaque action Livewire
-        document.addEventListener('livewire:updated', function() {
-            console.log('🔄 Livewire updated - réinitialisation Select2...');
-            setTimeout(initializeSelect2, 100);
+        // Livewire v3 : ne fais que (ré)initialiser les nouveaux éléments, sans détruire
+        document.addEventListener('livewire:initialized', () => {
+            initSelect2Debounced();
+
+            Livewire.hook('morph.updated', () => {
+                // Laisse le DOM se stabiliser, puis (ré)initialise ce qui n'est pas encore init
+                initSelect2Debounced();
+            });
         });
 
-        // Réinitialiser Select2 après la navigation Livewire
-        document.addEventListener('livewire:navigated', function() {
-            console.log('🔄 Livewire navigated - réinitialisation Select2...');
-            setTimeout(initializeSelect2, 100);
-        });
-
-        // Solution spécifique : Réinitialiser Select2 après les clics sur les boutons
-        document.addEventListener('click', function(e) {
-            if (e.target.matches('button[wire\\:click], button[wire\\:click\\.prevent]')) {
-                console.log('🔄 Clic sur bouton Livewire détecté...');
-
-                // Attendre que Livewire traite l'action puis réinitialiser
-                setTimeout(function() {
-                    console.log('🔄 Réinitialisation Select2 après action...');
-                    initializeSelect2();
-                }, 500);
-            }
-        });
+        // Optionnel : si tu dispatch un event côté PHP, réagis ici
+        Livewire.on('refresh-select2', () => initSelect2Debounced());
 
         // Initialiser les modals Bootstrap
         document.addEventListener('DOMContentLoaded', function() {

@@ -126,6 +126,9 @@ class Vehicules extends Component
             ->get(['id','nom']);
 
         \Log::info('Modèles (form) chargés depuis BDD', ['count' => $this->formModeles->count()]);
+
+        // Déclencher une réinitialisation ciblée de Select2
+        $this->dispatch('refresh-select2');
     }
 
     public function handleMarqueChanged($marqueId)
