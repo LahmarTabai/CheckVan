@@ -22,8 +22,11 @@ class Vehicules extends Component
     public $marque_id, $modele_id, $immatriculation, $vehiculeId;
     public $type = 'propriete', $annee, $couleur, $kilometrage;
     public $statut = 'disponible', $description, $prix_achat, $date_achat;
-    public $prix_location, $date_location;
+    public $prix_location_jour, $date_location;
     public $numero_chassis, $numero_moteur, $derniere_revision, $prochaine_revision;
+
+    // Propriété pour savoir si on est en mode édition
+    public $isEdit = false;
 
     // Photos multiples
     public $photos = [];
@@ -33,7 +36,6 @@ class Vehicules extends Component
     public $vehiculeToDelete = null;
 
     // Interface
-    public $isEdit = false;
     public $search = '';
     public $filterType = '';
     public $filterStatut = '';
@@ -57,26 +59,74 @@ class Vehicules extends Component
 
     protected function rules()
     {
-        return [
+        $rules = [
             'marque_id' => 'required|exists:marques,id',
             'modele_id' => 'required|exists:modeles,id',
-            'immatriculation' => 'required|string|max:255|unique:vehicules,immatriculation',
+            'immatriculation' => 'required|string|max:255|unique:vehicules,immatriculation' . ($this->isEdit ? ',' . $this->vehiculeId : ''),
             'type' => 'required|in:location,propriete',
             'annee' => 'nullable|integer|min:1990|max:' . (date('Y') + 1),
             'couleur' => 'nullable|string|max:50',
             'kilometrage' => 'nullable|integer|min:0',
             'statut' => 'required|in:disponible,en_mission,en_maintenance,hors_service',
             'description' => 'nullable|string|max:1000',
-            'prix_achat' => 'nullable|numeric|min:0',
-            'date_achat' => 'nullable|date',
-            'prix_location' => 'nullable|numeric|min:0',
-            'date_location' => 'nullable|date',
             'numero_chassis' => 'nullable|string|max:50',
             'numero_moteur' => 'nullable|string|max:50',
             'derniere_revision' => 'nullable|date',
             'prochaine_revision' => 'nullable|date',
             'photos.*' => 'nullable|image|max:8192', // 8MB max par photo (limite PHP)
         ];
+
+        // Règles conditionnelles selon le type
+        if ($this->type === 'propriete') {
+            $rules['prix_achat'] = 'nullable|numeric|min:0';
+            $rules['date_achat'] = 'nullable|date';
+        } else if ($this->type === 'location') {
+            $rules['prix_location_jour'] = 'required|numeric|min:0';
+            $rules['date_location'] = 'required|date';
+        }
+
+        return $rules;
+    }
+
+    protected $messages = [
+        'prix_location_jour.required' => 'Le prix de location par jour est obligatoire pour les véhicules en location.',
+        'date_location.required' => 'La date de location est obligatoire pour les véhicules en location.',
+        'prix_achat.required_if' => 'Le prix d\'achat est obligatoire pour les véhicules en propriété.',
+        'date_achat.required_if' => 'La date d\'achat est obligatoire pour les véhicules en propriété.',
+    ];
+
+    public function updatedType()
+    {
+        \Log::info('=== updatedType appelé ===', ['type' => $this->type]);
+
+        // Réinitialiser complètement les champs selon le type
+        if ($this->type === 'location') {
+            $this->prix_achat = null;
+            $this->date_achat = null;
+            \Log::info('Type location - champs achat vidés');
+        } else { // propriete
+            $this->prix_location_jour = null;
+            $this->date_location = null;
+            \Log::info('Type propriete - champs location vidés');
+        }
+
+        // Réinitialiser les erreurs de validation
+        $this->resetErrorBag([
+            'prix_achat', 'date_achat', 'prix_location_jour', 'date_location'
+        ]);
+    }
+
+    public function updateTypeFields()
+    {
+        \Log::info('=== updateTypeFields appelé ===', ['type' => $this->type]);
+
+        // Cette méthode sera appelée par wire:change
+        $this->resetErrorBag([
+            'prix_achat', 'date_achat', 'prix_location_jour', 'date_location'
+        ]);
+
+        // Forcer le rafraîchissement
+        $this->dispatch('type-changed');
     }
 
     protected $listeners = [
@@ -151,12 +201,6 @@ class Vehicules extends Component
         $this->filterModele = null;
     }
 
-    public function updatedType()
-    {
-        // Réinitialiser les champs prix et date quand le type change
-        $this->prix_achat = null;
-        $this->date_achat = null;
-    }
 
     public function render()
     {
@@ -287,7 +331,7 @@ class Vehicules extends Component
         $this->description = null;
         $this->prix_achat = null;
         $this->date_achat = null;
-        $this->prix_location = null;
+        $this->prix_location_jour = null;
         $this->date_location = null;
         $this->numero_chassis = null;
         $this->numero_moteur = null;
@@ -305,7 +349,7 @@ class Vehicules extends Component
         try {
             $this->validate();
 
-            $vehicule = Vehicule::create([
+            $data = [
                 'admin_id' => Auth::user()->user_id,
                 'marque_id' => $this->marque_id,
                 'modele_id' => $this->modele_id,
@@ -316,13 +360,26 @@ class Vehicules extends Component
                 'kilometrage' => $this->kilometrage,
                 'statut' => $this->statut,
                 'description' => $this->description,
-                'prix_achat' => $this->prix_achat,
-                'date_achat' => $this->date_achat,
                 'numero_chassis' => $this->numero_chassis,
                 'numero_moteur' => $this->numero_moteur,
                 'derniere_revision' => $this->derniere_revision,
                 'prochaine_revision' => $this->prochaine_revision,
-            ]);
+            ];
+
+            // Champs spécifiques au type
+            if ($this->type === 'propriete') {
+                $data['prix_achat'] = $this->prix_achat;
+                $data['date_achat'] = $this->date_achat;
+                $data['prix_location_jour'] = null;
+                $data['date_location'] = null;
+            } else {
+                $data['prix_location_jour'] = $this->prix_location_jour;
+                $data['date_location'] = $this->date_location;
+                $data['prix_achat'] = null;
+                $data['date_achat'] = null;
+            }
+
+            $vehicule = Vehicule::create($data);
 
             // Sauvegarder les photos
             $this->savePhotos($vehicule);
@@ -351,6 +408,8 @@ class Vehicules extends Component
         $this->description = $vehicule->description;
         $this->prix_achat = $vehicule->prix_achat;
         $this->date_achat = $vehicule->date_achat;
+        $this->prix_location_jour = $vehicule->prix_location_jour;
+        $this->date_location = $vehicule->date_location;
         $this->numero_chassis = $vehicule->numero_chassis;
         $this->numero_moteur = $vehicule->numero_moteur;
         $this->derniere_revision = $vehicule->derniere_revision;
@@ -366,26 +425,9 @@ class Vehicules extends Component
     {
         $vehicule = Vehicule::findOrFail($this->vehiculeId);
 
-        $this->validate([
-            'marque_id' => 'required|exists:marques,id',
-            'modele_id' => 'required|exists:modeles,id',
-            'immatriculation' => 'required|string|max:255|unique:vehicules,immatriculation,' . $vehicule->id,
-            'type' => 'required|in:location,propriete',
-            'annee' => 'nullable|integer|min:1990|max:' . (date('Y') + 1),
-            'couleur' => 'nullable|string|max:50',
-            'kilometrage' => 'nullable|integer|min:0',
-            'statut' => 'required|in:disponible,en_mission,en_maintenance,hors_service',
-            'description' => 'nullable|string|max:1000',
-            'prix_achat' => 'nullable|numeric|min:0',
-            'date_achat' => 'nullable|date',
-            'numero_chassis' => 'nullable|string|max:50',
-            'numero_moteur' => 'nullable|string|max:50',
-            'derniere_revision' => 'nullable|date',
-            'prochaine_revision' => 'nullable|date',
-            'photos.*' => 'nullable|image|max:8192', // 8MB max par photo (limite PHP)
-        ]);
+        $this->validate();
 
-        $vehicule->update([
+        $data = [
             'marque_id' => $this->marque_id,
             'modele_id' => $this->modele_id,
             'immatriculation' => $this->immatriculation,
@@ -395,13 +437,26 @@ class Vehicules extends Component
             'kilometrage' => $this->kilometrage,
             'statut' => $this->statut,
             'description' => $this->description,
-            'prix_achat' => $this->prix_achat,
-            'date_achat' => $this->date_achat,
             'numero_chassis' => $this->numero_chassis,
             'numero_moteur' => $this->numero_moteur,
             'derniere_revision' => $this->derniere_revision,
             'prochaine_revision' => $this->prochaine_revision,
-        ]);
+        ];
+
+        // Champs spécifiques au type
+        if ($this->type === 'propriete') {
+            $data['prix_achat'] = $this->prix_achat;
+            $data['date_achat'] = $this->date_achat;
+            $data['prix_location_jour'] = null;
+            $data['date_location'] = null;
+        } else {
+            $data['prix_location_jour'] = $this->prix_location_jour;
+            $data['date_location'] = $this->date_location;
+            $data['prix_achat'] = null;
+            $data['date_achat'] = null;
+        }
+
+        $vehicule->update($data);
 
         // Sauvegarder les nouvelles photos
         if (!empty($this->photos)) {

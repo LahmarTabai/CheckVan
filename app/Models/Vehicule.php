@@ -22,6 +22,8 @@ class Vehicule extends Model
         'description',
         'prix_achat',
         'date_achat',
+        'prix_location_jour',
+        'date_location',
         'numero_chassis',
         'numero_moteur',
         'derniere_revision',
@@ -33,6 +35,8 @@ class Vehicule extends Model
         'kilometrage' => 'integer',
         'prix_achat' => 'decimal:2',
         'date_achat' => 'date',
+        'prix_location_jour' => 'decimal:2',
+        'date_location' => 'date',
         'derniere_revision' => 'date',
         'prochaine_revision' => 'date',
     ];
@@ -84,6 +88,22 @@ class Vehicule extends Model
         return $query->where('statut', 'disponible');
     }
 
+    public function scopePropriete($query)
+    {
+        return $query->where('type', 'propriete');
+    }
+
+    public function scopeLocation($query)
+    {
+        return $query->where('type', 'location');
+    }
+
+    public function scopeAvecCout($query)
+    {
+        return $query->select('*')
+            ->selectRaw('CASE WHEN type = "propriete" THEN prix_achat ELSE prix_location_jour END as cout');
+    }
+
     // Accessors
     public function getNomCompletAttribute()
     {
@@ -105,6 +125,24 @@ class Vehicule extends Model
         ];
 
         return $badges[$this->statut] ?? 'secondary';
+    }
+
+    public function getPrixFormateAttribute()
+    {
+        if ($this->type === 'propriete') {
+            return $this->prix_achat ? number_format($this->prix_achat, 2) . ' €' : 'N/A';
+        } else {
+            return $this->prix_location_jour ? number_format($this->prix_location_jour, 2) . ' €/jour' : 'N/A';
+        }
+    }
+
+    public function getDateAcquisitionFormateeAttribute()
+    {
+        if ($this->type === 'propriete') {
+            return $this->date_achat ? \Carbon\Carbon::parse($this->date_achat)->format('d/m/Y') : 'N/A';
+        } else {
+            return $this->date_location ? \Carbon\Carbon::parse($this->date_location)->format('d/m/Y') : 'N/A';
+        }
     }
 }
 

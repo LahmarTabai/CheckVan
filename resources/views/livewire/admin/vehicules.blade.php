@@ -12,6 +12,12 @@
             </div>
         </div>
 
+        <!-- Debug global -->
+        <div class="alert alert-warning mb-3">
+            <strong>Debug Global:</strong> Type actuel = "{{ $type }}" | IsEdit =
+            {{ $isEdit ? 'true' : 'false' }}
+        </div>
+
         @if (session()->has('success'))
             <div class="alert alert-success-2050 alert-dismissible fade show animate-fade-in-up" role="alert">
                 <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
@@ -53,10 +59,10 @@
                                     <label class="form-label-2050">
                                         Type de véhicule <span class="required">*</span>
                                     </label>
-                                    <select wire:model.live="type" class="form-control-2050 select2-2050">
+                                    <select id="select-type" class="form-control-2050 select2-2050">
                                         <option value="">-- Sélectionner le type --</option>
-                                        <option value="propriete">Propriété</option>
-                                        <option value="location">Location</option>
+                                        <option value="propriete" @selected($type === 'propriete')>Propriété</option>
+                                        <option value="location" @selected($type === 'location')>Location</option>
                                     </select>
                                     <small class="form-help-2050">Propriété de l'entreprise ou véhicule en
                                         location</small>
@@ -250,69 +256,124 @@
                         </div>
                     </div>
 
-                    @if ($type === 'propriete')
-                        <div class="form-section-2050">
-                            <h6 class="section-title-2050">
-                                <i class="fas fa-euro-sign me-2"></i>Informations d'achat
-                            </h6>
+                    <!-- Debug temporaire -->
+                    <div class="alert alert-info mb-3">
+                        <strong>Debug:</strong> Type actuel = "{{ $type }}" | IsEdit =
+                        {{ $isEdit ? 'true' : 'false' }}
+                    </div>
 
-                            <div class="form-row-2050">
-                                <div class="form-col-2050 col-md-6">
-                                    <div class="form-group-2050">
-                                        <label class="form-label-2050">Prix d'achat (€)</label>
-                                        <input type="number" wire:model="prix_achat" class="form-control-2050"
-                                            step="0.01" placeholder="0.00">
-                                        <small class="form-help-2050">Prix d'achat du véhicule en euros</small>
-                                        @error('prix_achat')
-                                            <div class="text-danger">{{ $message }}</div>
-                                        @enderror
+                    <script>
+                        // Attendre que Livewire soit complètement chargé
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Vérifier que Livewire est disponible
+                            if (typeof Livewire !== 'undefined') {
+                                console.log('Livewire disponible, initialisation...');
+
+                                // Synchronisation manuelle Select2 → Livewire
+                                $('#select-type').on('change', function() {
+                                    const selectedValue = $(this).val();
+                                    console.log('Select2 changé vers:', selectedValue);
+
+                                    // Trouver le composant Livewire et mettre à jour la propriété
+                                    const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]')
+                                        .getAttribute('wire:id'));
+                                    if (livewireComponent) {
+                                        livewireComponent.set('type', selectedValue);
+                                        console.log('Type mis à jour dans Livewire:', selectedValue);
+                                    }
+                                });
+
+                                // Synchronisation Livewire → Select2 (pour les mises à jour côté serveur)
+                                Livewire.hook('message.processed', (message, component) => {
+                                    if (message.updateQueue.some(update => update.payload.name === 'type')) {
+                                        console.log('Type mis à jour côté serveur');
+                                        // Mettre à jour Select2 si nécessaire
+                                        const currentValue = $('#select-type').val();
+                                        const livewireValue = component.get('type');
+                                        if (currentValue !== livewireValue) {
+                                            $('#select-type').val(livewireValue).trigger('change');
+                                        }
+                                    }
+                                });
+
+                            } else {
+                                console.log('Livewire pas encore chargé, réessayer...');
+                                // Réessayer après un délai
+                                setTimeout(function() {
+                                    if (typeof Livewire !== 'undefined') {
+                                        console.log('Livewire maintenant disponible');
+                                    }
+                                }, 1000);
+                            }
+                        });
+                    </script>
+
+                    <div wire:key="type-section-{{ $type }}">
+                        @if ($type === 'propriete')
+                            <div class="form-section-2050">
+                                <h6 class="section-title-2050">
+                                    <i class="fas fa-euro-sign me-2"></i>Informations d'achat
+                                </h6>
+
+                                <div class="form-row-2050">
+                                    <div class="form-col-2050 col-md-6">
+                                        <div class="form-group-2050">
+                                            <label class="form-label-2050">Prix d'achat (€)</label>
+                                            <input type="number" wire:model="prix_achat" class="form-control-2050"
+                                                step="0.01" placeholder="0.00">
+                                            <small class="form-help-2050">Prix d'achat du véhicule en euros</small>
+                                            @error('prix_achat')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="form-col-2050 col-md-6">
-                                    <div class="form-group-2050">
-                                        <label class="form-label-2050">Date d'achat</label>
-                                        <input type="date" wire:model="date_achat" class="form-control-2050">
-                                        <small class="form-help-2050">Date d'acquisition du véhicule</small>
-                                        @error('date_achat')
-                                            <div class="text-danger">{{ $message }}</div>
-                                        @enderror
+                                    <div class="form-col-2050 col-md-6">
+                                        <div class="form-group-2050">
+                                            <label class="form-label-2050">Date d'achat</label>
+                                            <input type="date" wire:model="date_achat" class="form-control-2050">
+                                            <small class="form-help-2050">Date d'acquisition du véhicule</small>
+                                            @error('date_achat')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    @elseif($type === 'location')
-                        <div class="form-section-2050">
-                            <h6 class="section-title-2050">
-                                <i class="fas fa-handshake me-2"></i>Informations de location
-                            </h6>
+                        @elseif($type === 'location')
+                            <div class="form-section-2050">
+                                <h6 class="section-title-2050">
+                                    <i class="fas fa-handshake me-2"></i>Informations de location
+                                </h6>
 
-                            <div class="form-row-2050">
-                                <div class="form-col-2050 col-md-6">
-                                    <div class="form-group-2050">
-                                        <label class="form-label-2050">Prix de location/jour (€)</label>
-                                        <input type="number" wire:model="prix_location" class="form-control-2050"
-                                            step="0.01" placeholder="0.00">
-                                        <small class="form-help-2050">Coût de location par jour en euros</small>
-                                        @error('prix_location')
-                                            <div class="text-danger">{{ $message }}</div>
-                                        @enderror
+                                <div class="form-row-2050">
+                                    <div class="form-col-2050 col-md-6">
+                                        <div class="form-group-2050">
+                                            <label class="form-label-2050">Prix de location/jour (€)</label>
+                                            <input type="number" wire:model="prix_location_jour"
+                                                class="form-control-2050" step="0.01" placeholder="0.00">
+                                            <small class="form-help-2050">Coût de location par jour en euros</small>
+                                            @error('prix_location_jour')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="form-col-2050 col-md-6">
-                                    <div class="form-group-2050">
-                                        <label class="form-label-2050">Date de location</label>
-                                        <input type="date" wire:model="date_location" class="form-control-2050">
-                                        <small class="form-help-2050">Date de début de la location</small>
-                                        @error('date_location')
-                                            <div class="text-danger">{{ $message }}</div>
-                                        @enderror
+                                    <div class="form-col-2050 col-md-6">
+                                        <div class="form-group-2050">
+                                            <label class="form-label-2050">Date de location</label>
+                                            <input type="date" wire:model="date_location"
+                                                class="form-control-2050">
+                                            <small class="form-help-2050">Date de début de la location</small>
+                                            @error('date_location')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    @endif
+                        @endif
+                    </div>
 
                     <div class="form-section-2050">
                         <h6 class="section-title-2050">
@@ -528,10 +589,17 @@
                                         @if ($vehicule->type === 'propriete')
                                             <span class="badge badge-primary-2050">
                                                 <i class="fas fa-home me-1"></i>Propriété
+                                                @if ($vehicule->prix_achat)
+                                                    <br><small>{{ number_format($vehicule->prix_achat, 2) }} €</small>
+                                                @endif
                                             </span>
                                         @else
                                             <span class="badge badge-warning-2050">
                                                 <i class="fas fa-handshake me-1"></i>Location
+                                                @if ($vehicule->prix_location_jour)
+                                                    <br><small>{{ number_format($vehicule->prix_location_jour, 2) }}
+                                                        €/jour</small>
+                                                @endif
                                             </span>
                                         @endif
                                     </td>
@@ -623,15 +691,36 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <h6 class="text-gradient mb-3">Statut et type</h6>
+                                <h6 class="text-gradient mb-3">Informations financières</h6>
                                 <div class="glass-effect p-3 rounded">
                                     <p><strong>Type:</strong>
                                         @if ($selectedVehicule->type === 'propriete')
                                             <span class="badge badge-primary-2050">Propriété</span>
+                                            @if ($selectedVehicule->prix_achat)
+                                                <br><strong>Prix d'achat:</strong>
+                                                {{ number_format($selectedVehicule->prix_achat, 2) }} €
+                                            @endif
+                                            @if ($selectedVehicule->date_achat)
+                                                <br><strong>Date d'achat:</strong>
+                                                {{ \Carbon\Carbon::parse($selectedVehicule->date_achat)->format('d/m/Y') }}
+                                            @endif
                                         @else
                                             <span class="badge badge-warning-2050">Location</span>
+                                            @if ($selectedVehicule->prix_location_jour)
+                                                <br><strong>Prix location/jour:</strong>
+                                                {{ number_format($selectedVehicule->prix_location_jour, 2) }} €
+                                            @endif
+                                            @if ($selectedVehicule->date_location)
+                                                <br><strong>Date location:</strong>
+                                                {{ \Carbon\Carbon::parse($selectedVehicule->date_location)->format('d/m/Y') }}
+                                            @endif
                                         @endif
                                     </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-gradient mb-3">Statut</h6>
+                                <div class="glass-effect p-3 rounded">
                                     <p><strong>Statut:</strong>
                                         @if ($selectedVehicule->statut === 'disponible')
                                             <span class="badge badge-success-2050">Disponible</span>

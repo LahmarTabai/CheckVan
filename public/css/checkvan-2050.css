@@ -2,6 +2,51 @@
    CHECKVAN 2050 - DESIGN FUTURISTE
    ======================================== */
 
+/* Badges améliorés pour les types de véhicules */
+.badge-primary-2050 {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.badge-warning-2050 {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border: none;
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+    transition: all 0.3s ease;
+}
+
+.badge-success-2050 {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    border: none;
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+    transition: all 0.3s ease;
+}
+
+.badge-danger-2050 {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: white;
+    border: none;
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(250, 112, 154, 0.3);
+    transition: all 0.3s ease;
+}
+
 /* Prévention du débordement horizontal */
 body {
   overflow-x: hidden;
