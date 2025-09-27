@@ -64,11 +64,14 @@
                                         <label class="form-label-2050">
                                             Type de véhicule <span class="required">*</span>
                                         </label>
-                                        <select id="select-type" class="form-control-2050 select2-2050">
-                                            <option value="">-- Sélectionner le type --</option>
-                                            <option value="propriete" @selected($type === 'propriete')>Propriété</option>
-                                            <option value="location" @selected($type === 'location')>Location</option>
-                                        </select>
+                                        <div wire:ignore>
+                                            <select id="form-type" class="form-control-2050 select2-2050">
+                                                <option value="">-- Sélectionner le type --</option>
+                                                <option value="propriete" @selected($type === 'propriete')>Propriété
+                                                </option>
+                                                <option value="location" @selected($type === 'location')>Location</option>
+                                            </select>
+                                        </div>
                                         <small class="form-help-2050">Propriété de l'entreprise ou véhicule en
                                             location</small>
                                         @error('type')
@@ -90,13 +93,14 @@
                                         <label class="form-label-2050">
                                             Marque <span class="required">*</span>
                                         </label>
-                                        <select wire:model.live="marque_id" class="form-control-2050 select2-2050"
-                                            onchange="Livewire.dispatch('marque-changed', { marqueId: this.value })">
-                                            <option value="">-- Sélectionner une marque --</option>
-                                            @foreach ($marques as $marque)
-                                                <option value="{{ $marque->id }}">{{ $marque->nom }}</option>
-                                            @endforeach
-                                        </select>
+                                        <div wire:ignore>
+                                            <select id="form-marque" class="form-control-2050 select2-2050">
+                                                <option value="">-- Sélectionner une marque --</option>
+                                                @foreach ($marques as $marque)
+                                                    <option value="{{ $marque->id }}">{{ $marque->nom }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                         @error('marque_id')
                                             <div class="text-danger">{{ $message }}</div>
                                         @enderror
@@ -114,14 +118,14 @@
                                             <small class="text-muted">Chargement des modèles...</small>
                                         </div>
 
-                                        <select wire:model.live="modele_id" class="form-control-2050 select2-2050"
-                                            @disabled(!$marque_id)>
-                                            <option value="">-- Sélectionner un modèle --</option>
-                                            @foreach ($formModeles as $modele)
-                                                <option wire:key="form-modele-{{ $modele->id }}"
-                                                    value="{{ $modele->id }}">{{ $modele->nom }}</option>
-                                            @endforeach
-                                        </select>
+                                        <div wire:ignore>
+                                            <select id="form-modele" class="form-control-2050 select2-2050">
+                                                <option value="">-- Sélectionner un modèle --</option>
+                                                @foreach ($formModeles as $modele)
+                                                    <option value="{{ $modele->id }}">{{ $modele->nom }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                         @error('modele_id')
                                             <div class="text-danger">{{ $message }}</div>
                                         @enderror
@@ -133,12 +137,14 @@
                                         <label class="form-label-2050">
                                             Couleur <span class="required">*</span>
                                         </label>
-                                        <select wire:model="couleur" class="form-control-2050 select2-2050">
-                                            <option value="">-- Sélectionner une couleur --</option>
-                                            @foreach ($couleurs as $couleur)
-                                                <option value="{{ $couleur }}">{{ $couleur }}</option>
-                                            @endforeach
-                                        </select>
+                                        <div wire:ignore>
+                                            <select id="form-couleur" class="form-control-2050 select2-2050">
+                                                <option value="">-- Sélectionner une couleur --</option>
+                                                @foreach ($couleurs as $couleur)
+                                                    <option value="{{ $couleur }}">{{ $couleur }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                         @error('couleur')
                                             <div class="text-danger">{{ $message }}</div>
                                         @enderror
@@ -178,13 +184,15 @@
                                         <label class="form-label-2050">
                                             Statut <span class="required">*</span>
                                         </label>
-                                        <select wire:model="statut" class="form-control-2050 select2-2050">
-                                            <option value="">-- Sélectionner le statut --</option>
-                                            <option value="disponible">Disponible</option>
-                                            <option value="en_mission">En mission</option>
-                                            <option value="en_maintenance">En maintenance</option>
-                                            <option value="hors_service">Hors service</option>
-                                        </select>
+                                        <div wire:ignore>
+                                            <select id="form-statut" class="form-control-2050 select2-2050">
+                                                <option value="">-- Sélectionner le statut --</option>
+                                                <option value="disponible">Disponible</option>
+                                                <option value="en_mission">En mission</option>
+                                                <option value="en_maintenance">En maintenance</option>
+                                                <option value="hors_service">Hors service</option>
+                                            </select>
+                                        </div>
                                         @error('statut')
                                             <div class="text-danger">{{ $message }}</div>
                                         @enderror
@@ -1056,12 +1064,43 @@
             });
         });
 
-        // BUG FIX 1: Synchronisation Select2 des filtres sans flicker
-        document.addEventListener('livewire:initialized', function() {
-            console.log('=== INITIALISATION SELECT2 FILTRES ===');
+        // Fonction pour initialiser Select2 quand tout est prêt
+        function initSelect2WhenReady() {
+            console.log('=== INITIALISATION SELECT2 - VÉRIFICATION ===');
+            console.log('jQuery disponible:', typeof $ !== 'undefined');
+            console.log('Select2 disponible:', typeof $.fn.select2 !== 'undefined');
+            console.log('Livewire disponible:', typeof Livewire !== 'undefined');
 
-            // Initialiser Select2 pour les filtres UNE SEULE FOIS
-            function initFilterSelect2() {
+            if (typeof $ === 'undefined') {
+                console.log('jQuery pas encore chargé, attente...');
+                setTimeout(initSelect2WhenReady, 100);
+                return;
+            }
+
+            if (typeof Livewire === 'undefined') {
+                console.log('Livewire pas encore chargé, attente...');
+                setTimeout(initSelect2WhenReady, 100);
+                return;
+            }
+
+            console.log('=== TOUT EST PRÊT - INITIALISATION ===');
+            initSelect2();
+        }
+
+        // BUG FIX 1 & 2: Synchronisation Select2 des filtres ET du formulaire sans flicker
+        function initSelect2() {
+            console.log('=== INITIALISATION SELECT2 FILTRES ET FORMULAIRE ===');
+
+            // Initialiser Select2 pour les filtres ET le formulaire UNE SEULE FOIS
+            function initAllSelect2() {
+                console.log('=== INITIALISATION SELECT2 ===');
+
+                // Vérifier que les éléments existent
+                console.log('Filtres trouvés:', $('#filter-type, #filter-statut, #filter-marque, #filter-modele')
+                    .length);
+                console.log('Formulaire trouvé:', $(
+                    '#form-type, #form-marque, #form-modele, #form-couleur, #form-statut').length);
+
                 console.log('Initialisation Select2 filtres...');
                 $('#filter-type, #filter-statut, #filter-marque, #filter-modele')
                     .select2({
@@ -1074,10 +1113,25 @@
                         dropdownCssClass: 'select2-dropdown-2050',
                         selectionCssClass: 'select2-selection-2050'
                     });
+
+                console.log('Initialisation Select2 formulaire...');
+                $('#form-type, #form-marque, #form-modele, #form-couleur, #form-statut')
+                    .select2({
+                        placeholder: function() {
+                            return $(this).find('option:first').text();
+                        },
+                        allowClear: true,
+                        theme: 'bootstrap-5',
+                        width: '100%',
+                        dropdownCssClass: 'select2-dropdown-2050',
+                        selectionCssClass: 'select2-selection-2050'
+                    });
+
+                console.log('=== SELECT2 INITIALISÉ ===');
             }
 
             // Initialiser après un délai pour s'assurer que le DOM est prêt
-            setTimeout(initFilterSelect2, 300);
+            setTimeout(initAllSelect2, 300);
 
             // Synchroniser les valeurs Livewire -> Select2 (au chargement)
             Livewire.on('set-filter-values', (values) => {
@@ -1089,53 +1143,284 @@
             });
 
             // Synchroniser Select2 -> Livewire (quand l'utilisateur change)
+            // FILTRES
             $('#filter-type').on('change', function() {
                 const value = $(this).val();
                 console.log('Filtre Type changé:', value);
-                Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'))
-                    .set('filterType', value);
+                const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                    'wire:id'));
+                if (livewireComponent) {
+                    livewireComponent.set('filterType', value);
+                    console.log('Filtre Type envoyé à Livewire');
+                }
             });
 
             $('#filter-statut').on('change', function() {
                 const value = $(this).val();
                 console.log('Filtre Statut changé:', value);
-                Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'))
-                    .set('filterStatut', value);
+                const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                    'wire:id'));
+                if (livewireComponent) {
+                    livewireComponent.set('filterStatut', value);
+                    console.log('Filtre Statut envoyé à Livewire');
+                }
             });
 
             $('#filter-marque').on('change', function() {
                 const value = $(this).val();
                 console.log('Filtre Marque changé:', value);
-                Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'))
-                    .set('filterMarque', value);
+                const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                    'wire:id'));
+                if (livewireComponent) {
+                    livewireComponent.set('filterMarque', value);
+                    console.log('Filtre Marque envoyé à Livewire');
+                }
             });
 
             $('#filter-modele').on('change', function() {
                 const value = $(this).val();
                 console.log('Filtre Modèle changé:', value);
+                const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                    'wire:id'));
+                if (livewireComponent) {
+                    livewireComponent.set('filterModele', value);
+                    console.log('Filtre Modèle envoyé à Livewire');
+                }
+            });
+
+            // FORMULAIRE
+            $('#form-type').on('change', function() {
+                const value = $(this).val();
+                console.log('Form Type changé:', value);
                 Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'))
-                    .set('filterModele', value);
+                    .set('type', value);
+            });
+
+            $('#form-marque').on('change', function() {
+                const value = $(this).val();
+                console.log('=== FORM MARQUE CHANGÉ ===');
+                console.log('Valeur sélectionnée:', value);
+
+                const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                    'wire:id'));
+                if (livewireComponent) {
+                    console.log('Composant Livewire trouvé, envoi de la marque...');
+                    livewireComponent.set('marque_id', value);
+                    console.log('Marque envoyée à Livewire:', value);
+                } else {
+                    console.error('Composant Livewire non trouvé !');
+                }
+            });
+
+            $('#form-modele').on('change', function() {
+                const value = $(this).val();
+                console.log('Form Modèle changé:', value);
+                Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'))
+                    .set('modele_id', value);
+            });
+
+            $('#form-couleur').on('change', function() {
+                const value = $(this).val();
+                console.log('Form Couleur changé:', value);
+                Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'))
+                    .set('couleur', value);
+            });
+
+            $('#form-statut').on('change', function() {
+                const value = $(this).val();
+                console.log('Form Statut changé:', value);
+                Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'))
+                    .set('statut', value);
             });
 
             // Mettre à jour les options des modèles quand la marque change
-            Livewire.on('update-filter-modeles', (modeles) => {
-                console.log('Mise à jour des modèles pour les filtres:', modeles);
+            Livewire.on('update-filter-modeles', (data) => {
+                console.log('Mise à jour des modèles pour les filtres:', data);
                 const $modeleSelect = $('#filter-modele');
                 $modeleSelect.empty().append('<option value="">Tous</option>');
 
-                modeles.forEach(modele => {
-                    $modeleSelect.append(`<option value="${modele.id}">${modele.nom}</option>`);
-                });
+                // Vérifier le format des données
+                let modeles = data;
+                if (data && data.modeles) {
+                    modeles = data.modeles;
+                }
+
+                if (modeles && Array.isArray(modeles) && modeles.length > 0) {
+                    modeles.forEach(modele => {
+                        $modeleSelect.append(`<option value="${modele.id}">${modele.nom}</option>`);
+                    });
+                    console.log('Modèles ajoutés au filtre:', modeles.length);
+                } else {
+                    console.log('Aucun modèle à ajouter au filtre');
+                }
 
                 $modeleSelect.trigger('change.select2');
             });
 
+            // Mettre à jour les options des modèles du formulaire quand la marque change
+            Livewire.on('update-form-modeles', (data) => {
+                console.log('=== MISE À JOUR DES MODÈLES FORMULAIRE ===');
+                console.log('Données reçues:', data);
+
+                const $modeleSelect = $('#form-modele');
+                console.log('Select modèles trouvé:', $modeleSelect.length);
+
+                // Vider et reconstruire les options
+                $modeleSelect.empty().append('<option value="">-- Sélectionner un modèle --</option>');
+
+                // Vérifier le format des données
+                let modeles = data;
+                if (data && data.modeles) {
+                    modeles = data.modeles;
+                }
+
+                if (modeles && Array.isArray(modeles) && modeles.length > 0) {
+                    modeles.forEach(modele => {
+                        $modeleSelect.append(`<option value="${modele.id}">${modele.nom}</option>`);
+                    });
+                    console.log('Options ajoutées:', modeles.length);
+                } else {
+                    console.log('Aucun modèle à ajouter');
+                }
+
+                // Réinitialiser Select2
+                $modeleSelect.trigger('change.select2');
+                console.log('Select2 modèles mis à jour');
+            });
+
+            // Synchroniser Livewire -> Select2 (quand les valeurs changent côté serveur)
+            Livewire.on('sync-form-select2', (values) => {
+                console.log('Synchronisation des valeurs du formulaire:', values);
+                if (values.type) $('#form-type').val(values.type).trigger('change');
+                if (values.marque_id) $('#form-marque').val(values.marque_id).trigger('change');
+                if (values.modele_id) $('#form-modele').val(values.modele_id).trigger('change');
+                if (values.couleur) $('#form-couleur').val(values.couleur).trigger('change');
+                if (values.statut) $('#form-statut').val(values.statut).trigger('change');
+            });
+
             // Réinitialiser les filtres
             Livewire.on('reset-filter-select2', () => {
-                console.log('Réinitialisation des filtres Select2');
-                $('#filter-type, #filter-statut, #filter-marque, #filter-modele')
-                    .val('').trigger('change');
+                console.log('=== RÉINITIALISATION DES FILTRES SELECT2 ===');
+
+                // Réinitialiser tous les Select2 des filtres
+                $('#filter-type').val('').trigger('change');
+                $('#filter-statut').val('').trigger('change');
+                $('#filter-marque').val('').trigger('change');
+                $('#filter-modele').val('').trigger('change');
+
+                console.log('Tous les Select2 des filtres ont été réinitialisés');
             });
+        }
+
+        // Démarrer l'initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== DOM CONTENT LOADED ===');
+            initSelect2WhenReady();
+
+            // Observer pour détecter quand le formulaire apparaît
+            let observer = null;
+            let eventsAttached = false;
+
+            function startObserver() {
+                if (observer) return; // Éviter les doublons
+
+                observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList') {
+                            // Vérifier si le formulaire est maintenant présent
+                            if ($('#form-marque').length > 0 && !eventsAttached) {
+                                console.log(
+                                    '=== FORMULAIRE DÉTECTÉ - ATTACHEMENT DES ÉVÉNEMENTS ===');
+                                attachFormEvents();
+                                eventsAttached = true;
+                                observer.disconnect(); // Arrêter l'observation
+                                observer = null;
+                            }
+                        }
+                    });
+                });
+
+                // Observer le contenu de la page
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+
+            // Démarrer l'observation
+            startObserver();
+
+            // Fonction pour attacher les événements du formulaire
+            function attachFormEvents() {
+                console.log('=== ATTACHEMENT DES ÉVÉNEMENTS FORMULAIRE ===');
+
+                // Marque
+                $(document).off('change', '#form-marque').on('change', '#form-marque', function() {
+                    const value = $(this).val();
+                    console.log('=== FORM MARQUE CHANGÉ ===');
+                    console.log('Valeur sélectionnée:', value);
+
+                    const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]')
+                        .getAttribute('wire:id'));
+                    if (livewireComponent) {
+                        console.log('Composant Livewire trouvé, envoi de la marque...');
+                        livewireComponent.set('marque_id', value);
+                        console.log('Marque envoyée à Livewire:', value);
+                    } else {
+                        console.error('Composant Livewire non trouvé !');
+                    }
+                });
+
+                // Modèle
+                $(document).off('change', '#form-modele').on('change', '#form-modele', function() {
+                    const value = $(this).val();
+                    console.log('Form Modèle changé:', value);
+                    const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]')
+                        .getAttribute('wire:id'));
+                    if (livewireComponent) {
+                        livewireComponent.set('modele_id', value);
+                        console.log('Modèle envoyé à Livewire:', value);
+                    }
+                });
+
+                // Type
+                $(document).off('change', '#form-type').on('change', '#form-type', function() {
+                    const value = $(this).val();
+                    console.log('Form Type changé:', value);
+                    const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]')
+                        .getAttribute('wire:id'));
+                    if (livewireComponent) {
+                        livewireComponent.set('type', value);
+                        console.log('Type envoyé à Livewire:', value);
+                    }
+                });
+
+                // Couleur
+                $(document).off('change', '#form-couleur').on('change', '#form-couleur', function() {
+                    const value = $(this).val();
+                    console.log('Form Couleur changé:', value);
+                    const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]')
+                        .getAttribute('wire:id'));
+                    if (livewireComponent) {
+                        livewireComponent.set('couleur', value);
+                        console.log('Couleur envoyée à Livewire:', value);
+                    }
+                });
+
+                // Statut
+                $(document).off('change', '#form-statut').on('change', '#form-statut', function() {
+                    const value = $(this).val();
+                    console.log('Form Statut changé:', value);
+                    const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]')
+                        .getAttribute('wire:id'));
+                    if (livewireComponent) {
+                        livewireComponent.set('statut', value);
+                        console.log('Statut envoyé à Livewire:', value);
+                    }
+                });
+
+                console.log('Événements du formulaire attachés avec succès');
+            }
         });
     </script>
 

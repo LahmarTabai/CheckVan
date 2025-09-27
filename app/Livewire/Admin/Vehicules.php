@@ -99,26 +99,6 @@ class Vehicules extends Component
         'date_achat.required_if' => 'La date d\'achat est obligatoire pour les véhicules en propriété.',
     ];
 
-    public function updatedType()
-    {
-        \Log::info('=== updatedType appelé ===', ['type' => $this->type]);
-
-        // Réinitialiser complètement les champs selon le type
-        if ($this->type === 'location') {
-            $this->prix_achat = null;
-            $this->date_achat = null;
-            \Log::info('Type location - champs achat vidés');
-        } else { // propriete
-            $this->prix_location_jour = null;
-            $this->date_location = null;
-            \Log::info('Type propriete - champs location vidés');
-        }
-
-        // Réinitialiser les erreurs de validation
-        $this->resetErrorBag([
-            'prix_achat', 'date_achat', 'prix_location_jour', 'date_location'
-        ]);
-    }
 
     public function updateTypeFields()
     {
@@ -196,35 +176,6 @@ class Vehicules extends Component
             ->get();
     }
 
-    public function updatedMarqueId($value = null)
-    {
-        \Log::info('=== updatedMarqueId DÉBUT ===', ['marque_id' => $this->marque_id]);
-
-        $this->modele_id = null;
-
-        if (!$this->marque_id) {
-            $this->formModeles = collect();
-            \Log::info('Marque ID vide, modèles (form) vidés');
-            return;
-        }
-
-        try {
-            app(\App\Services\VehiculeApiService::class)
-                ->syncModelesFromApi($this->marque_id);
-        } catch (\Exception $e) {
-            \Log::error('Erreur sync API modèles: '.$e->getMessage());
-        }
-
-        $this->formModeles = \App\Models\Modele::where('marque_id', $this->marque_id)
-            ->where('is_active', true)
-            ->orderBy('nom')
-            ->get(['id','nom']);
-
-        \Log::info('Modèles (form) chargés depuis BDD', ['count' => $this->formModeles->count()]);
-
-        // Déclencher une réinitialisation ciblée de Select2
-        $this->dispatch('refresh-select2');
-    }
 
     public function handleMarqueChanged($marqueId)
     {
@@ -254,29 +205,118 @@ class Vehicules extends Component
         $this->resetPage();
     }
 
-    // BUG FIX 1: Autres filtres fonctionnels
+    // BUG FIX 2: Gestion correcte des modèles du formulaire
+    public function updatedMarqueId($value = null)
+    {
+        \Log::info('=== updatedMarqueId DÉBUT ===', ['marque_id' => $this->marque_id]);
+
+        // Sauvegarder le modèle actuel si on est en édition
+        $savedModeleId = $this->isEdit ? $this->modele_id : null;
+
+        // Réinitialiser le modèle quand la marque change (sauf en édition)
+        if (!$this->isEdit) {
+            $this->modele_id = null;
+        }
+
+        if (!$this->marque_id) {
+            $this->formModeles = collect();
+            \Log::info('Marque ID vide, modèles (form) vidés');
+            return;
+        }
+
+        try {
+            app(\App\Services\VehiculeApiService::class)
+                ->syncModelesFromApi($this->marque_id);
+        } catch (\Exception $e) {
+            \Log::error('Erreur sync API modèles: '.$e->getMessage());
+        }
+
+        $this->formModeles = \App\Models\Modele::where('marque_id', $this->marque_id)
+            ->where('is_active', true)
+            ->orderBy('nom')
+            ->get(['id','nom']);
+
+        \Log::info('Modèles (form) chargés depuis BDD', ['count' => $this->formModeles->count()]);
+
+        // Restaurer le modèle si on est en édition et qu'il est valide
+        if ($this->isEdit && $savedModeleId && $this->formModeles->contains('id', $savedModeleId)) {
+            $this->modele_id = $savedModeleId;
+            \Log::info('Modèle restauré après édition', ['modele_id' => $this->modele_id]);
+        }
+
+        // Déclencher la mise à jour des modèles Select2 du formulaire
+        $modelesArray = $this->formModeles->map(fn($m) => ['id' => $m->id, 'nom' => $m->nom])->toArray();
+        \Log::info('Envoi des modèles au frontend:', $modelesArray);
+        $this->dispatch('update-form-modeles', modeles: $modelesArray);
+
+        // Synchroniser les valeurs Select2
+        $this->dispatch('sync-form-select2', values: [
+            'type' => $this->type,
+            'marque_id' => $this->marque_id,
+            'modele_id' => $this->modele_id,
+            'couleur' => $this->couleur,
+            'statut' => $this->statut
+        ]);
+    }
+
+    public function updatedType()
+    {
+        \Log::info('=== updatedType appelé ===', ['type' => $this->type]);
+
+        // Réinitialiser complètement les champs selon le type
+        if ($this->type === 'location') {
+            $this->prix_achat = null;
+            $this->date_achat = null;
+            \Log::info('Type location - champs achat vidés');
+        } else { // propriete
+            $this->prix_location_jour = null;
+            $this->date_location = null;
+            \Log::info('Type propriete - champs location vidés');
+        }
+
+        // Réinitialiser les erreurs de validation
+        $this->resetErrorBag([
+            'prix_achat', 'date_achat', 'prix_location_jour', 'date_location'
+        ]);
+
+        // Synchroniser les valeurs Select2
+        $this->dispatch('sync-form-select2', values: [
+            'type' => $this->type,
+            'marque_id' => $this->marque_id,
+            'modele_id' => $this->modele_id,
+            'couleur' => $this->couleur,
+            'statut' => $this->statut
+        ]);
+    }
+
+    // BUG FIX 3: Filtres fonctionnels avec logs
     public function updatedFilterType()
     {
+        \Log::info('Filtre Type mis à jour: ' . $this->filterType);
         $this->resetPage();
     }
 
     public function updatedFilterStatut()
     {
+        \Log::info('Filtre Statut mis à jour: ' . $this->filterStatut);
         $this->resetPage();
     }
 
     public function updatedFilterModele()
     {
+        \Log::info('Filtre Modèle mis à jour: ' . $this->filterModele);
         $this->resetPage();
     }
 
     public function updatedFilterAnnee()
     {
+        \Log::info('Filtre Année mis à jour: ' . $this->filterAnnee);
         $this->resetPage();
     }
 
     public function updatedFilterCouleur()
     {
+        \Log::info('Filtre Couleur mis à jour: ' . $this->filterCouleur);
         $this->resetPage();
     }
 
@@ -352,7 +392,7 @@ class Vehicules extends Component
 
     public function resetFilters()
     {
-        \Log::info('Réinitialisation des filtres');
+        \Log::info('=== RÉINITIALISATION DES FILTRES ===');
 
         $this->search = '';
         $this->filterType = '';
@@ -363,9 +403,19 @@ class Vehicules extends Component
         $this->filterCouleur = '';
         $this->filterModeles = collect();
 
+        \Log::info('Valeurs des filtres réinitialisées:', [
+            'search' => $this->search,
+            'filterType' => $this->filterType,
+            'filterStatut' => $this->filterStatut,
+            'filterMarque' => $this->filterMarque,
+            'filterModele' => $this->filterModele
+        ]);
+
         // Déclencher la réinitialisation des Select2
         $this->dispatch('reset-filter-select2');
         $this->resetPage();
+
+        \Log::info('Événement reset-filter-select2 envoyé');
     }
 
     public function sortBy($field)
