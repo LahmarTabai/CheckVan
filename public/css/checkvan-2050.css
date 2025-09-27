@@ -1691,3 +1691,125 @@ body::before {
 .hover-lift:hover {
   transform: translateY(-4px);
 }
+
+/* ========================================
+   SELECT2 STYLES 2050
+   ======================================== */
+
+/* Styles pour les Select2 des filtres */
+.select2-selection-2050 {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 12px !important;
+    backdrop-filter: blur(10px) !important;
+    color: #333 !important;
+    min-height: 38px !important;
+    padding: 0 8px !important;
+}
+
+.select2-selection-2050:hover {
+    border-color: rgba(102, 126, 234, 0.5) !important;
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.1) !important;
+}
+
+.select2-selection-2050:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3) !important;
+    outline: none !important;
+}
+
+.select2-dropdown-2050 {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%) !important;
+    border: 1px solid rgba(102, 126, 234, 0.2) !important;
+    border-radius: 12px !important;
+    backdrop-filter: blur(20px) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+    margin-top: 4px !important;
+}
+
+.select2-dropdown-2050 .select2-results__option {
+    padding: 8px 12px !important;
+    color: #333 !important;
+    border-radius: 8px !important;
+    margin: 2px 4px !important;
+    transition: all 0.2s ease !important;
+}
+
+.select2-dropdown-2050 .select2-results__option:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%) !important;
+    color: #667eea !important;
+}
+
+.select2-dropdown-2050 .select2-results__option--highlighted {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+}
+
+.select2-dropdown-2050 .select2-search__field {
+    background: transparent !important;
+    border: 1px solid rgba(102, 126, 234, 0.2) !important;
+    border-radius: 8px !important;
+    padding: 6px 10px !important;
+    color: #333 !important;
+}
+
+.select2-dropdown-2050 .select2-search__field:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.2) !important;
+    outline: none !important;
+}
+
+/* Styles pour les Select2 du formulaire (marque, modèle, etc.) */
+.select2-2050 {
+    width: 100% !important;
+}
+
+.select2-2050 .select2-selection {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 12px !important;
+    backdrop-filter: blur(10px) !important;
+    color: #333 !important;
+    min-height: 38px !important;
+    padding: 0 8px !important;
+}
+
+.select2-2050 .select2-selection:hover {
+    border-color: rgba(102, 126, 234, 0.5) !important;
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.1) !important;
+}
+
+.select2-2050 .select2-selection:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3) !important;
+    outline: none !important;
+}
+
+/* Animation pour les Select2 */
+.select2-container--bootstrap-5 .select2-selection {
+    transition: all 0.3s ease !important;
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+    color: #333 !important;
+    padding-left: 8px !important;
+    padding-right: 20px !important;
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
+    height: 36px !important;
+    right: 8px !important;
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow b {
+    border-color: #667eea transparent transparent transparent !important;
+    border-style: solid !important;
+    border-width: 5px 4px 0 4px !important;
+    height: 0 !important;
+    left: 50% !important;
+    margin-left: -4px !important;
+    margin-top: -2px !important;
+    position: absolute !important;
+    top: 50% !important;
+    width: 0 !important;
+}

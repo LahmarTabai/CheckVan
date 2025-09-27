@@ -235,6 +235,11 @@ class Vehicules extends Component
 
     public function updatedFilterMarque()
     {
+        \Log::info('Filtre marque mis à jour: ' . $this->filterMarque);
+
+        // Réinitialiser le modèle quand la marque change
+        $this->filterModele = '';
+
         if ($this->filterMarque) {
             $this->filterModeles = Modele::where('marque_id', $this->filterMarque)
                 ->where('is_active', true)
@@ -243,7 +248,43 @@ class Vehicules extends Component
         } else {
             $this->filterModeles = collect();
         }
-        $this->filterModele = null;
+
+        // Déclencher la mise à jour des modèles Select2
+        $this->dispatch('update-filter-modeles', modeles: $this->filterModeles->map(fn($m) => ['id' => $m->id, 'nom' => $m->nom])->toArray());
+        $this->resetPage();
+    }
+
+    // BUG FIX 1: Autres filtres fonctionnels
+    public function updatedFilterType()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFilterStatut()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFilterModele()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFilterAnnee()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFilterCouleur()
+    {
+        $this->resetPage();
+    }
+
+    // BUG FIX 1: Recherche avec debounce
+    public function updatedSearch()
+    {
+        \Log::info('Recherche mise à jour: ' . $this->search);
+        $this->resetPage();
     }
 
 
@@ -311,6 +352,8 @@ class Vehicules extends Component
 
     public function resetFilters()
     {
+        \Log::info('Réinitialisation des filtres');
+
         $this->search = '';
         $this->filterType = '';
         $this->filterStatut = '';
@@ -318,6 +361,11 @@ class Vehicules extends Component
         $this->filterModele = '';
         $this->filterAnnee = '';
         $this->filterCouleur = '';
+        $this->filterModeles = collect();
+
+        // Déclencher la réinitialisation des Select2
+        $this->dispatch('reset-filter-select2');
+        $this->resetPage();
     }
 
     public function sortBy($field)

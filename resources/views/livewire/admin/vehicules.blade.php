@@ -645,57 +645,63 @@
                         <div class="form-col-2050 col-md-3">
                             <div class="form-group-2050">
                                 <label class="form-label-2050">Recherche générale</label>
-                                <input type="text" wire:model.live="search" class="form-control-2050"
-                                    placeholder="Immatriculation, marque, modèle...">
+                                <input type="text" wire:model.live.debounce.500ms="search"
+                                    class="form-control-2050" placeholder="Immatriculation, marque, modèle...">
                             </div>
                         </div>
 
                         <div class="form-col-2050 col-md-2">
                             <div class="form-group-2050">
                                 <label class="form-label-2050">Type</label>
-                                <select wire:model.live="filterType" class="form-control-2050 select2-2050">
-                                    <option value="">Tous</option>
-                                    <option value="propriete">Propriété</option>
-                                    <option value="location">Location</option>
-                                </select>
+                                <div wire:ignore>
+                                    <select id="filter-type" class="form-control-2050 select2-2050">
+                                        <option value="">Tous</option>
+                                        <option value="propriete">Propriété</option>
+                                        <option value="location">Location</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
                         <div class="form-col-2050 col-md-2">
                             <div class="form-group-2050">
                                 <label class="form-label-2050">Statut</label>
-                                <select wire:model.live="filterStatut" class="form-control-2050 select2-2050">
-                                    <option value="">Tous</option>
-                                    <option value="disponible">Disponible</option>
-                                    <option value="en_mission">En mission</option>
-                                    <option value="en_maintenance">En maintenance</option>
-                                    <option value="hors_service">Hors service</option>
-                                </select>
+                                <div wire:ignore>
+                                    <select id="filter-statut" class="form-control-2050 select2-2050">
+                                        <option value="">Tous</option>
+                                        <option value="disponible">Disponible</option>
+                                        <option value="en_mission">En mission</option>
+                                        <option value="en_maintenance">En maintenance</option>
+                                        <option value="hors_service">Hors service</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="form-col-2050 col-md-2">
                             <div class="form-group-2050">
                                 <label class="form-label-2050">Marque</label>
-                                <select wire:model.live="filterMarque" class="form-control-2050 select2-2050">
-                                    <option value="">Toutes</option>
-                                    @foreach ($marques as $marque)
-                                        <option value="{{ $marque->id }}">{{ $marque->nom }}</option>
-                                    @endforeach
-                                </select>
+                                <div wire:ignore>
+                                    <select id="filter-marque" class="form-control-2050 select2-2050">
+                                        <option value="">Toutes</option>
+                                        @foreach ($marques as $marque)
+                                            <option value="{{ $marque->id }}">{{ $marque->nom }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
                         <div class="form-col-2050 col-md-2">
                             <div class="form-group-2050">
                                 <label class="form-label-2050">Modèle</label>
-                                <select wire:model.live="filterModele" class="form-control-2050 select2-2050"
-                                    @disabled(!$filterMarque)>
-                                    <option value="">Tous</option>
-                                    @foreach ($filterModeles as $modele)
-                                        <option wire:key="filter-modele-{{ $modele->id }}"
-                                            value="{{ $modele->id }}">{{ $modele->nom }}</option>
-                                    @endforeach
-                                </select>
+                                <div wire:ignore>
+                                    <select id="filter-modele" class="form-control-2050 select2-2050">
+                                        <option value="">Tous</option>
+                                        @foreach ($filterModeles as $modele)
+                                            <option value="{{ $modele->id }}">{{ $modele->nom }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
@@ -1047,6 +1053,88 @@
                         modal.show();
                     }
                 }
+            });
+        });
+
+        // BUG FIX 1: Synchronisation Select2 des filtres sans flicker
+        document.addEventListener('livewire:initialized', function() {
+            console.log('=== INITIALISATION SELECT2 FILTRES ===');
+
+            // Initialiser Select2 pour les filtres UNE SEULE FOIS
+            function initFilterSelect2() {
+                console.log('Initialisation Select2 filtres...');
+                $('#filter-type, #filter-statut, #filter-marque, #filter-modele')
+                    .select2({
+                        placeholder: function() {
+                            return $(this).find('option:first').text();
+                        },
+                        allowClear: true,
+                        theme: 'bootstrap-5',
+                        width: '100%',
+                        dropdownCssClass: 'select2-dropdown-2050',
+                        selectionCssClass: 'select2-selection-2050'
+                    });
+            }
+
+            // Initialiser après un délai pour s'assurer que le DOM est prêt
+            setTimeout(initFilterSelect2, 300);
+
+            // Synchroniser les valeurs Livewire -> Select2 (au chargement)
+            Livewire.on('set-filter-values', (values) => {
+                console.log('Mise à jour des valeurs des filtres:', values);
+                if (values.filterType) $('#filter-type').val(values.filterType).trigger('change');
+                if (values.filterStatut) $('#filter-statut').val(values.filterStatut).trigger('change');
+                if (values.filterMarque) $('#filter-marque').val(values.filterMarque).trigger('change');
+                if (values.filterModele) $('#filter-modele').val(values.filterModele).trigger('change');
+            });
+
+            // Synchroniser Select2 -> Livewire (quand l'utilisateur change)
+            $('#filter-type').on('change', function() {
+                const value = $(this).val();
+                console.log('Filtre Type changé:', value);
+                Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'))
+                    .set('filterType', value);
+            });
+
+            $('#filter-statut').on('change', function() {
+                const value = $(this).val();
+                console.log('Filtre Statut changé:', value);
+                Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'))
+                    .set('filterStatut', value);
+            });
+
+            $('#filter-marque').on('change', function() {
+                const value = $(this).val();
+                console.log('Filtre Marque changé:', value);
+                Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'))
+                    .set('filterMarque', value);
+            });
+
+            $('#filter-modele').on('change', function() {
+                const value = $(this).val();
+                console.log('Filtre Modèle changé:', value);
+                Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'))
+                    .set('filterModele', value);
+            });
+
+            // Mettre à jour les options des modèles quand la marque change
+            Livewire.on('update-filter-modeles', (modeles) => {
+                console.log('Mise à jour des modèles pour les filtres:', modeles);
+                const $modeleSelect = $('#filter-modele');
+                $modeleSelect.empty().append('<option value="">Tous</option>');
+
+                modeles.forEach(modele => {
+                    $modeleSelect.append(`<option value="${modele.id}">${modele.nom}</option>`);
+                });
+
+                $modeleSelect.trigger('change.select2');
+            });
+
+            // Réinitialiser les filtres
+            Livewire.on('reset-filter-select2', () => {
+                console.log('Réinitialisation des filtres Select2');
+                $('#filter-type, #filter-statut, #filter-marque, #filter-modele')
+                    .val('').trigger('change');
             });
         });
     </script>
