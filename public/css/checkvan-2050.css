@@ -1735,6 +1735,21 @@ body::before {
    SELECT2 STYLES 2050
    ======================================== */
 
+/* Masquer la flèche de Select2 */
+.select2-selection__arrow {
+  display: none !important;
+}
+
+/* Masquer la flèche de Select2 dans les conteneurs 2050 */
+.select2-container--bootstrap-5 .select2-selection__arrow {
+  display: none !important;
+}
+
+/* Masquer la flèche de Select2 pour les filtres */
+.select2-container .select2-selection__arrow {
+  display: none !important;
+}
+
 /* Styles pour les Select2 des filtres */
 .select2-selection-2050 {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%) !important;
