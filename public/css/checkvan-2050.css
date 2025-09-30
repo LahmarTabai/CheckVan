@@ -1693,6 +1693,45 @@ body::before {
 }
 
 /* ========================================
+   INPUT DATE CENTRÉ 2050
+   ======================================== */
+
+/* Centrage du texte dans les champs de date */
+.form-control-2050[type="date"] {
+  text-align: center;
+  padding: 12px 16px;
+}
+
+.form-control-2050[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.form-control-2050[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Pour Firefox */
+.form-control-2050[type="date"]::-moz-calendar-picker-indicator {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.form-control-2050[type="date"]::-moz-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* ========================================
    SELECT2 STYLES 2050
    ======================================== */
 
