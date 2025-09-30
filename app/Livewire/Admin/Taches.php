@@ -32,6 +32,9 @@ class Taches extends Component
     public $showDeleteModal = false;
     public $tacheToDelete = null;
 
+    // Affichage du formulaire
+    public $showForm = false;
+
     // Formulaire
     public $tacheId;
     public $chauffeur_id, $vehicule_id, $start_date;
@@ -120,6 +123,19 @@ class Taches extends Component
         $this->resetErrorBag();
     }
 
+    // Méthodes pour contrôler l'affichage du formulaire
+    public function showAddForm()
+    {
+        $this->resetForm();
+        $this->showForm = true;
+    }
+
+    public function hideForm()
+    {
+        $this->showForm = false;
+        $this->resetForm();
+    }
+
     public function resetFilters()
     {
         $this->statusFilter = '';
@@ -130,6 +146,34 @@ class Taches extends Component
         $this->dateFinFilter = '';
         $this->search = '';
         $this->resetPage();
+
+        // Réinitialiser les Select2
+        $this->dispatch('reset-filter-select2');
+    }
+
+    public function updatedStatusFilter()
+    {
+        \Log::info('Filtre Status changé:', ['statusFilter' => $this->statusFilter]);
+    }
+
+    public function updatedValidationFilter()
+    {
+        \Log::info('Filtre Validation changé:', ['validationFilter' => $this->validationFilter]);
+    }
+
+    public function updatedChauffeurFilter()
+    {
+        \Log::info('Filtre Chauffeur changé:', ['chauffeurFilter' => $this->chauffeurFilter]);
+    }
+
+    public function updatedVehiculeFilter()
+    {
+        \Log::info('Filtre Véhicule changé:', ['vehiculeFilter' => $this->vehiculeFilter]);
+    }
+
+    public function updatedSearch()
+    {
+        \Log::info('Recherche changée:', ['search' => $this->search]);
     }
 
     public function sortBy($field)
@@ -241,6 +285,7 @@ class Taches extends Component
 
         session()->flash('success', 'Tâche créée avec succès.');
         $this->resetForm();
+        $this->showForm = false;
         $this->resetErrorBag();
     }
 
@@ -261,6 +306,13 @@ class Taches extends Component
 
         // Déclencher la synchronisation des Select2 après un délai
         $this->dispatch('sync-select2-values');
+
+        // Synchroniser les valeurs du formulaire
+        $this->dispatch('sync-form-select2', values: [
+            'chauffeur_id' => $this->chauffeur_id,
+            'vehicule_id' => $this->vehicule_id,
+            'type_tache' => $this->type_tache
+        ]);
     }
 
     public function update()
@@ -313,6 +365,7 @@ class Taches extends Component
 
         session()->flash('success', 'Tâche mise à jour.');
         $this->resetForm();
+        $this->showForm = false;
         $this->resetErrorBag();
     }
 

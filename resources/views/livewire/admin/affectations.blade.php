@@ -41,285 +41,397 @@
             </div>
         </div> --}}
 
+        <!-- Bouton Ajouter Affectation -->
+        @if (!$showForm && !$isEdit)
+            <div class="d-flex justify-content-end mb-4">
+                <button type="button" wire:click="showAddForm" class="btn btn-primary-2050">
+                    <i class="fas fa-plus me-2"></i>Ajouter une affectation
+                </button>
+            </div>
+        @endif
+
         <!-- Formulaire Futuriste -->
-        <div class="card-2050 mb-4 hover-lift">
-            <div class="card-header-2050">
-                <h6 class="mb-0">
-                    <i class="fas fa-plus me-2"></i>{{ $isEdit ? 'Modifier l\'affectation' : 'Nouvelle affectation' }}
-                </h6>
-            </div>
-            <div class="card-body p-4">
-                <form wire:submit.prevent="{{ $isEdit ? 'update' : 'save' }}">
-                    <div class="form-section-2050">
-                        <h6 class="section-title-2050">
-                            <i class="fas fa-user-tie me-2"></i>Sélection du chauffeur
-                        </h6>
+        @if ($showForm || $isEdit)
+            <div class="card-2050 mb-4 hover-lift">
+                <div class="card-header-2050">
+                    <h6 class="mb-0">
+                        <i
+                            class="fas fa-plus me-2"></i>{{ $isEdit ? 'Modifier l\'affectation' : 'Nouvelle affectation' }}
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <form wire:submit.prevent="{{ $isEdit ? 'update' : 'save' }}">
+                        <div class="form-section-2050">
+                            <h6 class="section-title-2050">
+                                <i class="fas fa-user-tie me-2"></i>Sélection du chauffeur
+                            </h6>
 
-                        <div class="form-row-2050">
-                            <div class="form-col-2050 col-md-4">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Chauffeur <span class="required">*</span>
-                                    </label>
-                                    <select wire:model.live="chauffeur_id" class="form-control-2050 select2-2050">
-                                        <option value="">-- Sélectionner un chauffeur --</option>
-                                        @foreach ($chauffeurs as $c)
-                                            <option value="{{ $c->user_id }}">{{ $c->nom }} {{ $c->prenom }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('chauffeur_id')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-md-4">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Chauffeur <span class="required">*</span>
+                                        </label>
+                                        <div wire:ignore>
+                                            <select id="form-chauffeur" class="form-control-2050 select2-2050">
+                                                <option value="">-- Sélectionner un chauffeur --</option>
+                                                @foreach ($chauffeurs as $c)
+                                                    <option value="{{ $c->user_id }}">{{ $c->nom }}
+                                                        {{ $c->prenom }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        @error('chauffeur_id')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-col-2050 col-md-4">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Véhicule <span class="required">*</span>
-                                    </label>
-                                    <select wire:model.live="vehicule_id" class="form-control-2050 select2-2050">
-                                        <option value="">-- Sélectionner un véhicule --</option>
-                                        @foreach ($vehicules as $v)
-                                            <option value="{{ $v->id }}">
-                                                {{ $v->marque->nom ?? 'N/A' }} {{ $v->modele->nom ?? '' }} -
-                                                {{ $v->immatriculation }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <small class="form-help-2050">Véhicules disponibles :
-                                        {{ $vehicules->count() }}</small>
-                                    @error('vehicule_id')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                                <div class="form-col-2050 col-md-4">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Véhicule <span class="required">*</span>
+                                        </label>
+                                        <div wire:ignore>
+                                            <select id="form-vehicule" class="form-control-2050 select2-2050">
+                                                <option value="">-- Sélectionner un véhicule --</option>
+                                                @foreach ($vehicules as $v)
+                                                    <option value="{{ $v->id }}">
+                                                        {{ $v->marque->nom ?? 'N/A' }} {{ $v->modele->nom ?? '' }} -
+                                                        {{ $v->immatriculation }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <small class="form-help-2050">Véhicules disponibles :
+                                            {{ $vehicules->count() }}</small>
+                                        @error('vehicule_id')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-col-2050 col-md-4">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">Statut</label>
-                                    <select wire:model.live="status" class="form-control-2050 select2-2050">
-                                        <option value="en_cours">En cours</option>
-                                        <option value="terminée">Terminée</option>
-                                    </select>
-                                    @error('status')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-section-2050">
-                        <h6 class="section-title-2050">
-                            <i class="fas fa-calendar-alt me-2"></i>Planning de l'affectation
-                        </h6>
-
-                        <div class="form-row-2050">
-                            <div class="form-col-2050 col-md-6">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Date de début <span class="required">*</span>
-                                    </label>
-                                    <input type="date" wire:model="date_debut" class="form-control-2050">
-                                    <small class="form-help-2050">Date de début de l'affectation</small>
-                                    @error('date_debut')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="form-col-2050 col-md-6">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">Date de fin</label>
-                                    <input type="date" wire:model="date_fin" class="form-control-2050">
-                                    <small class="form-help-2050">Date de fin de l'affectation (optionnel)</small>
-                                    @error('date_fin')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                                <div class="form-col-2050 col-md-4">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Statut</label>
+                                        <div wire:ignore>
+                                            <select id="form-status" class="form-control-2050 select2-2050">
+                                                <option value="en_cours">En cours</option>
+                                                <option value="terminée">Terminée</option>
+                                            </select>
+                                        </div>
+                                        @error('status')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-section-2050">
-                        <h6 class="section-title-2050">
-                            <i class="fas fa-align-left me-2"></i>Description
-                        </h6>
+                        <div class="form-section-2050">
+                            <h6 class="section-title-2050">
+                                <i class="fas fa-calendar-alt me-2"></i>Planning de l'affectation
+                            </h6>
 
-                        <div class="form-row-2050">
-                            <div class="form-col-2050 col-12">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">Description</label>
-                                    <textarea wire:model="description" class="form-control-2050" rows="3"
-                                        placeholder="Description de l'affectation..."></textarea>
-                                    <small class="form-help-2050">Décrivez les détails de cette affectation</small>
-                                    @error('description')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-md-6">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Date de début <span class="required">*</span>
+                                        </label>
+                                        <input type="date" wire:model="date_debut" class="form-control-2050">
+                                        <small class="form-help-2050">Date de début de l'affectation</small>
+                                        @error('date_debut')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-col-2050 col-md-6">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Date de fin</label>
+                                        <input type="date" wire:model="date_fin" class="form-control-2050">
+                                        <small class="form-help-2050">Date de fin de l'affectation (optionnel)</small>
+                                        @error('date_fin')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-actions-2050">
-                        <button type="submit" class="btn btn-primary-2050">
-                            <i class="fas fa-save me-2"></i>{{ $isEdit ? 'Modifier' : 'Ajouter' }} Affectation
-                        </button>
-                        @if ($isEdit)
-                            <button type="button" wire:click="resetForm" class="btn btn-outline-2050">
-                                <i class="fas fa-times me-2"></i>Annuler
+                        <div class="form-section-2050">
+                            <h6 class="section-title-2050">
+                                <i class="fas fa-align-left me-2"></i>Description
+                            </h6>
+
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-12">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Description</label>
+                                        <textarea wire:model="description" class="form-control-2050" rows="3"
+                                            placeholder="Description de l'affectation..."></textarea>
+                                        <small class="form-help-2050">Décrivez les détails de cette affectation</small>
+                                        @error('description')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions-2050">
+                            <button type="submit" class="btn btn-primary-2050">
+                                <i class="fas fa-save me-2"></i>{{ $isEdit ? 'Modifier' : 'Ajouter' }} Affectation
                             </button>
-                        @endif
-                    </div>
-                </form>
+                            @if ($isEdit)
+                                <button type="button" wire:click="resetForm" class="btn btn-outline-2050">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </button>
+                            @endif
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
 
-        <script>
-            // Fonction pour synchroniser les valeurs Select2 avant soumission
-            function syncSelect2Values() {
-                console.log('=== SYNC SELECT2 VALUES AFFECTATIONS ===');
+            <script>
+                // BUG FIX: Synchronisation Select2 sans flicker pour affectations
+                function initSelect2() {
+                    console.log('=== INITIALISATION SELECT2 AFFECTATIONS ===');
 
-                try {
-                    const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'));
-                    if (livewireComponent) {
-                        // Synchroniser le chauffeur
-                        const chauffeurValue = $('select[wire\\:model\\.live="chauffeur_id"]').val();
-                        console.log('Chauffeur Select2:', chauffeurValue);
-                        if (chauffeurValue) {
-                            livewireComponent.set('chauffeur_id', chauffeurValue);
-                            console.log('Chauffeur synchronisé vers Livewire');
-                        }
+                    // Initialiser Select2 pour les filtres ET le formulaire
+                    function initAllSelect2() {
+                        console.log('=== INITIALISATION SELECT2 ===');
 
-                        // Synchroniser le véhicule
-                        const vehiculeValue = $('select[wire\\:model\\.live="vehicule_id"]').val();
-                        console.log('Véhicule Select2:', vehiculeValue);
-                        if (vehiculeValue) {
-                            livewireComponent.set('vehicule_id', vehiculeValue);
-                            console.log('Véhicule synchronisé vers Livewire');
-                        }
+                        // Vérifier que les éléments existent
+                        console.log('Filtres trouvés:', $('#filter-status, #filter-chauffeur').length);
+                        console.log('Formulaire trouvé:', $('#form-chauffeur, #form-vehicule, #form-status').length);
 
-                        // Synchroniser le statut
-                        const statusValue = $('select[wire\\:model\\.live="status"]').val();
-                        console.log('Statut Select2:', statusValue);
-                        if (statusValue) {
-                            livewireComponent.set('status', statusValue);
-                            console.log('Statut synchronisé vers Livewire');
-                        }
+                        console.log('Initialisation Select2 filtres...');
+                        $('#filter-status, #filter-chauffeur')
+                            .select2({
+                                placeholder: function() {
+                                    return $(this).find('option:first').text();
+                                },
+                                allowClear: true,
+                                theme: 'bootstrap-5',
+                                width: '100%',
+                                dropdownCssClass: 'select2-dropdown-2050',
+                                selectionCssClass: 'select2-selection-2050'
+                            });
 
-                        console.log('=== SYNC TERMINÉ ===');
-                        return true;
-                    } else {
-                        console.error('Composant Livewire non trouvé');
-                        return false;
+                        console.log('Initialisation Select2 formulaire...');
+                        $('#form-chauffeur, #form-vehicule, #form-status')
+                            .select2({
+                                placeholder: function() {
+                                    return $(this).find('option:first').text();
+                                },
+                                allowClear: true,
+                                theme: 'bootstrap-5',
+                                width: '100%',
+                                dropdownCssClass: 'select2-dropdown-2050',
+                                selectionCssClass: 'select2-selection-2050'
+                            });
+
+                        console.log('=== SELECT2 INITIALISÉ ===');
                     }
-                } catch (error) {
-                    console.error('Erreur lors de la synchronisation:', error);
-                    return false;
-                }
-            }
 
-            // Fonction pour initialiser les événements Livewire
-            function initLivewireEvents() {
-                if (typeof Livewire !== 'undefined') {
-                    console.log('Livewire disponible, initialisation des événements...');
+                    // Initialiser après un délai pour s'assurer que le DOM est prêt
+                    setTimeout(initAllSelect2, 300);
 
-                    // Écouter l'événement de synchronisation des Select2
-                    Livewire.on('sync-select2-values', () => {
-                        console.log('Synchronisation des Select2 pour l\'édition...');
-                        setTimeout(function() {
-                            // Récupérer le composant Livewire
-                            const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]')
-                                .getAttribute('wire:id'));
-                            if (!livewireComponent) {
-                                console.error('Composant Livewire non trouvé pour la synchronisation');
-                                return;
-                            }
-
-                            // Synchroniser le chauffeur
-                            const chauffeurValue = livewireComponent.get('chauffeur_id');
-                            console.log('Chauffeur Livewire:', chauffeurValue);
-                            if (chauffeurValue) {
-                                $('select[wire\\:model\\.live="chauffeur_id"]').val(chauffeurValue).trigger(
-                                    'change');
-                                console.log('Chauffeur Select2 mis à jour vers:', chauffeurValue);
-                            }
-
-                            // Synchroniser le véhicule
-                            const vehiculeValue = livewireComponent.get('vehicule_id');
-                            console.log('Véhicule Livewire:', vehiculeValue);
-                            if (vehiculeValue) {
-                                $('select[wire\\:model\\.live="vehicule_id"]').val(vehiculeValue).trigger(
-                                    'change');
-                                console.log('Véhicule Select2 mis à jour vers:', vehiculeValue);
-                            }
-
-                            // Synchroniser le statut
-                            const statusValue = livewireComponent.get('status');
-                            console.log('Statut Livewire:', statusValue);
-                            if (statusValue) {
-                                $('select[wire\\:model\\.live="status"]').val(statusValue).trigger('change');
-                                console.log('Statut Select2 mis à jour vers:', statusValue);
-                            }
-
-                            console.log('Synchronisation des Select2 terminée');
-                        }, 200);
+                    // Synchroniser les valeurs Livewire -> Select2 (au chargement)
+                    Livewire.on('set-filter-values', (values) => {
+                        console.log('Mise à jour des valeurs des filtres:', values);
+                        if (values.filterStatus) $('#filter-status').val(values.filterStatus).trigger('change');
+                        if (values.filterChauffeur) $('#filter-chauffeur').val(values.filterChauffeur).trigger('change');
                     });
 
-                    return true;
-                }
-                return false;
-            }
-
-            // Attendre que Livewire soit complètement chargé
-            document.addEventListener('DOMContentLoaded', function() {
-                // Essayer d'initialiser immédiatement
-                if (!initLivewireEvents()) {
-                    // Si Livewire n'est pas encore disponible, réessayer
-                    let attempts = 0;
-                    const maxAttempts = 10;
-
-                    const retryInit = setInterval(function() {
-                        attempts++;
-                        console.log(`Tentative ${attempts}/${maxAttempts} d'initialisation Livewire...`);
-
-                        if (initLivewireEvents() || attempts >= maxAttempts) {
-                            clearInterval(retryInit);
-                            if (attempts >= maxAttempts) {
-                                console.error('Impossible d\'initialiser Livewire après', maxAttempts,
-                                    'tentatives');
-                            }
+                    // Synchroniser Select2 -> Livewire (quand l'utilisateur change)
+                    // FILTRES
+                    $('#filter-status').on('change', function() {
+                        const value = $(this).val();
+                        console.log('Filtre Status changé:', value);
+                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                            'wire:id'));
+                        if (livewireComponent) {
+                            livewireComponent.set('filterStatus', value);
+                            console.log('Filtre Status envoyé à Livewire');
                         }
-                    }, 500);
+                    });
+
+                    $('#filter-chauffeur').on('change', function() {
+                        const value = $(this).val();
+                        console.log('Filtre Chauffeur changé:', value);
+                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                            'wire:id'));
+                        if (livewireComponent) {
+                            livewireComponent.set('filterChauffeur', value);
+                            console.log('Filtre Chauffeur envoyé à Livewire');
+                        }
+                    });
+
+                    // FORMULAIRE
+                    $('#form-chauffeur').on('change', function() {
+                        const value = $(this).val();
+                        console.log('Form Chauffeur changé:', value);
+                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                            'wire:id'));
+                        if (livewireComponent) {
+                            livewireComponent.set('chauffeur_id', value);
+                            console.log('Form Chauffeur envoyé à Livewire');
+                        }
+                    });
+
+                    $('#form-vehicule').on('change', function() {
+                        const value = $(this).val();
+                        console.log('Form Véhicule changé:', value);
+                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                            'wire:id'));
+                        if (livewireComponent) {
+                            livewireComponent.set('vehicule_id', value);
+                            console.log('Form Véhicule envoyé à Livewire');
+                        }
+                    });
+
+                    $('#form-status').on('change', function() {
+                        const value = $(this).val();
+                        console.log('Form Status changé:', value);
+                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                            'wire:id'));
+                        if (livewireComponent) {
+                            livewireComponent.set('status', value);
+                            console.log('Form Status envoyé à Livewire');
+                        }
+                    });
+
+                    // Synchroniser Livewire -> Select2 (quand les valeurs changent côté serveur)
+                    Livewire.on('sync-form-select2', (values) => {
+                        console.log('Synchronisation des valeurs du formulaire:', values);
+                        if (values.chauffeur_id) $('#form-chauffeur').val(values.chauffeur_id).trigger('change');
+                        if (values.vehicule_id) $('#form-vehicule').val(values.vehicule_id).trigger('change');
+                        if (values.status) $('#form-status').val(values.status).trigger('change');
+                    });
+
+                    // Réinitialiser les filtres
+                    Livewire.on('reset-filter-select2', () => {
+                        console.log('=== RÉINITIALISATION DES FILTRES SELECT2 ===');
+                        $('#filter-status, #filter-chauffeur').val('').trigger('change');
+                        console.log('Tous les Select2 des filtres ont été réinitialisés');
+                    });
                 }
 
-                // Intercepter la soumission du formulaire
-                $('form[wire\\:submit\\.prevent="save"]').on('submit', function(e) {
-                    e.preventDefault();
-                    console.log('=== INTERCEPTION SOUMISSION AFFECTATIONS ===');
+                // Fonction pour vérifier que tout est prêt
+                function initSelect2WhenReady() {
+                    console.log('=== INITIALISATION SELECT2 - VÉRIFICATION ===');
+                    console.log('jQuery disponible:', typeof $ !== 'undefined');
+                    console.log('Select2 disponible:', typeof $.fn.select2 !== 'undefined');
+                    console.log('Livewire disponible:', typeof Livewire !== 'undefined');
 
-                    // Synchroniser les valeurs Select2
-                    if (syncSelect2Values()) {
-                        // Attendre un peu pour que Livewire traite les changements
-                        setTimeout(function() {
-                            console.log('Synchronisation terminée, soumission du formulaire...');
-                            // Déclencher la soumission Livewire
-                            const livewireComponent = Livewire.find(document.querySelector(
-                                '[wire\\:id]').getAttribute('wire:id'));
-                            if (livewireComponent) {
-                                if (livewireComponent.get('isEdit')) {
-                                    livewireComponent.call('update');
-                                } else {
-                                    livewireComponent.call('save');
+                    if (typeof $ === 'undefined') {
+                        console.log('jQuery non disponible, nouvelle tentative dans 100ms...');
+                        setTimeout(initSelect2WhenReady, 100);
+                        return;
+                    }
+
+                    if (typeof $.fn.select2 === 'undefined') {
+                        console.log('Select2 non disponible, nouvelle tentative dans 100ms...');
+                        setTimeout(initSelect2WhenReady, 100);
+                        return;
+                    }
+
+                    if (typeof Livewire === 'undefined') {
+                        console.log('Livewire non disponible, nouvelle tentative dans 100ms...');
+                        setTimeout(initSelect2WhenReady, 100);
+                        return;
+                    }
+
+                    console.log('=== TOUT EST PRÊT - INITIALISATION ===');
+                    initSelect2();
+                }
+
+                // Observer pour détecter quand le formulaire apparaît
+                let observer = null;
+                let eventsAttached = false;
+
+                function startObserver() {
+                    if (observer) return; // Éviter les doublons
+
+                    observer = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            if (mutation.type === 'childList') {
+                                // Vérifier si le formulaire est maintenant présent
+                                if ($('#form-chauffeur').length > 0 && !eventsAttached) {
+                                    console.log('=== FORMULAIRE DÉTECTÉ - ATTACHEMENT DES ÉVÉNEMENTS ===');
+                                    attachFormEvents();
+                                    eventsAttached = true;
+                                    observer.disconnect(); // Arrêter l'observation
+                                    observer = null;
                                 }
                             }
-                        }, 500);
-                    }
+                        });
+                    });
+
+                    // Observer le contenu de la page
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true
+                    });
+                }
+
+                // Fonction pour attacher les événements du formulaire
+                function attachFormEvents() {
+                    console.log('=== ATTACHEMENT DES ÉVÉNEMENTS FORMULAIRE ===');
+
+                    // Chauffeur
+                    $(document).off('change', '#form-chauffeur').on('change', '#form-chauffeur', function() {
+                        const value = $(this).val();
+                        console.log('Form Chauffeur changé:', value);
+                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                            'wire:id'));
+                        if (livewireComponent) {
+                            livewireComponent.set('chauffeur_id', value);
+                            console.log('Form Chauffeur envoyé à Livewire');
+                        }
+                    });
+
+                    // Véhicule
+                    $(document).off('change', '#form-vehicule').on('change', '#form-vehicule', function() {
+                        const value = $(this).val();
+                        console.log('Form Véhicule changé:', value);
+                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                            'wire:id'));
+                        if (livewireComponent) {
+                            livewireComponent.set('vehicule_id', value);
+                            console.log('Form Véhicule envoyé à Livewire');
+                        }
+                    });
+
+                    // Status
+                    $(document).off('change', '#form-status').on('change', '#form-status', function() {
+                        const value = $(this).val();
+                        console.log('Form Status changé:', value);
+                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                            'wire:id'));
+                        if (livewireComponent) {
+                            livewireComponent.set('status', value);
+                            console.log('Form Status envoyé à Livewire');
+                        }
+                    });
+
+                    console.log('Événements du formulaire attachés avec succès');
+                }
+
+                // Démarrer l'observation
+                startObserver();
+
+                // Démarrer l'initialisation
+                document.addEventListener('DOMContentLoaded', function() {
+                    console.log('=== DOM CONTENT LOADED ===');
+                    initSelect2WhenReady();
                 });
-            });
-        </script>
+            </script>
+        @endif
 
         <!-- Filtres Futuristes -->
         <div class="card-2050 mb-4 hover-lift">
@@ -333,24 +445,29 @@
                     <div class="form-col-2050 col-md-4">
                         <div class="form-group-2050">
                             <label class="form-label-2050">Statut</label>
-                            <select wire:model.live="filterStatus" class="form-control-2050 select2-2050">
-                                <option value="">Tous</option>
-                                <option value="en_cours">En cours</option>
-                                <option value="terminée">Terminée</option>
-                            </select>
+                            <div wire:ignore>
+                                <select id="filter-status" class="form-control-2050 select2-2050">
+                                    <option value="">Tous</option>
+                                    <option value="en_cours">En cours</option>
+                                    <option value="terminée">Terminée</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
                     <div class="form-col-2050 col-md-4">
                         <div class="form-group-2050">
                             <label class="form-label-2050">Chauffeur</label>
-                            <select wire:model.live="filterChauffeur" class="form-control-2050 select2-2050">
-                                <option value="">Tous</option>
-                                @foreach ($chauffeurs as $c)
-                                    <option value="{{ $c->user_id }}">{{ $c->nom }} {{ $c->prenom }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <div wire:ignore>
+                                <select id="filter-chauffeur" class="form-control-2050 select2-2050">
+                                    <option value="">Tous</option>
+                                    @foreach ($chauffeurs as $c)
+                                        <option value="{{ $c->user_id }}">{{ $c->nom }}
+                                            {{ $c->prenom }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -421,7 +538,8 @@
                                         @endif
                                     </button>
                                 </th>
-                                <th class="text-primary"><i class="fas fa-file-text me-2"></i>Description</th>
+                                <th class="text-primary"><i class="fas fa-file-text me-2"></i>Description
+                                </th>
                                 <th class="text-primary"><i class="fas fa-cogs me-2"></i>Actions</th>
                             </tr>
                         </thead>
@@ -510,7 +628,8 @@
                                             <i class="fas fa-tasks text-gradient fs-2"></i>
                                         </div>
                                         <h5>Aucune affectation trouvée</h5>
-                                        <p class="mb-0">Créez votre première affectation pour commencer</p>
+                                        <p class="mb-0">Créez votre première affectation pour commencer
+                                        </p>
                                     </td>
                                 </tr>
                             @endforelse
@@ -532,7 +651,8 @@
                     <div class="modal-content card-2050">
                         <div class="modal-header card-header-2050">
                             <h5 class="modal-title">
-                                <i class="fas fa-exclamation-triangle me-2 text-warning"></i>Confirmation de
+                                <i class="fas fa-exclamation-triangle me-2 text-warning"></i>Confirmation
+                                de
                                 suppression
                             </h5>
                             <button type="button" class="btn-close" wire:click="cancelDelete"></button>
@@ -556,6 +676,5 @@
                     </div>
                 </div>
             </div>
-        @endif
     </div>
 </div>

@@ -37,6 +37,9 @@ class Chauffeurs extends Component
     public $showDeleteModal = false;
     public $chauffeurToDelete = null;
 
+    // Affichage du formulaire
+    public $showForm = false;
+
     // Tri
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
@@ -171,6 +174,19 @@ class Chauffeurs extends Component
         $this->isEdit = false;
     }
 
+    // Méthodes pour contrôler l'affichage du formulaire
+    public function showAddForm()
+    {
+        $this->resetForm();
+        $this->showForm = true;
+    }
+
+    public function hideForm()
+    {
+        $this->showForm = false;
+        $this->resetForm();
+    }
+
     public function save()
     {
         $this->validate();
@@ -222,6 +238,7 @@ class Chauffeurs extends Component
         }
 
         $this->resetForm();
+        $this->showForm = false;
         session()->flash('success', 'Chauffeur enregistré avec succès');
     }
 
@@ -247,6 +264,11 @@ class Chauffeurs extends Component
 
         // Déclencher la synchronisation des Select2 après un délai
         $this->dispatch('sync-select2-values');
+
+        // Synchroniser les valeurs du formulaire
+        $this->dispatch('sync-form-select2', values: [
+            'statut' => $this->statut
+        ]);
     }
 
     public function confirmDelete($id)
@@ -286,6 +308,34 @@ class Chauffeurs extends Component
         $this->filterDateEmbaucheFin = '';
         $this->filterDateNaissanceDebut = '';
         $this->filterDateNaissanceFin = '';
+
+        // Réinitialiser les Select2
+        $this->dispatch('reset-filter-select2');
+    }
+
+    public function updatedFilterStatut()
+    {
+        \Log::info('Filtre Statut changé:', ['filterStatut' => $this->filterStatut]);
+    }
+
+    public function updatedFilterRole()
+    {
+        \Log::info('Filtre Rôle changé:', ['filterRole' => $this->filterRole]);
+    }
+
+    public function updatedFilterPermis()
+    {
+        \Log::info('Filtre Permis changé:', ['filterPermis' => $this->filterPermis]);
+    }
+
+    public function updatedFilterEmailVerified()
+    {
+        \Log::info('Filtre Email vérifié changé:', ['filterEmailVerified' => $this->filterEmailVerified]);
+    }
+
+    public function updatedSearch()
+    {
+        \Log::info('Recherche changée:', ['search' => $this->search]);
     }
 
     public function sortBy($field)

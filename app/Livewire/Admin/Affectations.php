@@ -32,6 +32,9 @@ class Affectations extends Component
     public $showDeleteModal = false;
     public $affectationToDelete = null;
 
+    // Affichage du formulaire
+    public $showForm = false;
+
     // Tri
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
@@ -139,10 +142,36 @@ class Affectations extends Component
         $this->resetErrorBag();
     }
 
+    // Méthodes pour contrôler l'affichage du formulaire
+    public function showAddForm()
+    {
+        $this->resetForm();
+        $this->showForm = true;
+    }
+
+    public function hideForm()
+    {
+        $this->showForm = false;
+        $this->resetForm();
+    }
+
     public function resetFilters()
     {
         $this->filterStatus = '';
         $this->filterChauffeur = '';
+
+        // Réinitialiser les Select2
+        $this->dispatch('reset-filter-select2');
+    }
+
+    public function updatedFilterStatus()
+    {
+        \Log::info('Filtre Status changé:', ['filterStatus' => $this->filterStatus]);
+    }
+
+    public function updatedFilterChauffeur()
+    {
+        \Log::info('Filtre Chauffeur changé:', ['filterChauffeur' => $this->filterChauffeur]);
     }
 
     public function save()
@@ -197,6 +226,7 @@ class Affectations extends Component
 
         session()->flash('success', 'Affectation enregistrée');
         $this->resetForm();
+        $this->showForm = false;
         $this->resetErrorBag();
     }
 
@@ -221,6 +251,13 @@ class Affectations extends Component
 
         // Déclencher la synchronisation des Select2 après un délai
         $this->dispatch('sync-select2-values');
+
+        // Synchroniser les valeurs du formulaire
+        $this->dispatch('sync-form-select2', values: [
+            'chauffeur_id' => $this->chauffeur_id,
+            'vehicule_id' => $this->vehicule_id,
+            'status' => $this->status
+        ]);
     }
 
     public function update()
@@ -271,6 +308,7 @@ class Affectations extends Component
 
         session()->flash('success', 'Affectation mise à jour');
         $this->resetForm();
+        $this->showForm = false;
         $this->resetErrorBag();
     }
 

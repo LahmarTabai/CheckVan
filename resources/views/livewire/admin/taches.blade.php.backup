@@ -19,429 +19,328 @@
             </div>
         @endif
 
-        <!-- Bouton Ajouter Tâche -->
-        @if (!$showForm && !$isEdit)
-            <div class="d-flex justify-content-end mb-4">
-                <button type="button" wire:click="showAddForm" class="btn btn-primary-2050">
-                    <i class="fas fa-plus me-2"></i>Ajouter une tâche
-                </button>
-            </div>
-        @endif
-
         <!-- Formulaire Futuriste -->
-        @if ($showForm || $isEdit)
-            <div class="card-2050 mb-4 hover-lift">
-                <div class="card-header-2050">
-                    <h6 class="mb-0">
-                        <i
-                            class="fas fa-{{ $isEdit ? 'edit' : 'plus' }} me-2"></i>{{ $isEdit ? 'Modifier la tâche' : 'Nouvelle tâche' }}
-                    </h6>
-                </div>
-                <div class="card-body p-4">
-                    <form wire:submit.prevent="{{ $isEdit ? 'update' : 'create' }}">
-                        <div class="form-section-2050">
-                            <h6 class="section-title-2050">
-                                <i class="fas fa-info-circle me-2"></i>Informations de base
-                            </h6>
-
-                            <div class="form-row-2050">
-                                <div class="form-col-2050 col-md-4">
-                                    <div class="form-group-2050">
-                                        <label class="form-label-2050">
-                                            Chauffeur <span class="required">*</span>
-                                        </label>
-                                        <div wire:ignore>
-                                            <select id="form-chauffeur" class="form-control-2050 select2-2050">
-                                                <option value="">Sélectionner un chauffeur</option>
-                                                @foreach ($chauffeurs as $chauffeur)
-                                                    <option value="{{ $chauffeur->user_id }}">
-                                                        {{ $chauffeur->nom }} {{ $chauffeur->prenom }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        @error('chauffeur_id')
-                                            <div class="text-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="form-col-2050 col-md-4">
-                                    <div class="form-group-2050">
-                                        <label class="form-label-2050">
-                                            Véhicule <span class="required">*</span>
-                                        </label>
-                                        <div wire:ignore>
-                                            <select id="form-vehicule" class="form-control-2050 select2-2050">
-                                                <option value="">Sélectionner un véhicule</option>
-                                                @foreach ($vehicules as $vehicule)
-                                                    <option value="{{ $vehicule->id }}">
-                                                        {{ $vehicule->immatriculation }} -
-                                                        {{ $vehicule->marque->nom ?? 'N/A' }}
-                                                        {{ $vehicule->modele->nom ?? 'N/A' }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        @error('vehicule_id')
-                                            <div class="text-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="form-col-2050 col-md-4">
-                                    <div class="form-group-2050">
-                                        <label class="form-label-2050">
-                                            Date de début <span class="required">*</span>
-                                        </label>
-                                        <input type="datetime-local" wire:model="start_date" class="form-control-2050">
-                                        @error('start_date')
-                                            <div class="text-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-section-2050">
-                            <h6 class="section-title-2050">
-                                <i class="fas fa-tasks me-2"></i>Détails de la tâche
-                            </h6>
-
-                            <div class="form-row-2050">
-                                <div class="form-col-2050 col-md-4">
-                                    <div class="form-group-2050">
-                                        <label class="form-label-2050">
-                                            Type de tâche <span class="required">*</span>
-                                        </label>
-                                        <div wire:ignore>
-                                            <select id="form-type-tache" class="form-control-2050 select2-2050">
-                                                <option value="autre">Autre</option>
-                                                <option value="maintenance">Maintenance</option>
-                                                <option value="livraison">Livraison</option>
-                                                <option value="inspection">Inspection</option>
-                                            </select>
-                                        </div>
-                                        @error('type_tache')
-                                            <div class="text-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="form-col-2050 col-md-8">
-                                    <div class="form-group-2050">
-                                        <label class="form-label-2050">Description</label>
-                                        <textarea wire:model="description" class="form-control-2050" rows="3"
-                                            placeholder="Décrivez les détails de la tâche..."></textarea>
-                                        <small class="form-help-2050">Décrivez les instructions spécifiques pour cette
-                                            tâche</small>
-                                        @error('description')
-                                            <div class="text-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-section-2050">
-                            <h6 class="section-title-2050">
-                                <i class="fas fa-tachometer-alt me-2"></i>Données véhicule
-                            </h6>
-
-                            <div class="form-row-2050">
-                                <div class="form-col-2050 col-md-3">
-                                    <div class="form-group-2050">
-                                        <label class="form-label-2050">Kilométrage de début</label>
-                                        <input type="number" wire:model="debut_kilometrage" class="form-control-2050"
-                                            placeholder="Ex: 50000" min="0">
-                                        <small class="form-help-2050">Kilométrage au début de la tâche</small>
-                                        @error('debut_kilometrage')
-                                            <div class="text-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="form-col-2050 col-md-3">
-                                    <div class="form-group-2050">
-                                        <label class="form-label-2050">Carburant de début (%)</label>
-                                        <input type="number" wire:model="debut_carburant" class="form-control-2050"
-                                            placeholder="Ex: 75" min="0" max="100" step="0.1">
-                                        <small class="form-help-2050">Niveau de carburant au début</small>
-                                        @error('debut_carburant')
-                                            <div class="text-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="form-col-2050 col-md-3">
-                                    <div class="form-group-2050">
-                                        <label class="form-label-2050">Kilométrage de fin</label>
-                                        <input type="number" wire:model="fin_kilometrage" class="form-control-2050"
-                                            placeholder="Ex: 50150" min="0">
-                                        <small class="form-help-2050">Kilométrage à la fin de la tâche</small>
-                                        @error('fin_kilometrage')
-                                            <div class="text-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="form-col-2050 col-md-3">
-                                    <div class="form-group-2050">
-                                        <label class="form-label-2050">Carburant de fin (%)</label>
-                                        <input type="number" wire:model="fin_carburant" class="form-control-2050"
-                                            placeholder="Ex: 70" min="0" max="100" step="0.1">
-                                        <small class="form-help-2050">Niveau de carburant à la fin</small>
-                                        @error('fin_carburant')
-                                            <div class="text-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-actions-2050">
-                            <button type="submit" class="btn btn-primary-2050">
-                                <i class="fas fa-{{ $isEdit ? 'save' : 'plus' }} me-2"></i>
-                                {{ $isEdit ? 'Mettre à jour' : 'Créer' }} la tâche
-                            </button>
-                            @if ($isEdit)
-                                <button type="button" wire:click="resetForm" class="btn btn-outline-2050">
-                                    <i class="fas fa-times me-2"></i>Annuler
-                                </button>
-                            @endif
-                        </div>
-                    </form>
-                </div>
+        <div class="card-2050 mb-4 hover-lift">
+            <div class="card-header-2050">
+                <h6 class="mb-0">
+                    <i
+                        class="fas fa-{{ $isEdit ? 'edit' : 'plus' }} me-2"></i>{{ $isEdit ? 'Modifier la tâche' : 'Nouvelle tâche' }}
+                </h6>
             </div>
+            <div class="card-body p-4">
+                <form wire:submit.prevent="{{ $isEdit ? 'update' : 'create' }}">
+                    <div class="form-section-2050">
+                        <h6 class="section-title-2050">
+                            <i class="fas fa-info-circle me-2"></i>Informations de base
+                        </h6>
 
-            <script>
-                // BUG FIX: Synchronisation Select2 sans flicker pour taches
-                function initSelect2() {
-                    console.log('=== INITIALISATION SELECT2 TACHES ===');
+                        <div class="form-row-2050">
+                            <div class="form-col-2050 col-md-4">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Chauffeur <span class="required">*</span>
+                                    </label>
+                                    <select wire:model.live="chauffeur_id" class="form-control-2050 select2-2050">
+                                        <option value="">Sélectionner un chauffeur</option>
+                                        @foreach ($chauffeurs as $chauffeur)
+                                            <option value="{{ $chauffeur->user_id }}">
+                                                {{ $chauffeur->nom }} {{ $chauffeur->prenom }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('chauffeur_id')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
 
-                    // Initialiser Select2 pour les filtres ET le formulaire
-                    function initAllSelect2() {
-                        console.log('=== INITIALISATION SELECT2 ===');
+                            <div class="form-col-2050 col-md-4">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Véhicule <span class="required">*</span>
+                                    </label>
+                                    <select wire:model.live="vehicule_id" class="form-control-2050 select2-2050">
+                                        <option value="">Sélectionner un véhicule</option>
+                                        @foreach ($vehicules as $vehicule)
+                                            <option value="{{ $vehicule->id }}">
+                                                {{ $vehicule->immatriculation }} -
+                                                {{ $vehicule->marque->nom ?? 'N/A' }}
+                                                {{ $vehicule->modele->nom ?? 'N/A' }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('vehicule_id')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
 
-                        // Vérifier que les éléments existent
-                        console.log('Filtres trouvés:', $('#filter-status, #filter-validation, #filter-chauffeur, #filter-vehicule')
-                            .length);
-                        console.log('Formulaire trouvé:', $('#form-chauffeur, #form-vehicule, #form-type-tache').length);
+                            <div class="form-col-2050 col-md-4">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Date de début <span class="required">*</span>
+                                    </label>
+                                    <input type="datetime-local" wire:model="start_date" class="form-control-2050">
+                                    @error('start_date')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                        console.log('Initialisation Select2 filtres...');
-                        $('#filter-status, #filter-validation, #filter-chauffeur, #filter-vehicule')
-                            .select2({
-                                placeholder: function() {
-                                    return $(this).find('option:first').text();
-                                },
-                                allowClear: true,
-                                theme: 'bootstrap-5',
-                                width: '100%',
-                                dropdownCssClass: 'select2-dropdown-2050',
-                                selectionCssClass: 'select2-selection-2050'
-                            });
+                    <div class="form-section-2050">
+                        <h6 class="section-title-2050">
+                            <i class="fas fa-tasks me-2"></i>Détails de la tâche
+                        </h6>
 
-                        console.log('Initialisation Select2 formulaire...');
-                        $('#form-chauffeur, #form-vehicule, #form-type-tache')
-                            .select2({
-                                placeholder: function() {
-                                    return $(this).find('option:first').text();
-                                },
-                                allowClear: true,
-                                theme: 'bootstrap-5',
-                                width: '100%',
-                                dropdownCssClass: 'select2-dropdown-2050',
-                                selectionCssClass: 'select2-selection-2050'
-                            });
+                        <div class="form-row-2050">
+                            <div class="form-col-2050 col-md-4">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">
+                                        Type de tâche <span class="required">*</span>
+                                    </label>
+                                    <select wire:model.live="type_tache" class="form-control-2050 select2-2050">
+                                        <option value="autre">Autre</option>
+                                        <option value="maintenance">Maintenance</option>
+                                        <option value="livraison">Livraison</option>
+                                        <option value="inspection">Inspection</option>
+                                    </select>
+                                    @error('type_tache')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
 
-                        console.log('=== SELECT2 INITIALISÉ ===');
+                            <div class="form-col-2050 col-md-8">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Description</label>
+                                    <textarea wire:model="description" class="form-control-2050" rows="3"
+                                        placeholder="Décrivez les détails de la tâche..."></textarea>
+                                    <small class="form-help-2050">Décrivez les instructions spécifiques pour cette
+                                        tâche</small>
+                                    @error('description')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section-2050">
+                        <h6 class="section-title-2050">
+                            <i class="fas fa-tachometer-alt me-2"></i>Données véhicule
+                        </h6>
+
+                        <div class="form-row-2050">
+                            <div class="form-col-2050 col-md-3">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Kilométrage de début</label>
+                                    <input type="number" wire:model="debut_kilometrage" class="form-control-2050"
+                                        placeholder="Ex: 50000" min="0">
+                                    <small class="form-help-2050">Kilométrage au début de la tâche</small>
+                                    @error('debut_kilometrage')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-3">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Carburant de début (%)</label>
+                                    <input type="number" wire:model="debut_carburant" class="form-control-2050"
+                                        placeholder="Ex: 75" min="0" max="100" step="0.1">
+                                    <small class="form-help-2050">Niveau de carburant au début</small>
+                                    @error('debut_carburant')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-3">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Kilométrage de fin</label>
+                                    <input type="number" wire:model="fin_kilometrage" class="form-control-2050"
+                                        placeholder="Ex: 50150" min="0">
+                                    <small class="form-help-2050">Kilométrage à la fin de la tâche</small>
+                                    @error('fin_kilometrage')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-col-2050 col-md-3">
+                                <div class="form-group-2050">
+                                    <label class="form-label-2050">Carburant de fin (%)</label>
+                                    <input type="number" wire:model="fin_carburant" class="form-control-2050"
+                                        placeholder="Ex: 70" min="0" max="100" step="0.1">
+                                    <small class="form-help-2050">Niveau de carburant à la fin</small>
+                                    @error('fin_carburant')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions-2050">
+                        <button type="submit" class="btn btn-primary-2050">
+                            <i class="fas fa-{{ $isEdit ? 'save' : 'plus' }} me-2"></i>
+                            {{ $isEdit ? 'Mettre à jour' : 'Créer' }} la tâche
+                        </button>
+                        @if ($isEdit)
+                            <button type="button" wire:click="resetForm" class="btn btn-outline-2050">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </button>
+                        @endif
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            // Fonction pour synchroniser les valeurs Select2 avant soumission
+            function syncSelect2Values() {
+                console.log('=== SYNC SELECT2 VALUES TACHES ===');
+
+                try {
+                    const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'));
+                    if (livewireComponent) {
+                        // Synchroniser le chauffeur
+                        const chauffeurValue = $('select[wire\\:model\\.live="chauffeur_id"]').val();
+                        console.log('Chauffeur Select2:', chauffeurValue);
+                        if (chauffeurValue) {
+                            livewireComponent.set('chauffeur_id', chauffeurValue);
+                            console.log('Chauffeur synchronisé vers Livewire');
+                        }
+
+                        // Synchroniser le véhicule
+                        const vehiculeValue = $('select[wire\\:model\\.live="vehicule_id"]').val();
+                        console.log('Véhicule Select2:', vehiculeValue);
+                        if (vehiculeValue) {
+                            livewireComponent.set('vehicule_id', vehiculeValue);
+                            console.log('Véhicule synchronisé vers Livewire');
+                        }
+
+                        // Synchroniser le type de tâche
+                        const typeTacheValue = $('select[wire\\:model\\.live="type_tache"]').val();
+                        console.log('Type tâche Select2:', typeTacheValue);
+                        if (typeTacheValue) {
+                            livewireComponent.set('type_tache', typeTacheValue);
+                            console.log('Type tâche synchronisé vers Livewire');
+                        }
+
+                        console.log('=== SYNC TERMINÉ ===');
+                        return true;
+                    } else {
+                        console.error('Composant Livewire non trouvé');
+                        return false;
                     }
+                } catch (error) {
+                    console.error('Erreur lors de la synchronisation:', error);
+                    return false;
+                }
+            }
 
-                    // Initialiser après un délai pour s'assurer que le DOM est prêt
-                    setTimeout(initAllSelect2, 300);
+            // Fonction pour initialiser les événements Livewire
+            function initLivewireEvents() {
+                if (typeof Livewire !== 'undefined') {
+                    console.log('Livewire disponible, initialisation des événements...');
 
-                    // Synchroniser les valeurs Livewire -> Select2 (au chargement)
-                    Livewire.on('set-filter-values', (values) => {
-                        console.log('Mise à jour des valeurs des filtres:', values);
-                        if (values.statusFilter) $('#filter-status').val(values.statusFilter).trigger('change');
-                        if (values.validationFilter) $('#filter-validation').val(values.validationFilter).trigger('change');
-                        if (values.chauffeurFilter) $('#filter-chauffeur').val(values.chauffeurFilter).trigger('change');
-                        if (values.vehiculeFilter) $('#filter-vehicule').val(values.vehiculeFilter).trigger('change');
+                    // Écouter l'événement de synchronisation des Select2
+                    Livewire.on('sync-select2-values', () => {
+                        console.log('Synchronisation des Select2 pour l\'édition...');
+                        setTimeout(function() {
+                            // Récupérer le composant Livewire
+                            const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]')
+                                .getAttribute('wire:id'));
+                            if (!livewireComponent) {
+                                console.error('Composant Livewire non trouvé pour la synchronisation');
+                                return;
+                            }
+
+                            // Synchroniser le chauffeur
+                            const chauffeurValue = livewireComponent.get('chauffeur_id');
+                            console.log('Chauffeur Livewire:', chauffeurValue);
+                            if (chauffeurValue) {
+                                $('select[wire\\:model\\.live="chauffeur_id"]').val(chauffeurValue).trigger(
+                                    'change');
+                                console.log('Chauffeur Select2 mis à jour vers:', chauffeurValue);
+                            }
+
+                            // Synchroniser le véhicule
+                            const vehiculeValue = livewireComponent.get('vehicule_id');
+                            console.log('Véhicule Livewire:', vehiculeValue);
+                            if (vehiculeValue) {
+                                $('select[wire\\:model\\.live="vehicule_id"]').val(vehiculeValue).trigger(
+                                    'change');
+                                console.log('Véhicule Select2 mis à jour vers:', vehiculeValue);
+                            }
+
+                            // Synchroniser le type de tâche
+                            const typeTacheValue = livewireComponent.get('type_tache');
+                            console.log('Type tâche Livewire:', typeTacheValue);
+                            if (typeTacheValue) {
+                                $('select[wire\\:model\\.live="type_tache"]').val(typeTacheValue).trigger(
+                                    'change');
+                                console.log('Type tâche Select2 mis à jour vers:', typeTacheValue);
+                            }
+
+                            console.log('Synchronisation des Select2 terminée');
+                        }, 200);
                     });
 
-                    // Synchroniser Select2 -> Livewire (quand l'utilisateur change)
-                    // FILTRES
-                    $('#filter-status').on('change', function() {
-                        const value = $(this).val();
-                        console.log('Filtre Status changé:', value);
-                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
-                            'wire:id'));
-                        if (livewireComponent) {
-                            livewireComponent.set('statusFilter', value);
-                            console.log('Filtre Status envoyé à Livewire');
+                    return true;
+                }
+                return false;
+            }
+
+            // Attendre que Livewire soit complètement chargé
+            document.addEventListener('DOMContentLoaded', function() {
+                // Essayer d'initialiser immédiatement
+                if (!initLivewireEvents()) {
+                    // Si Livewire n'est pas encore disponible, réessayer
+                    let attempts = 0;
+                    const maxAttempts = 10;
+
+                    const retryInit = setInterval(function() {
+                        attempts++;
+                        console.log(`Tentative ${attempts}/${maxAttempts} d'initialisation Livewire...`);
+
+                        if (initLivewireEvents() || attempts >= maxAttempts) {
+                            clearInterval(retryInit);
+                            if (attempts >= maxAttempts) {
+                                console.error('Impossible d\'initialiser Livewire après', maxAttempts,
+                                    'tentatives');
+                            }
                         }
-                    });
-
-                    $('#filter-validation').on('change', function() {
-                        const value = $(this).val();
-                        console.log('Filtre Validation changé:', value);
-                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
-                            'wire:id'));
-                        if (livewireComponent) {
-                            livewireComponent.set('validationFilter', value);
-                            console.log('Filtre Validation envoyé à Livewire');
-                        }
-                    });
-
-                    $('#filter-chauffeur').on('change', function() {
-                        const value = $(this).val();
-                        console.log('Filtre Chauffeur changé:', value);
-                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
-                            'wire:id'));
-                        if (livewireComponent) {
-                            livewireComponent.set('chauffeurFilter', value);
-                            console.log('Filtre Chauffeur envoyé à Livewire');
-                        }
-                    });
-
-                    $('#filter-vehicule').on('change', function() {
-                        const value = $(this).val();
-                        console.log('Filtre Véhicule changé:', value);
-                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
-                            'wire:id'));
-                        if (livewireComponent) {
-                            livewireComponent.set('vehiculeFilter', value);
-                            console.log('Filtre Véhicule envoyé à Livewire');
-                        }
-                    });
-
-                    // Synchroniser Livewire -> Select2 (quand les valeurs changent côté serveur)
-                    Livewire.on('sync-form-select2', (values) => {
-                        console.log('Synchronisation des valeurs du formulaire:', values);
-                        if (values.chauffeur_id) $('#form-chauffeur').val(values.chauffeur_id).trigger('change');
-                        if (values.vehicule_id) $('#form-vehicule').val(values.vehicule_id).trigger('change');
-                        if (values.type_tache) $('#form-type-tache').val(values.type_tache).trigger('change');
-                    });
-
-                    // Réinitialiser les filtres
-                    Livewire.on('reset-filter-select2', () => {
-                        console.log('=== RÉINITIALISATION DES FILTRES SELECT2 ===');
-                        $('#filter-status, #filter-validation, #filter-chauffeur, #filter-vehicule').val('').trigger(
-                            'change');
-                        console.log('Tous les Select2 des filtres ont été réinitialisés');
-                    });
+                    }, 500);
                 }
 
-                // Fonction pour vérifier que tout est prêt
-                function initSelect2WhenReady() {
-                    console.log('=== INITIALISATION SELECT2 - VÉRIFICATION ===');
-                    console.log('jQuery disponible:', typeof $ !== 'undefined');
-                    console.log('Select2 disponible:', typeof $.fn.select2 !== 'undefined');
-                    console.log('Livewire disponible:', typeof Livewire !== 'undefined');
+                // Intercepter la soumission du formulaire
+                $('form[wire\\:submit\\.prevent]').on('submit', function(e) {
+                    e.preventDefault();
+                    console.log('=== INTERCEPTION SOUMISSION TACHES ===');
 
-                    if (typeof $ === 'undefined') {
-                        console.log('jQuery non disponible, nouvelle tentative dans 100ms...');
-                        setTimeout(initSelect2WhenReady, 100);
-                        return;
-                    }
-
-                    if (typeof $.fn.select2 === 'undefined') {
-                        console.log('Select2 non disponible, nouvelle tentative dans 100ms...');
-                        setTimeout(initSelect2WhenReady, 100);
-                        return;
-                    }
-
-                    if (typeof Livewire === 'undefined') {
-                        console.log('Livewire non disponible, nouvelle tentative dans 100ms...');
-                        setTimeout(initSelect2WhenReady, 100);
-                        return;
-                    }
-
-                    console.log('=== TOUT EST PRÊT - INITIALISATION ===');
-                    initSelect2();
-                }
-
-                // Observer pour détecter quand le formulaire apparaît
-                let observer = null;
-                let eventsAttached = false;
-
-                function startObserver() {
-                    if (observer) return; // Éviter les doublons
-
-                    observer = new MutationObserver(function(mutations) {
-                        mutations.forEach(function(mutation) {
-                            if (mutation.type === 'childList') {
-                                // Vérifier si le formulaire est maintenant présent
-                                if ($('#form-chauffeur').length > 0 && !eventsAttached) {
-                                    console.log('=== FORMULAIRE DÉTECTÉ - ATTACHEMENT DES ÉVÉNEMENTS ===');
-                                    attachFormEvents();
-                                    eventsAttached = true;
-                                    observer.disconnect(); // Arrêter l'observation
-                                    observer = null;
+                    // Synchroniser les valeurs Select2
+                    if (syncSelect2Values()) {
+                        // Attendre un peu pour que Livewire traite les changements
+                        setTimeout(function() {
+                            console.log('Synchronisation terminée, soumission du formulaire...');
+                            // Déclencher la soumission Livewire
+                            const livewireComponent = Livewire.find(document.querySelector(
+                                '[wire\\:id]').getAttribute('wire:id'));
+                            if (livewireComponent) {
+                                if (livewireComponent.get('isEdit')) {
+                                    livewireComponent.call('update');
+                                } else {
+                                    livewireComponent.call('create');
                                 }
                             }
-                        });
-                    });
-
-                    // Observer le contenu de la page
-                    observer.observe(document.body, {
-                        childList: true,
-                        subtree: true
-                    });
-                }
-
-                // Fonction pour attacher les événements du formulaire
-                function attachFormEvents() {
-                    console.log('=== ATTACHEMENT DES ÉVÉNEMENTS FORMULAIRE ===');
-
-                    // Chauffeur
-                    $(document).off('change', '#form-chauffeur').on('change', '#form-chauffeur', function() {
-                        const value = $(this).val();
-                        console.log('Form Chauffeur changé:', value);
-                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
-                            'wire:id'));
-                        if (livewireComponent) {
-                            livewireComponent.set('chauffeur_id', value);
-                            console.log('Form Chauffeur envoyé à Livewire');
-                        }
-                    });
-
-                    // Véhicule
-                    $(document).off('change', '#form-vehicule').on('change', '#form-vehicule', function() {
-                        const value = $(this).val();
-                        console.log('Form Véhicule changé:', value);
-                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
-                            'wire:id'));
-                        if (livewireComponent) {
-                            livewireComponent.set('vehicule_id', value);
-                            console.log('Form Véhicule envoyé à Livewire');
-                        }
-                    });
-
-                    // Type Tâche
-                    $(document).off('change', '#form-type-tache').on('change', '#form-type-tache', function() {
-                        const value = $(this).val();
-                        console.log('Form Type Tâche changé:', value);
-                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
-                            'wire:id'));
-                        if (livewireComponent) {
-                            livewireComponent.set('type_tache', value);
-                            console.log('Form Type Tâche envoyé à Livewire');
-                        }
-                    });
-
-                    console.log('Événements du formulaire attachés avec succès');
-                }
-
-                // Démarrer l'observation
-                startObserver();
-
-                // Démarrer l'initialisation
-                document.addEventListener('DOMContentLoaded', function() {
-                    console.log('=== DOM CONTENT LOADED ===');
-                    initSelect2WhenReady();
+                        }, 500);
+                    }
                 });
-            </script>
-        @endif
+            });
+        </script>
 
         <!-- Filtres Futuristes -->
         <div class="card-2050 mb-4 hover-lift">
@@ -463,59 +362,51 @@
                     <div class="form-col-2050 col-md-2">
                         <div class="form-group-2050">
                             <label class="form-label-2050">Statut</label>
-                            <div wire:ignore>
-                                <select id="filter-status" class="form-control-2050 select2-2050">
-                                    <option value="">Tous</option>
-                                    <option value="en_attente">En attente</option>
-                                    <option value="en_cours">En cours</option>
-                                    <option value="terminée">Terminée</option>
-                                </select>
-                            </div>
+                            <select wire:model.live="statusFilter" class="form-control-2050 select2-2050">
+                                <option value="">Tous</option>
+                                <option value="en_attente">En attente</option>
+                                <option value="en_cours">En cours</option>
+                                <option value="terminée">Terminée</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="form-col-2050 col-md-2">
                         <div class="form-group-2050">
                             <label class="form-label-2050">Validation</label>
-                            <div wire:ignore>
-                                <select id="filter-validation" class="form-control-2050 select2-2050">
-                                    <option value="">Toutes</option>
-                                    <option value="1">Validées</option>
-                                    <option value="0">Non validées</option>
-                                </select>
-                            </div>
+                            <select wire:model.live="validationFilter" class="form-control-2050 select2-2050">
+                                <option value="">Toutes</option>
+                                <option value="1">Validées</option>
+                                <option value="0">Non validées</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="form-col-2050 col-md-2">
                         <div class="form-group-2050">
                             <label class="form-label-2050">Chauffeur</label>
-                            <div wire:ignore>
-                                <select id="filter-chauffeur" class="form-control-2050 select2-2050">
-                                    <option value="">Tous</option>
-                                    @foreach ($chauffeurs as $chauffeur)
-                                        <option value="{{ $chauffeur->user_id }}">
-                                            {{ $chauffeur->nom }} {{ $chauffeur->prenom }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                            <select wire:model.live="chauffeurFilter" class="form-control-2050 select2-2050">
+                                <option value="">Tous</option>
+                                @foreach ($chauffeurs as $chauffeur)
+                                    <option value="{{ $chauffeur->user_id }}">
+                                        {{ $chauffeur->nom }} {{ $chauffeur->prenom }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
 
                     <div class="form-col-2050 col-md-2">
                         <div class="form-group-2050">
                             <label class="form-label-2050">Véhicule</label>
-                            <div wire:ignore>
-                                <select id="filter-vehicule" class="form-control-2050 select2-2050">
-                                    <option value="">Tous</option>
-                                    @foreach ($vehicules as $vehicule)
-                                        <option value="{{ $vehicule->id }}">
-                                            {{ $vehicule->immatriculation }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                            <select wire:model.live="vehiculeFilter" class="form-control-2050 select2-2050">
+                                <option value="">Tous</option>
+                                @foreach ($vehicules as $vehicule)
+                                    <option value="{{ $vehicule->id }}">
+                                        {{ $vehicule->immatriculation }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
 
@@ -747,8 +638,7 @@
                                         <div class="text-muted">
                                             <i class="fas fa-inbox fa-3x mb-3"></i>
                                             <h5>Aucune tâche trouvée</h5>
-                                            <p>Commencez par créer une nouvelle tâche ou ajustez vos
-                                                filtres.</p>
+                                            <p>Commencez par créer une nouvelle tâche ou ajustez vos filtres.</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -982,6 +872,7 @@
                 </div>
             </div>
         </div>
-</div>
+    @endif
+
 </div>
 </div>

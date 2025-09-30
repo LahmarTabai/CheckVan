@@ -19,603 +19,759 @@
             </div>
         @endif
 
-        <!-- Formulaire Futuriste -->
-        <div class="card-2050 mb-4 hover-lift">
-            <div class="card-header-2050">
-                <h6 class="mb-0">
-                    <i class="fas fa-plus me-2"></i>{{ $isEdit ? 'Modifier le chauffeur' : 'Nouveau chauffeur' }}
-                </h6>
+        <!-- Bouton Ajouter Chauffeur -->
+        @if (!$showForm && !$isEdit)
+            <div class="d-flex justify-content-end mb-4">
+                <button type="button" wire:click="showAddForm" class="btn btn-primary-2050">
+                    <i class="fas fa-plus me-2"></i>Ajouter un chauffeur
+                </button>
             </div>
-            <div class="card-body p-4">
-                <form wire:submit.prevent="save">
-                    <div class="form-section-2050">
-                        <h6 class="section-title-2050">
-                            <i class="fas fa-user me-2"></i>Informations personnelles
-                        </h6>
+        @endif
 
-                        <div class="form-row-2050">
-                            <div class="form-col-2050 col-md-3">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Nom <span class="required">*</span>
-                                    </label>
-                                    <input wire:model="nom" type="text" class="form-control-2050" placeholder="Nom">
-                                    @error('nom')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+        <!-- Formulaire Futuriste -->
+        @if ($showForm || $isEdit)
+            <div class="card-2050 mb-4 hover-lift">
+                <div class="card-header-2050">
+                    <h6 class="mb-0">
+                        <i class="fas fa-plus me-2"></i>{{ $isEdit ? 'Modifier le chauffeur' : 'Nouveau chauffeur' }}
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <form wire:submit.prevent="save">
+                        <div class="form-section-2050">
+                            <h6 class="section-title-2050">
+                                <i class="fas fa-user me-2"></i>Informations personnelles
+                            </h6>
+
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-md-3">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Nom <span class="required">*</span>
+                                        </label>
+                                        <input wire:model="nom" type="text" class="form-control-2050"
+                                            placeholder="Nom">
+                                        @error('nom')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-col-2050 col-md-3">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Prénom <span class="required">*</span>
+                                        </label>
+                                        <input wire:model="prenom" type="text" class="form-control-2050"
+                                            placeholder="Prénom">
+                                        @error('prenom')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-col-2050 col-md-3">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Email <span class="required">*</span>
+                                        </label>
+                                        <input wire:model="email" type="email" class="form-control-2050"
+                                            placeholder="email@example.com">
+                                        @error('email')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-col-2050 col-md-3">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Téléphone <span class="required">*</span>
+                                        </label>
+                                        <input wire:model="tel" type="tel" class="form-control-2050"
+                                            placeholder="+33 6 12 34 56 78">
+                                        @error('tel')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="form-col-2050 col-md-3">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Prénom <span class="required">*</span>
-                                    </label>
-                                    <input wire:model="prenom" type="text" class="form-control-2050"
-                                        placeholder="Prénom">
-                                    @error('prenom')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-md-6">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Adresse</label>
+                                        <textarea wire:model="adresse" class="form-control-2050" rows="2" placeholder="Adresse complète"></textarea>
+                                        <small class="form-help-2050">Adresse de résidence du chauffeur</small>
+                                        @error('adresse')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-col-2050 col-md-3">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Email <span class="required">*</span>
-                                    </label>
-                                    <input wire:model="email" type="email" class="form-control-2050"
-                                        placeholder="email@example.com">
-                                    @error('email')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                                <div class="form-col-2050 col-md-3">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Date de naissance</label>
+                                        <input wire:model="date_naissance" type="date" class="form-control-2050">
+                                        <small class="form-help-2050">Date de naissance du chauffeur</small>
+                                        @error('date_naissance')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-col-2050 col-md-3">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Téléphone <span class="required">*</span>
-                                    </label>
-                                    <input wire:model="tel" type="tel" class="form-control-2050"
-                                        placeholder="+33 6 12 34 56 78">
-                                    @error('tel')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                                <div class="form-col-2050 col-md-3">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Date d'embauche</label>
+                                        <input wire:model="date_embauche" type="date" class="form-control-2050">
+                                        <small class="form-help-2050">Date d'embauche du chauffeur</small>
+                                        @error('date_embauche')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-row-2050">
-                            <div class="form-col-2050 col-md-6">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">Adresse</label>
-                                    <textarea wire:model="adresse" class="form-control-2050" rows="2" placeholder="Adresse complète"></textarea>
-                                    <small class="form-help-2050">Adresse de résidence du chauffeur</small>
-                                    @error('adresse')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
+                        <div class="form-section-2050">
+                            <h6 class="section-title-2050">
+                                <i class="fas fa-id-card me-2"></i>Informations de permis
+                            </h6>
 
-                            <div class="form-col-2050 col-md-3">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">Date de naissance</label>
-                                    <input wire:model="date_naissance" type="date" class="form-control-2050">
-                                    <small class="form-help-2050">Date de naissance du chauffeur</small>
-                                    @error('date_naissance')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-md-4">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Numéro de permis</label>
+                                        <input wire:model="numero_permis" type="text" class="form-control-2050"
+                                            placeholder="1234567890">
+                                        <small class="form-help-2050">Numéro du permis de conduire</small>
+                                        @error('numero_permis')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-col-2050 col-md-3">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">Date d'embauche</label>
-                                    <input wire:model="date_embauche" type="date" class="form-control-2050">
-                                    <small class="form-help-2050">Date d'embauche du chauffeur</small>
-                                    @error('date_embauche')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                                <div class="form-col-2050 col-md-4">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Expiration du permis</label>
+                                        <input wire:model="permis_expire_le" type="date"
+                                            class="form-control-2050">
+                                        <small class="form-help-2050">Date d'expiration du permis</small>
+                                        @error('permis_expire_le')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-col-2050 col-md-4">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Statut <span class="required">*</span>
+                                        </label>
+                                        <div wire:ignore>
+                                            <select id="form-statut" class="form-control-2050 select2-2050">
+                                                <option value="">-- Sélectionner le statut --</option>
+                                                <option value="actif">Actif</option>
+                                                <option value="inactif">Inactif</option>
+                                                <option value="suspendu">Suspendu</option>
+                                            </select>
+                                        </div>
+                                        @error('statut')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-section-2050">
-                        <h6 class="section-title-2050">
-                            <i class="fas fa-id-card me-2"></i>Informations de permis
-                        </h6>
+                        <div class="form-section-2050">
+                            <h6 class="section-title-2050">
+                                <i class="fas fa-lock me-2"></i>Sécurité
+                            </h6>
 
-                        <div class="form-row-2050">
-                            <div class="form-col-2050 col-md-4">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">Numéro de permis</label>
-                                    <input wire:model="numero_permis" type="text" class="form-control-2050"
-                                        placeholder="1234567890">
-                                    <small class="form-help-2050">Numéro du permis de conduire</small>
-                                    @error('numero_permis')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-md-6">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Mot de passe {{ $isEdit ? '' : '<span class="required">*</span>' }}
+                                        </label>
+                                        <input wire:model="password" type="password" class="form-control-2050"
+                                            placeholder="Mot de passe">
+                                        <small class="form-help-2050">
+                                            {{ $isEdit ? 'Laisser vide pour ne pas changer' : 'Mot de passe de connexion' }}
+                                        </small>
+                                        @error('password')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-col-2050 col-md-6">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">
+                                            Confirmation du mot de passe
+                                            {{ $isEdit ? '' : '<span class="required">*</span>' }}
+                                        </label>
+                                        <input wire:model="password_confirmation" type="password"
+                                            class="form-control-2050" placeholder="Confirmer le mot de passe">
+                                        <small class="form-help-2050">
+                                            {{ $isEdit ? 'Laisser vide pour ne pas changer' : 'Confirmer le mot de passe' }}
+                                        </small>
+                                        @error('password_confirmation')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="form-col-2050 col-md-4">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">Expiration du permis</label>
-                                    <input wire:model="permis_expire_le" type="date" class="form-control-2050">
-                                    <small class="form-help-2050">Date d'expiration du permis</small>
-                                    @error('permis_expire_le')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                        <div class="form-section-2050">
+                            <h6 class="section-title-2050">
+                                <i class="fas fa-camera me-2"></i>Photo de profil
+                            </h6>
+
+                            <div class="form-row-2050">
+                                <div class="form-col-2050 col-12">
+                                    <div class="form-group-2050">
+                                        <label class="form-label-2050">Photo de profil</label>
+                                        <input type="file" wire:model="profile_picture" class="form-control-2050"
+                                            accept="image/*">
+                                        <small class="form-help-2050">Formats acceptés : JPG, PNG, GIF. Taille max :
+                                            8MB.</small>
+                                        @error('profile_picture')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+
+                                        @if ($profile_picture)
+                                            <div class="mt-2">
+                                                <img src="{{ $profile_picture->temporaryUrl() }}" alt="Aperçu"
+                                                    class="rounded-circle"
+                                                    style="width: 80px; height: 80px; object-fit: cover;">
+                                                <small class="text-success ms-2">
+                                                    <i class="fas fa-check me-1"></i>Photo sélectionnée
+                                                </small>
+                                            </div>
+                                        @elseif ($isEdit && $existingProfilePicture)
+                                            <div class="mt-2">
+                                                <div class="position-relative d-inline-block">
+                                                    <img src="{{ asset('storage/' . $existingProfilePicture) }}"
+                                                        alt="Photo existante" class="rounded-circle"
+                                                        style="width: 80px; height: 80px; object-fit: cover;">
+                                                    <button type="button" wire:click="removeExistingPhoto"
+                                                        class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                                                        title="Supprimer cette photo">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                                <small class="text-info ms-2">
+                                                    <i class="fas fa-image me-1"></i>Photo actuelle
+                                                </small>
+                                            </div>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="form-col-2050 col-md-4">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Statut <span class="required">*</span>
-                                    </label>
-                                    <select wire:model="statut" class="form-control-2050 select2-2050">
-                                        <option value="">-- Sélectionner le statut --</option>
+                        <div class="form-actions-2050">
+                            <button type="submit" class="btn btn-primary-2050">
+                                <i class="fas fa-save me-2"></i>{{ $isEdit ? 'Modifier' : 'Ajouter' }} Chauffeur
+                            </button>
+                            @if ($isEdit)
+                                <button type="button" wire:click="resetForm" class="btn btn-outline-2050">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </button>
+                            @else
+                                <button type="button" wire:click="hideForm" class="btn btn-outline-2050">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </button>
+                            @endif
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <script>
+                // BUG FIX: Synchronisation Select2 sans flicker pour chauffeurs
+                function initSelect2() {
+                    console.log('=== INITIALISATION SELECT2 CHAUFFEURS ===');
+
+                    // Initialiser Select2 pour les filtres ET le formulaire
+                    function initAllSelect2() {
+                        console.log('=== INITIALISATION SELECT2 ===');
+
+                        // Vérifier que les éléments existent
+                        console.log('Filtres trouvés:', $('#filter-statut, #filter-role, #filter-permis, #filter-email-verified')
+                            .length);
+                        console.log('Formulaire trouvé:', $('#form-statut').length);
+
+                        console.log('Initialisation Select2 filtres...');
+                        $('#filter-statut, #filter-role, #filter-permis, #filter-email-verified')
+                            .select2({
+                                placeholder: function() {
+                                    return $(this).find('option:first').text();
+                                },
+                                allowClear: true,
+                                theme: 'bootstrap-5',
+                                width: '100%',
+                                dropdownCssClass: 'select2-dropdown-2050',
+                                selectionCssClass: 'select2-selection-2050'
+                            });
+
+                        console.log('Initialisation Select2 formulaire...');
+                        $('#form-statut')
+                            .select2({
+                                placeholder: function() {
+                                    return $(this).find('option:first').text();
+                                },
+                                allowClear: true,
+                                theme: 'bootstrap-5',
+                                width: '100%',
+                                dropdownCssClass: 'select2-dropdown-2050',
+                                selectionCssClass: 'select2-selection-2050'
+                            });
+
+                        console.log('=== SELECT2 INITIALISÉ ===');
+                    }
+
+                    // Initialiser après un délai pour s'assurer que le DOM est prêt
+                    setTimeout(initAllSelect2, 300);
+
+                    // Synchroniser les valeurs Livewire -> Select2 (au chargement)
+                    Livewire.on('set-filter-values', (values) => {
+                        console.log('Mise à jour des valeurs des filtres:', values);
+                        if (values.filterStatut) $('#filter-statut').val(values.filterStatut).trigger('change');
+                        if (values.filterRole) $('#filter-role').val(values.filterRole).trigger('change');
+                        if (values.filterPermis) $('#filter-permis').val(values.filterPermis).trigger('change');
+                        if (values.filterEmailVerified) $('#filter-email-verified').val(values.filterEmailVerified).trigger(
+                            'change');
+                    });
+
+                    // Synchroniser Select2 -> Livewire (quand l'utilisateur change)
+                    // FILTRES
+                    $('#filter-statut').on('change', function() {
+                        const value = $(this).val();
+                        console.log('Filtre Statut changé:', value);
+                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                            'wire:id'));
+                        if (livewireComponent) {
+                            livewireComponent.set('filterStatut', value);
+                            console.log('Filtre Statut envoyé à Livewire');
+                        }
+                    });
+
+                    $('#filter-role').on('change', function() {
+                        const value = $(this).val();
+                        console.log('Filtre Rôle changé:', value);
+                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                            'wire:id'));
+                        if (livewireComponent) {
+                            livewireComponent.set('filterRole', value);
+                            console.log('Filtre Rôle envoyé à Livewire');
+                        }
+                    });
+
+                    $('#filter-permis').on('change', function() {
+                        const value = $(this).val();
+                        console.log('Filtre Permis changé:', value);
+                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                            'wire:id'));
+                        if (livewireComponent) {
+                            livewireComponent.set('filterPermis', value);
+                            console.log('Filtre Permis envoyé à Livewire');
+                        }
+                    });
+
+                    $('#filter-email-verified').on('change', function() {
+                        const value = $(this).val();
+                        console.log('Filtre Email vérifié changé:', value);
+                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                            'wire:id'));
+                        if (livewireComponent) {
+                            livewireComponent.set('filterEmailVerified', value);
+                            console.log('Filtre Email vérifié envoyé à Livewire');
+                        }
+                    });
+
+                    // FORMULAIRE
+                    $('#form-statut').on('change', function() {
+                        const value = $(this).val();
+                        console.log('Form Statut changé:', value);
+                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                            'wire:id'));
+                        if (livewireComponent) {
+                            livewireComponent.set('statut', value);
+                            console.log('Form Statut envoyé à Livewire');
+                        }
+                    });
+
+                    // Synchroniser Livewire -> Select2 (quand les valeurs changent côté serveur)
+                    Livewire.on('sync-form-select2', (values) => {
+                        console.log('Synchronisation des valeurs du formulaire:', values);
+                        if (values.statut) $('#form-statut').val(values.statut).trigger('change');
+                    });
+
+                    // Réinitialiser les filtres
+                    Livewire.on('reset-filter-select2', () => {
+                        console.log('=== RÉINITIALISATION DES FILTRES SELECT2 ===');
+                        $('#filter-statut, #filter-role, #filter-permis, #filter-email-verified').val('').trigger('change');
+                        console.log('Tous les Select2 des filtres ont été réinitialisés');
+                    });
+                }
+
+                // Fonction pour vérifier que tout est prêt
+                function initSelect2WhenReady() {
+                    console.log('=== INITIALISATION SELECT2 - VÉRIFICATION ===');
+                    console.log('jQuery disponible:', typeof $ !== 'undefined');
+                    console.log('Select2 disponible:', typeof $.fn.select2 !== 'undefined');
+                    console.log('Livewire disponible:', typeof Livewire !== 'undefined');
+
+                    if (typeof $ === 'undefined') {
+                        console.log('jQuery non disponible, nouvelle tentative dans 100ms...');
+                        setTimeout(initSelect2WhenReady, 100);
+                        return;
+                    }
+
+                    if (typeof $.fn.select2 === 'undefined') {
+                        console.log('Select2 non disponible, nouvelle tentative dans 100ms...');
+                        setTimeout(initSelect2WhenReady, 100);
+                        return;
+                    }
+
+                    if (typeof Livewire === 'undefined') {
+                        console.log('Livewire non disponible, nouvelle tentative dans 100ms...');
+                        setTimeout(initSelect2WhenReady, 100);
+                        return;
+                    }
+
+                    console.log('=== TOUT EST PRÊT - INITIALISATION ===');
+                    initSelect2();
+                }
+
+                // Observer pour détecter quand le formulaire apparaît
+                let observer = null;
+                let eventsAttached = false;
+
+                function startObserver() {
+                    if (observer) return; // Éviter les doublons
+
+                    observer = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            if (mutation.type === 'childList') {
+                                // Vérifier si le formulaire est maintenant présent
+                                if ($('#form-statut').length > 0 && !eventsAttached) {
+                                    console.log('=== FORMULAIRE DÉTECTÉ - ATTACHEMENT DES ÉVÉNEMENTS ===');
+                                    attachFormEvents();
+                                    eventsAttached = true;
+                                    observer.disconnect(); // Arrêter l'observation
+                                    observer = null;
+                                }
+                            }
+                        });
+                    });
+
+                    // Observer le contenu de la page
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true
+                    });
+                }
+
+                // Fonction pour attacher les événements du formulaire
+                function attachFormEvents() {
+                    console.log('=== ATTACHEMENT DES ÉVÉNEMENTS FORMULAIRE ===');
+
+                    // Statut
+                    $(document).off('change', '#form-statut').on('change', '#form-statut', function() {
+                        const value = $(this).val();
+                        console.log('Form Statut changé:', value);
+                        const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute(
+                            'wire:id'));
+                        if (livewireComponent) {
+                            livewireComponent.set('statut', value);
+                            console.log('Form Statut envoyé à Livewire');
+                        }
+                    });
+
+                    console.log('Événements du formulaire attachés avec succès');
+                }
+
+                // Démarrer l'observation
+                startObserver();
+
+                // Démarrer l'initialisation
+                document.addEventListener('DOMContentLoaded', function() {
+                    console.log('=== DOM CONTENT LOADED ===');
+                    initSelect2WhenReady();
+                });
+            </script>
+        @endif
+
+        <!-- Filtres Futuristes -->
+        @if (!$showForm && !$isEdit)
+            <div class="card-2050 mb-4 hover-lift">
+                <div class="card-header-2050">
+                    <h6 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>Filtres Intelligents
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="form-row-2050">
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Recherche générale</label>
+                                <input type="text" wire:model.live="search" class="form-control-2050"
+                                    placeholder="Nom, prénom, email, téléphone...">
+                            </div>
+                        </div>
+
+                        <div class="form-col-2050 col-md-2">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Statut</label>
+                                <div wire:ignore>
+                                    <select id="filter-statut" class="form-control-2050 select2-2050">
+                                        <option value="">Tous</option>
                                         <option value="actif">Actif</option>
                                         <option value="inactif">Inactif</option>
                                         <option value="suspendu">Suspendu</option>
                                     </select>
-                                    @error('statut')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="form-col-2050 col-md-2">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Rôle</label>
+                                <div wire:ignore>
+                                    <select id="filter-role" class="form-control-2050 select2-2050">
+                                        <option value="">Tous</option>
+                                        <option value="admin">Admin</option>
+                                        <option value="chauffeur">Chauffeur</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-col-2050 col-md-2">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Permis</label>
+                                <div wire:ignore>
+                                    <select id="filter-permis" class="form-control-2050 select2-2050">
+                                        <option value="">Tous</option>
+                                        <option value="expire_bientot">Expire bientôt</option>
+                                        <option value="expire_dans_3_mois">Expire dans 3 mois</option>
+                                        <option value="expire_dans_6_mois">Expire dans 6 mois</option>
+                                        <option value="expire">Expiré</option>
+                                        <option value="sans_permis">Sans permis</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-col-2050 col-md-2">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Email vérifié</label>
+                                <div wire:ignore>
+                                    <select id="filter-email-verified" class="form-control-2050 select2-2050">
+                                        <option value="">Tous</option>
+                                        <option value="verified">Vérifié</option>
+                                        <option value="not_verified">Non vérifié</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-col-2050 col-md-1">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">&nbsp;</label>
+                                <button wire:click="resetFilters" class="btn btn-outline-2050 w-100">
+                                    <i class="fas fa-times"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="form-section-2050">
-                        <h6 class="section-title-2050">
-                            <i class="fas fa-lock me-2"></i>Sécurité
-                        </h6>
 
-                        <div class="form-row-2050">
-                            <div class="form-col-2050 col-md-6">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Mot de passe {{ $isEdit ? '' : '<span class="required">*</span>' }}
-                                    </label>
-                                    <input wire:model="password" type="password" class="form-control-2050"
-                                        placeholder="Mot de passe">
-                                    <small class="form-help-2050">
-                                        {{ $isEdit ? 'Laisser vide pour ne pas changer' : 'Mot de passe de connexion' }}
-                                    </small>
-                                    @error('password')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                    <!-- Ligne 2 - Dates -->
+                    <div class="form-row-2050 mt-3">
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Date d'embauche - Début</label>
+                                <input type="date" wire:model.live="filterDateEmbaucheDebut"
+                                    class="form-control-2050">
                             </div>
-
-                            <div class="form-col-2050 col-md-6">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">
-                                        Confirmation du mot de passe
-                                        {{ $isEdit ? '' : '<span class="required">*</span>' }}
-                                    </label>
-                                    <input wire:model="password_confirmation" type="password"
-                                        class="form-control-2050" placeholder="Confirmer le mot de passe">
-                                    <small class="form-help-2050">
-                                        {{ $isEdit ? 'Laisser vide pour ne pas changer' : 'Confirmer le mot de passe' }}
-                                    </small>
-                                    @error('password_confirmation')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                        </div>
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Date d'embauche - Fin</label>
+                                <input type="date" wire:model.live="filterDateEmbaucheFin"
+                                    class="form-control-2050">
+                            </div>
+                        </div>
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Date de naissance - Début</label>
+                                <input type="date" wire:model.live="filterDateNaissanceDebut"
+                                    class="form-control-2050">
+                            </div>
+                        </div>
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Date de naissance - Fin</label>
+                                <input type="date" wire:model.live="filterDateNaissanceFin"
+                                    class="form-control-2050">
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        @endif
 
-                    <div class="form-section-2050">
-                        <h6 class="section-title-2050">
-                            <i class="fas fa-camera me-2"></i>Photo de profil
-                        </h6>
 
-                        <div class="form-row-2050">
-                            <div class="form-col-2050 col-12">
-                                <div class="form-group-2050">
-                                    <label class="form-label-2050">Photo de profil</label>
-                                    <input type="file" wire:model="profile_picture" class="form-control-2050"
-                                        accept="image/*">
-                                    <small class="form-help-2050">Formats acceptés : JPG, PNG, GIF. Taille max :
-                                        8MB.</small>
-                                    @error('profile_picture')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-
-                                    @if ($profile_picture)
-                                        <div class="mt-2">
-                                            <img src="{{ $profile_picture->temporaryUrl() }}" alt="Aperçu"
-                                                class="rounded-circle"
-                                                style="width: 80px; height: 80px; object-fit: cover;">
-                                            <small class="text-success ms-2">
-                                                <i class="fas fa-check me-1"></i>Photo sélectionnée
-                                            </small>
-                                        </div>
-                                    @elseif ($isEdit && $existingProfilePicture)
-                                        <div class="mt-2">
-                                            <div class="position-relative d-inline-block">
-                                                <img src="{{ asset('storage/' . $existingProfilePicture) }}"
-                                                    alt="Photo existante" class="rounded-circle"
-                                                    style="width: 80px; height: 80px; object-fit: cover;">
-                                                <button type="button" wire:click="removeExistingPhoto"
-                                                    class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
-                                                    title="Supprimer cette photo">
-                                                    <i class="fas fa-times"></i>
+        <!-- Liste des chauffeurs Futuriste -->
+        @if (!$showForm && !$isEdit)
+            <div class="card-2050 hover-lift">
+                <div class="card-header-2050">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2"></i>Liste des chauffeurs
+                            <span class="badge badge-success-2050 ms-2">{{ $chauffeurs->total() }}</span>
+                        </h5>
+                        <button wire:click="exportExcel" class="btn btn-success-2050 btn-sm">
+                            <i class="fas fa-file-excel me-2"></i>Exporter Excel
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-2050 mb-0">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <button wire:click="sortBy('nom')"
+                                            class="btn btn-link p-0 text-decoration-none text-primary">
+                                            <i class="fas fa-user me-2"></i>Chauffeur
+                                            @if ($sortField === 'nom')
+                                                <i
+                                                    class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort ms-1 text-muted"></i>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th class="text-primary"><i class="fas fa-envelope me-2"></i>Contact</th>
+                                    <th class="text-primary"><i class="fas fa-id-card me-2"></i>Permis</th>
+                                    <th>
+                                        <button wire:click="sortBy('statut')"
+                                            class="btn btn-link p-0 text-decoration-none text-primary">
+                                            <i class="fas fa-info-circle me-2"></i>Statut
+                                            @if ($sortField === 'statut')
+                                                <i
+                                                    class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort ms-1 text-muted"></i>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th class="text-primary"><i class="fas fa-cogs me-2"></i>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($chauffeurs as $chauffeur)
+                                    <tr class="animate-fade-in-up">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="glass-effect rounded-circle p-2 me-3">
+                                                    <i class="fas fa-user text-gradient"></i>
+                                                </div>
+                                                <div>
+                                                    <strong>{{ $chauffeur->nom }} {{ $chauffeur->prenom }}</strong>
+                                                    @if ($chauffeur->date_embauche)
+                                                        <br><small class="text-muted">Embauché le
+                                                            {{ \Carbon\Carbon::parse($chauffeur->date_embauche)->format('d/m/Y') }}</small>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <i class="fas fa-envelope me-2 text-muted"></i>{{ $chauffeur->email }}
+                                                @if ($chauffeur->tel)
+                                                    <br><i
+                                                        class="fas fa-phone me-2 text-muted"></i>{{ $chauffeur->tel }}
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if ($chauffeur->numero_permis)
+                                                <div>
+                                                    <strong>{{ $chauffeur->numero_permis }}</strong>
+                                                    @if ($chauffeur->permis_expire_le)
+                                                        <br><small class="text-muted">Expire le
+                                                            {{ \Carbon\Carbon::parse($chauffeur->permis_expire_le)->format('d/m/Y') }}</small>
+                                                    @endif
+                                                </div>
+                                            @else
+                                                <span class="text-muted">Non renseigné</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($chauffeur->statut === 'actif')
+                                                <span class="badge badge-success-2050">
+                                                    <i class="fas fa-check me-1"></i>Actif
+                                                </span>
+                                            @elseif($chauffeur->statut === 'inactif')
+                                                <span class="badge badge-warning-2050">
+                                                    <i class="fas fa-pause me-1"></i>Inactif
+                                                </span>
+                                            @else
+                                                <span class="badge badge-danger-2050">
+                                                    <i class="fas fa-ban me-1"></i>Suspendu
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="btn-group-actions">
+                                                <button type="button"
+                                                    wire:click.prevent="showDetails({{ $chauffeur->user_id }})"
+                                                    class="btn btn-info-2050 btn-sm" title="Détails">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button type="button"
+                                                    wire:click.prevent="edit({{ $chauffeur->user_id }})"
+                                                    class="btn btn-warning-2050 btn-sm" title="Modifier">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button"
+                                                    wire:click.prevent="confirmDelete({{ $chauffeur->user_id }})"
+                                                    class="btn btn-danger-2050 btn-sm" title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </div>
-                                            <small class="text-info ms-2">
-                                                <i class="fas fa-image me-1"></i>Photo actuelle
-                                            </small>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-actions-2050">
-                        <button type="submit" class="btn btn-primary-2050">
-                            <i class="fas fa-save me-2"></i>{{ $isEdit ? 'Modifier' : 'Ajouter' }} Chauffeur
-                        </button>
-                        @if ($isEdit)
-                            <button type="button" wire:click="resetForm" class="btn btn-outline-2050">
-                                <i class="fas fa-times me-2"></i>Annuler
-                            </button>
-                        @endif
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <script>
-            // Fonction pour synchroniser les valeurs Select2 avant soumission
-            function syncSelect2Values() {
-                console.log('=== SYNC SELECT2 VALUES CHAUFFEURS ===');
-
-                try {
-                    const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'));
-                    if (livewireComponent) {
-                        // Synchroniser le statut
-                        const statutValue = $('select[wire\\:model="statut"]').val();
-                        console.log('Statut Select2:', statutValue);
-                        if (statutValue) {
-                            livewireComponent.set('statut', statutValue);
-                            console.log('Statut synchronisé vers Livewire');
-                        }
-
-                        console.log('=== SYNC TERMINÉ ===');
-                        return true;
-                    } else {
-                        console.error('Composant Livewire non trouvé');
-                        return false;
-                    }
-                } catch (error) {
-                    console.error('Erreur lors de la synchronisation:', error);
-                    return false;
-                }
-            }
-
-            // Fonction pour initialiser les événements Livewire
-            function initLivewireEvents() {
-                if (typeof Livewire !== 'undefined') {
-                    console.log('Livewire disponible, initialisation des événements...');
-
-                    // Écouter l'événement de synchronisation des Select2
-                    Livewire.on('sync-select2-values', () => {
-                        console.log('Synchronisation des Select2 pour l\'édition...');
-                        setTimeout(function() {
-                            // Récupérer le composant Livewire
-                            const livewireComponent = Livewire.find(document.querySelector('[wire\\:id]')
-                                .getAttribute('wire:id'));
-                            if (!livewireComponent) {
-                                console.error('Composant Livewire non trouvé pour la synchronisation');
-                                return;
-                            }
-
-                            // Synchroniser le statut
-                            const statutValue = livewireComponent.get('statut');
-                            console.log('Statut Livewire:', statutValue);
-                            if (statutValue) {
-                                $('select[wire\\:model="statut"]').val(statutValue).trigger('change');
-                                console.log('Statut Select2 mis à jour vers:', statutValue);
-                            }
-
-                            console.log('Synchronisation des Select2 terminée');
-                        }, 200);
-                    });
-
-                    return true;
-                }
-                return false;
-            }
-
-            // Attendre que Livewire soit complètement chargé
-            document.addEventListener('DOMContentLoaded', function() {
-                // Essayer d'initialiser immédiatement
-                if (!initLivewireEvents()) {
-                    // Si Livewire n'est pas encore disponible, réessayer
-                    let attempts = 0;
-                    const maxAttempts = 10;
-
-                    const retryInit = setInterval(function() {
-                        attempts++;
-                        console.log(`Tentative ${attempts}/${maxAttempts} d'initialisation Livewire...`);
-
-                        if (initLivewireEvents() || attempts >= maxAttempts) {
-                            clearInterval(retryInit);
-                            if (attempts >= maxAttempts) {
-                                console.error('Impossible d\'initialiser Livewire après', maxAttempts,
-                                    'tentatives');
-                            }
-                        }
-                    }, 500);
-                }
-
-                // Intercepter la soumission du formulaire
-                $('form[wire\\:submit\\.prevent="save"]').on('submit', function(e) {
-                    e.preventDefault();
-                    console.log('=== INTERCEPTION SOUMISSION CHAUFFEURS ===');
-
-                    // Synchroniser les valeurs Select2
-                    if (syncSelect2Values()) {
-                        // Attendre un peu pour que Livewire traite les changements
-                        setTimeout(function() {
-                            console.log('Synchronisation terminée, soumission du formulaire...');
-                            // Déclencher la soumission Livewire
-                            const livewireComponent = Livewire.find(document.querySelector(
-                                '[wire\\:id]').getAttribute('wire:id'));
-                            if (livewireComponent) {
-                                livewireComponent.call('save');
-                            }
-                        }, 500);
-                    }
-                });
-            });
-        </script>
-
-        <!-- Filtres Futuristes -->
-        <div class="card-2050 mb-4 hover-lift">
-            <div class="card-header-2050">
-                <h6 class="mb-0">
-                    <i class="fas fa-filter me-2"></i>Filtres Intelligents
-                </h6>
-            </div>
-            <div class="card-body p-4">
-                <div class="form-row-2050">
-                    <div class="form-col-2050 col-md-3">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Recherche générale</label>
-                            <input type="text" wire:model.live="search" class="form-control-2050"
-                                placeholder="Nom, prénom, email, téléphone...">
-                        </div>
-                    </div>
-
-                    <div class="form-col-2050 col-md-2">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Statut</label>
-                            <select wire:model.live="filterStatut" class="form-control-2050 select2-2050">
-                                <option value="">Tous</option>
-                                <option value="actif">Actif</option>
-                                <option value="inactif">Inactif</option>
-                                <option value="suspendu">Suspendu</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-col-2050 col-md-2">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Rôle</label>
-                            <select wire:model.live="filterRole" class="form-control-2050 select2-2050">
-                                <option value="">Tous</option>
-                                <option value="admin">Admin</option>
-                                <option value="chauffeur">Chauffeur</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-col-2050 col-md-2">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Permis</label>
-                            <select wire:model.live="filterPermis" class="form-control-2050 select2-2050">
-                                <option value="">Tous</option>
-                                <option value="expire_bientot">Expire bientôt</option>
-                                <option value="expire_dans_3_mois">Expire dans 3 mois</option>
-                                <option value="expire_dans_6_mois">Expire dans 6 mois</option>
-                                <option value="expire">Expiré</option>
-                                <option value="sans_permis">Sans permis</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-col-2050 col-md-2">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Email vérifié</label>
-                            <select wire:model.live="filterEmailVerified" class="form-control-2050 select2-2050">
-                                <option value="">Tous</option>
-                                <option value="verified">Vérifié</option>
-                                <option value="not_verified">Non vérifié</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-col-2050 col-md-1">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">&nbsp;</label>
-                            <button wire:click="resetFilters" class="btn btn-outline-2050 w-100">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-5">
+                                            <div class="glass-effect rounded-circle p-4 mx-auto mb-3"
+                                                style="width: 80px; height: 80px;">
+                                                <i class="fas fa-user-tie text-gradient fs-2"></i>
+                                            </div>
+                                            <h5>Aucun chauffeur trouvé</h5>
+                                            <p class="mb-0">Ajoutez votre premier chauffeur pour commencer</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Ligne 2 - Dates -->
-            <div class="row g-3 mt-2">
-                <div class="col-md-3">
-                    <label class="form-label-2050">Date d'embauche - Début</label>
-                    <input type="date" wire:model.live="filterDateEmbaucheDebut" class="form-control-2050">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label-2050">Date d'embauche - Fin</label>
-                    <input type="date" wire:model.live="filterDateEmbaucheFin" class="form-control-2050">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label-2050">Date de naissance - Début</label>
-                    <input type="date" wire:model.live="filterDateNaissanceDebut" class="form-control-2050">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label-2050">Date de naissance - Fin</label>
-                    <input type="date" wire:model.live="filterDateNaissanceFin" class="form-control-2050">
-                </div>
+            <div class="mt-4">
+                {{ $chauffeurs->links() }}
             </div>
-        </div>
-    </div>
 
-    <!-- Liste des chauffeurs Futuriste -->
-    <div class="card-2050 hover-lift">
-        <div class="card-header-2050">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="fas fa-list me-2"></i>Liste des chauffeurs
-                    <span class="badge badge-success-2050 ms-2">{{ $chauffeurs->total() }}</span>
-                </h5>
-                <button wire:click="exportExcel" class="btn btn-success-2050 btn-sm">
-                    <i class="fas fa-file-excel me-2"></i>Exporter Excel
-                </button>
-            </div>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-2050 mb-0">
-                    <thead>
-                        <tr>
-                            <th>
-                                <button wire:click="sortBy('nom')"
-                                    class="btn btn-link p-0 text-decoration-none text-primary">
-                                    <i class="fas fa-user me-2"></i>Chauffeur
-                                    @if ($sortField === 'nom')
-                                        <i
-                                            class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                    @else
-                                        <i class="fas fa-sort ms-1 text-muted"></i>
-                                    @endif
-                                </button>
-                            </th>
-                            <th class="text-primary"><i class="fas fa-envelope me-2"></i>Contact</th>
-                            <th class="text-primary"><i class="fas fa-id-card me-2"></i>Permis</th>
-                            <th>
-                                <button wire:click="sortBy('statut')"
-                                    class="btn btn-link p-0 text-decoration-none text-primary">
-                                    <i class="fas fa-info-circle me-2"></i>Statut
-                                    @if ($sortField === 'statut')
-                                        <i
-                                            class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                    @else
-                                        <i class="fas fa-sort ms-1 text-muted"></i>
-                                    @endif
-                                </button>
-                            </th>
-                            <th class="text-primary"><i class="fas fa-cogs me-2"></i>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($chauffeurs as $chauffeur)
-                            <tr class="animate-fade-in-up">
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="glass-effect rounded-circle p-2 me-3">
-                                            <i class="fas fa-user text-gradient"></i>
-                                        </div>
-                                        <div>
-                                            <strong>{{ $chauffeur->nom }} {{ $chauffeur->prenom }}</strong>
-                                            @if ($chauffeur->date_embauche)
-                                                <br><small class="text-muted">Embauché le
-                                                    {{ \Carbon\Carbon::parse($chauffeur->date_embauche)->format('d/m/Y') }}</small>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div>
-                                        <i class="fas fa-envelope me-2 text-muted"></i>{{ $chauffeur->email }}
-                                        @if ($chauffeur->tel)
-                                            <br><i class="fas fa-phone me-2 text-muted"></i>{{ $chauffeur->tel }}
-                                        @endif
-                                    </div>
-                                </td>
-                                <td>
-                                    @if ($chauffeur->numero_permis)
-                                        <div>
-                                            <strong>{{ $chauffeur->numero_permis }}</strong>
-                                            @if ($chauffeur->permis_expire_le)
-                                                <br><small class="text-muted">Expire le
-                                                    {{ \Carbon\Carbon::parse($chauffeur->permis_expire_le)->format('d/m/Y') }}</small>
-                                            @endif
-                                        </div>
-                                    @else
-                                        <span class="text-muted">Non renseigné</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if ($chauffeur->statut === 'actif')
-                                        <span class="badge badge-success-2050">
-                                            <i class="fas fa-check me-1"></i>Actif
-                                        </span>
-                                    @elseif($chauffeur->statut === 'inactif')
-                                        <span class="badge badge-warning-2050">
-                                            <i class="fas fa-pause me-1"></i>Inactif
-                                        </span>
-                                    @else
-                                        <span class="badge badge-danger-2050">
-                                            <i class="fas fa-ban me-1"></i>Suspendu
-                                        </span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <div class="btn-group-actions">
-                                        <button type="button"
-                                            wire:click.prevent="showDetails({{ $chauffeur->user_id }})"
-                                            class="btn btn-info-2050 btn-sm" title="Détails">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button type="button" wire:click.prevent="edit({{ $chauffeur->user_id }})"
-                                            class="btn btn-warning-2050 btn-sm" title="Modifier">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button type="button"
-                                            wire:click.prevent="confirmDelete({{ $chauffeur->user_id }})"
-                                            class="btn btn-danger-2050 btn-sm" title="Supprimer">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="text-center text-muted py-5">
-                                    <div class="glass-effect rounded-circle p-4 mx-auto mb-3"
-                                        style="width: 80px; height: 80px;">
-                                        <i class="fas fa-user-tie text-gradient fs-2"></i>
-                                    </div>
-                                    <h5>Aucun chauffeur trouvé</h5>
-                                    <p class="mb-0">Ajoutez votre premier chauffeur pour commencer</p>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="mt-4">
-        {{ $chauffeurs->links() }}
     </div>
 
 
@@ -800,7 +956,8 @@
                 <div class="modal-content card-2050">
                     <div class="modal-header card-header-2050">
                         <h5 class="modal-title">
-                            <i class="fas fa-exclamation-triangle me-2 text-warning"></i>Confirmation de suppression
+                            <i class="fas fa-exclamation-triangle me-2 text-warning"></i>Confirmation de
+                            suppression
                         </h5>
                         <button type="button" class="btn-close" wire:click="cancelDelete"></button>
                     </div>
@@ -823,5 +980,6 @@
                 </div>
             </div>
         </div>
+    @endif
     @endif
 </div>
