@@ -722,6 +722,37 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Ligne 2 - Dates -->
+                    <div class="form-row-2050 mt-3">
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Date d'achat - Début</label>
+                                <input type="date" wire:model.live="filterDateAchatDebut"
+                                    class="form-control-2050">
+                            </div>
+                        </div>
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Date d'achat - Fin</label>
+                                <input type="date" wire:model.live="filterDateAchatFin" class="form-control-2050">
+                            </div>
+                        </div>
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Année - Début</label>
+                                <input type="number" wire:model.live="filterAnneeDebut" class="form-control-2050"
+                                    min="1990" max="{{ date('Y') + 1 }}" placeholder="1990">
+                            </div>
+                        </div>
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Année - Fin</label>
+                                <input type="number" wire:model.live="filterAnneeFin" class="form-control-2050"
+                                    min="1990" max="{{ date('Y') + 1 }}" placeholder="{{ date('Y') }}">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         @endif

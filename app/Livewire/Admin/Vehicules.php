@@ -47,6 +47,10 @@ class Vehicules extends Component
     public $filterModele = '';
     public $filterAnnee = '';
     public $filterCouleur = '';
+    public $filterDateAchatDebut = '';
+    public $filterDateAchatFin = '';
+    public $filterAnneeDebut = '';
+    public $filterAnneeFin = '';
 
     // Tri
     public $sortField = 'created_at';
@@ -401,6 +405,10 @@ class Vehicules extends Component
         $this->filterModele = '';
         $this->filterAnnee = '';
         $this->filterCouleur = '';
+        $this->filterDateAchatDebut = '';
+        $this->filterDateAchatFin = '';
+        $this->filterAnneeDebut = '';
+        $this->filterAnneeFin = '';
         $this->filterModeles = collect();
 
         \Log::info('Valeurs des filtres réinitialisées:', [

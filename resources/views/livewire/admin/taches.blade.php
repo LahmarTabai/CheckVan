@@ -207,6 +207,10 @@
                                 <button type="button" wire:click="resetForm" class="btn btn-outline-2050">
                                     <i class="fas fa-times me-2"></i>Annuler
                                 </button>
+                            @else
+                                <button type="button" wire:click="hideForm" class="btn btn-outline-2050">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </button>
                             @endif
                         </div>
                     </form>
@@ -444,342 +448,363 @@
         @endif
 
         <!-- Filtres Futuristes -->
-        <div class="card-2050 mb-4 hover-lift">
-            <div class="card-header-2050">
-                <h6 class="mb-0">
-                    <i class="fas fa-filter me-2"></i>Filtres Intelligents
-                </h6>
-            </div>
-            <div class="card-body p-4">
-                <div class="form-row-2050">
-                    <div class="form-col-2050 col-md-3">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Recherche générale</label>
-                            <input type="text" wire:model.live="search" class="form-control-2050"
-                                placeholder="Chauffeur, véhicule, immatriculation...">
+        @if (!$showForm && !$isEdit)
+            <div class="card-2050 mb-4 hover-lift">
+                <div class="card-header-2050">
+                    <h6 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>Filtres Intelligents
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="form-row-2050">
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Recherche générale</label>
+                                <input type="text" wire:model.live="search" class="form-control-2050"
+                                    placeholder="Chauffeur, véhicule, immatriculation...">
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-col-2050 col-md-2">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Statut</label>
-                            <div wire:ignore>
-                                <select id="filter-status" class="form-control-2050 select2-2050">
-                                    <option value="">Tous</option>
-                                    <option value="en_attente">En attente</option>
-                                    <option value="en_cours">En cours</option>
-                                    <option value="terminée">Terminée</option>
-                                </select>
+                        <div class="form-col-2050 col-md-2">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Statut</label>
+                                <div wire:ignore>
+                                    <select id="filter-status" class="form-control-2050 select2-2050">
+                                        <option value="">Tous</option>
+                                        <option value="en_attente">En attente</option>
+                                        <option value="en_cours">En cours</option>
+                                        <option value="terminée">Terminée</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-col-2050 col-md-2">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Validation</label>
+                                <div wire:ignore>
+                                    <select id="filter-validation" class="form-control-2050 select2-2050">
+                                        <option value="">Toutes</option>
+                                        <option value="1">Validées</option>
+                                        <option value="0">Non validées</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-col-2050 col-md-2">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Chauffeur</label>
+                                <div wire:ignore>
+                                    <select id="filter-chauffeur" class="form-control-2050 select2-2050">
+                                        <option value="">Tous</option>
+                                        @foreach ($chauffeurs as $chauffeur)
+                                            <option value="{{ $chauffeur->user_id }}">
+                                                {{ $chauffeur->nom }} {{ $chauffeur->prenom }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-col-2050 col-md-2">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Véhicule</label>
+                                <div wire:ignore>
+                                    <select id="filter-vehicule" class="form-control-2050 select2-2050">
+                                        <option value="">Tous</option>
+                                        @foreach ($vehicules as $vehicule)
+                                            <option value="{{ $vehicule->id }}">
+                                                {{ $vehicule->immatriculation }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-col-2050 col-md-1">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">&nbsp;</label>
+                                <button wire:click="resetFilters" class="btn btn-outline-2050 w-100">
+                                    <i class="fas fa-times"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
-
-                    <div class="form-col-2050 col-md-2">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Validation</label>
-                            <div wire:ignore>
-                                <select id="filter-validation" class="form-control-2050 select2-2050">
-                                    <option value="">Toutes</option>
-                                    <option value="1">Validées</option>
-                                    <option value="0">Non validées</option>
-                                </select>
+                    <!-- Ligne 2 - Dates -->
+                    <div class="form-row-2050 mt-3">
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Date de début - Début</label>
+                                <input type="date" wire:model.live="filterDateDebutDebut"
+                                    class="form-control-2050">
                             </div>
                         </div>
-                    </div>
-
-                    <div class="form-col-2050 col-md-2">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Chauffeur</label>
-                            <div wire:ignore>
-                                <select id="filter-chauffeur" class="form-control-2050 select2-2050">
-                                    <option value="">Tous</option>
-                                    @foreach ($chauffeurs as $chauffeur)
-                                        <option value="{{ $chauffeur->user_id }}">
-                                            {{ $chauffeur->nom }} {{ $chauffeur->prenom }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Date de début - Fin</label>
+                                <input type="date" wire:model.live="filterDateDebutFin" class="form-control-2050">
                             </div>
                         </div>
-                    </div>
-
-                    <div class="form-col-2050 col-md-2">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Véhicule</label>
-                            <div wire:ignore>
-                                <select id="filter-vehicule" class="form-control-2050 select2-2050">
-                                    <option value="">Tous</option>
-                                    @foreach ($vehicules as $vehicule)
-                                        <option value="{{ $vehicule->id }}">
-                                            {{ $vehicule->immatriculation }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Date de fin - Début</label>
+                                <input type="date" wire:model.live="filterDateFinDebut" class="form-control-2050">
                             </div>
                         </div>
-                    </div>
-
-                    <div class="form-col-2050 col-md-1">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">&nbsp;</label>
-                            <button wire:click="resetFilters" class="btn btn-outline-2050 w-100">
-                                <i class="fas fa-times"></i>
-                            </button>
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Date de fin - Fin</label>
+                                <input type="date" wire:model.live="filterDateFinFin" class="form-control-2050">
+                            </div>
                         </div>
                     </div>
                 </div>
-                <!-- Ligne 2 -->
-                <div class="row g-3 mt-3">
-                    <div class="col-md-6">
-                        <label class="form-label-2050">Date de début - Début</label>
-                        <input type="date" wire:model.live="dateDebutFilter" class="form-control-2050">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label-2050">Date de début - Fin</label>
-                        <input type="date" wire:model.live="dateFinFilter" class="form-control-2050">
-                    </div>
-                </div>
             </div>
-        </div>
+        @endif
 
         <!-- Liste des tâches -->
-        <div class="card-2050 hover-lift">
-            <div class="card-header-2050">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">
-                        <i class="fas fa-list me-2"></i>Liste des tâches
-                        <span class="badge badge-success-2050 ms-2">{{ $taches->total() }}</span>
-                    </h6>
-                    <button wire:click="exportExcel" class="btn btn-success-2050 btn-sm">
-                        <i class="fas fa-file-excel me-2"></i>Exporter Excel
-                    </button>
+        @if (!$showForm && !$isEdit)
+            <div class="card-2050 hover-lift">
+                <div class="card-header-2050">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-list me-2"></i>Liste des tâches
+                            <span class="badge badge-success-2050 ms-2">{{ $taches->total() }}</span>
+                        </h6>
+                        <button wire:click="exportExcel" class="btn btn-success-2050 btn-sm">
+                            <i class="fas fa-file-excel me-2"></i>Exporter Excel
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-2050 mb-0">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <button wire:click="sortBy('chauffeur_id')"
-                                        class="btn btn-link p-0 text-decoration-none text-primary">
-                                        <i class="fas fa-user me-2"></i>Chauffeur
-                                        @if ($sortField === 'chauffeur_id')
-                                            <i
-                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                        @else
-                                            <i class="fas fa-sort ms-1 text-muted"></i>
-                                        @endif
-                                    </button>
-                                </th>
-                                <th class="text-primary"><i class="fas fa-car me-2"></i>Véhicule</th>
-                                <th>
-                                    <button wire:click="sortBy('type_tache')"
-                                        class="btn btn-link p-0 text-decoration-none text-primary">
-                                        <i class="fas fa-tasks me-2"></i>Type
-                                        @if ($sortField === 'type_tache')
-                                            <i
-                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                        @else
-                                            <i class="fas fa-sort ms-1 text-muted"></i>
-                                        @endif
-                                    </button>
-                                </th>
-                                <th>
-                                    <button wire:click="sortBy('start_date')"
-                                        class="btn btn-link p-0 text-decoration-none text-primary">
-                                        <i class="fas fa-calendar me-2"></i>Date de début
-                                        @if ($sortField === 'start_date')
-                                            <i
-                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                        @else
-                                            <i class="fas fa-sort ms-1 text-muted"></i>
-                                        @endif
-                                    </button>
-                                </th>
-                                <th>
-                                    <button wire:click="sortBy('status')"
-                                        class="btn btn-link p-0 text-decoration-none text-primary">
-                                        <i class="fas fa-info-circle me-2"></i>Statut
-                                        @if ($sortField === 'status')
-                                            <i
-                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                        @else
-                                            <i class="fas fa-sort ms-1 text-muted"></i>
-                                        @endif
-                                    </button>
-                                </th>
-                                <th>
-                                    <button wire:click="sortBy('is_validated')"
-                                        class="btn btn-link p-0 text-decoration-none text-primary">
-                                        <i class="fas fa-check-circle me-2"></i>Validation
-                                        @if ($sortField === 'is_validated')
-                                            <i
-                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                        @else
-                                            <i class="fas fa-sort ms-1 text-muted"></i>
-                                        @endif
-                                    </button>
-                                </th>
-                                <th class="text-primary"><i class="fas fa-cogs me-2"></i>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($taches as $tache)
-                                <tr class="animate-fade-in-up">
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="glass-effect rounded-circle p-2 me-3">
-                                                <i class="fas fa-user text-gradient"></i>
-                                            </div>
-                                            <div>
-                                                <strong>{{ $tache->chauffeur->nom ?? '-' }}
-                                                    {{ $tache->chauffeur->prenom ?? '' }}</strong>
-                                                <br>
-                                                <small class="text-muted">{{ $tache->chauffeur->tel ?? '-' }}</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="glass-effect rounded-circle p-2 me-3">
-                                                <i class="fas fa-car text-gradient"></i>
-                                            </div>
-                                            <div>
-                                                <strong>{{ $tache->vehicule->immatriculation ?? '-' }}</strong>
-                                                <br>
-                                                <small class="text-muted">{{ $tache->vehicule->marque->nom ?? '-' }}
-                                                    {{ $tache->vehicule->modele->nom ?? '-' }}</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        @php
-                                            $typeClasses = [
-                                                'maintenance' => 'badge-warning-2050',
-                                                'livraison' => 'badge-info-2050',
-                                                'inspection' => 'badge-primary-2050',
-                                                'autre' => 'badge-secondary-2050',
-                                            ];
-                                            $typeIcons = [
-                                                'maintenance' => 'wrench',
-                                                'livraison' => 'truck',
-                                                'inspection' => 'search',
-                                                'autre' => 'question',
-                                            ];
-                                        @endphp
-                                        <span
-                                            class="badge {{ $typeClasses[$tache->type_tache] ?? 'badge-secondary-2050' }}">
-                                            <i
-                                                class="fas fa-{{ $typeIcons[$tache->type_tache] ?? 'question' }} me-1"></i>
-                                            {{ ucfirst($tache->type_tache) }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-calendar text-primary me-2"></i>
-                                            <div>
-                                                <strong>{{ $tache->start_date ? $tache->start_date->format('d/m/Y') : '-' }}</strong>
-                                                <br>
-                                                <small
-                                                    class="text-muted">{{ $tache->start_date ? $tache->start_date->format('H:i') : '-' }}</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        @php
-                                            $statusClasses = [
-                                                'en_attente' => 'badge-warning-2050',
-                                                'en_cours' => 'badge-info-2050',
-                                                'terminée' => 'badge-success-2050',
-                                            ];
-                                            $statusIcons = [
-                                                'en_attente' => 'clock',
-                                                'en_cours' => 'play',
-                                                'terminée' => 'check',
-                                            ];
-                                        @endphp
-                                        <span
-                                            class="badge {{ $statusClasses[$tache->status] ?? 'badge-secondary-2050' }}">
-                                            <i
-                                                class="fas fa-{{ $statusIcons[$tache->status] ?? 'question' }} me-1"></i>
-                                            {{ ucfirst($tache->status) }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        @if ($tache->is_validated)
-                                            <span class="badge badge-success-2050">
-                                                <i class="fas fa-check me-1"></i>Validée
-                                            </span>
-                                        @else
-                                            <span class="badge badge-warning-2050">
-                                                <i class="fas fa-clock me-1"></i>En attente
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="d-flex gap-1">
-                                            <button wire:click="showDetails({{ $tache->id }})"
-                                                class="btn btn-info-2050 btn-sm" title="Voir les détails">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            @if (!$tache->is_validated)
-                                                <button wire:click="valider({{ $tache->id }})"
-                                                    class="btn btn-success-2050 btn-sm" title="Valider la tâche">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                            @endif
-                                            <button wire:click="edit({{ $tache->id }})"
-                                                class="btn btn-warning-2050 btn-sm" title="Modifier">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button type="button"
-                                                wire:click.prevent="confirmDelete({{ $tache->id }})"
-                                                class="btn btn-danger-2050 btn-sm" title="Supprimer">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-2050 mb-0">
+                            <thead>
                                 <tr>
-                                    <td colspan="6" class="text-center py-5">
-                                        <div class="text-muted">
-                                            <i class="fas fa-inbox fa-3x mb-3"></i>
-                                            <h5>Aucune tâche trouvée</h5>
-                                            <p>Commencez par créer une nouvelle tâche ou ajustez vos
-                                                filtres.</p>
-                                        </div>
-                                    </td>
+                                    <th>
+                                        <button wire:click="sortBy('chauffeur_id')"
+                                            class="btn btn-link p-0 text-decoration-none text-primary">
+                                            <i class="fas fa-user me-2"></i>Chauffeur
+                                            @if ($sortField === 'chauffeur_id')
+                                                <i
+                                                    class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort ms-1 text-muted"></i>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th class="text-primary"><i class="fas fa-car me-2"></i>Véhicule</th>
+                                    <th>
+                                        <button wire:click="sortBy('type_tache')"
+                                            class="btn btn-link p-0 text-decoration-none text-primary">
+                                            <i class="fas fa-tasks me-2"></i>Type
+                                            @if ($sortField === 'type_tache')
+                                                <i
+                                                    class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort ms-1 text-muted"></i>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th>
+                                        <button wire:click="sortBy('start_date')"
+                                            class="btn btn-link p-0 text-decoration-none text-primary">
+                                            <i class="fas fa-calendar me-2"></i>Date de début
+                                            @if ($sortField === 'start_date')
+                                                <i
+                                                    class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort ms-1 text-muted"></i>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th>
+                                        <button wire:click="sortBy('status')"
+                                            class="btn btn-link p-0 text-decoration-none text-primary">
+                                            <i class="fas fa-info-circle me-2"></i>Statut
+                                            @if ($sortField === 'status')
+                                                <i
+                                                    class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort ms-1 text-muted"></i>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th>
+                                        <button wire:click="sortBy('is_validated')"
+                                            class="btn btn-link p-0 text-decoration-none text-primary">
+                                            <i class="fas fa-check-circle me-2"></i>Validation
+                                            @if ($sortField === 'is_validated')
+                                                <i
+                                                    class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort ms-1 text-muted"></i>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th class="text-primary"><i class="fas fa-cogs me-2"></i>Actions</th>
                                 </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @forelse($taches as $tache)
+                                    <tr class="animate-fade-in-up">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="glass-effect rounded-circle p-2 me-3">
+                                                    <i class="fas fa-user text-gradient"></i>
+                                                </div>
+                                                <div>
+                                                    <strong>{{ $tache->chauffeur->nom ?? '-' }}
+                                                        {{ $tache->chauffeur->prenom ?? '' }}</strong>
+                                                    <br>
+                                                    <small
+                                                        class="text-muted">{{ $tache->chauffeur->tel ?? '-' }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="glass-effect rounded-circle p-2 me-3">
+                                                    <i class="fas fa-car text-gradient"></i>
+                                                </div>
+                                                <div>
+                                                    <strong>{{ $tache->vehicule->immatriculation ?? '-' }}</strong>
+                                                    <br>
+                                                    <small
+                                                        class="text-muted">{{ $tache->vehicule->marque->nom ?? '-' }}
+                                                        {{ $tache->vehicule->modele->nom ?? '-' }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @php
+                                                $typeClasses = [
+                                                    'maintenance' => 'badge-warning-2050',
+                                                    'livraison' => 'badge-info-2050',
+                                                    'inspection' => 'badge-primary-2050',
+                                                    'autre' => 'badge-secondary-2050',
+                                                ];
+                                                $typeIcons = [
+                                                    'maintenance' => 'wrench',
+                                                    'livraison' => 'truck',
+                                                    'inspection' => 'search',
+                                                    'autre' => 'question',
+                                                ];
+                                            @endphp
+                                            <span
+                                                class="badge {{ $typeClasses[$tache->type_tache] ?? 'badge-secondary-2050' }}">
+                                                <i
+                                                    class="fas fa-{{ $typeIcons[$tache->type_tache] ?? 'question' }} me-1"></i>
+                                                {{ ucfirst($tache->type_tache) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-calendar text-primary me-2"></i>
+                                                <div>
+                                                    <strong>{{ $tache->start_date ? $tache->start_date->format('d/m/Y') : '-' }}</strong>
+                                                    <br>
+                                                    <small
+                                                        class="text-muted">{{ $tache->start_date ? $tache->start_date->format('H:i') : '-' }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @php
+                                                $statusClasses = [
+                                                    'en_attente' => 'badge-warning-2050',
+                                                    'en_cours' => 'badge-info-2050',
+                                                    'terminée' => 'badge-success-2050',
+                                                ];
+                                                $statusIcons = [
+                                                    'en_attente' => 'clock',
+                                                    'en_cours' => 'play',
+                                                    'terminée' => 'check',
+                                                ];
+                                            @endphp
+                                            <span
+                                                class="badge {{ $statusClasses[$tache->status] ?? 'badge-secondary-2050' }}">
+                                                <i
+                                                    class="fas fa-{{ $statusIcons[$tache->status] ?? 'question' }} me-1"></i>
+                                                {{ ucfirst($tache->status) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if ($tache->is_validated)
+                                                <span class="badge badge-success-2050">
+                                                    <i class="fas fa-check me-1"></i>Validée
+                                                </span>
+                                            @else
+                                                <span class="badge badge-warning-2050">
+                                                    <i class="fas fa-clock me-1"></i>En attente
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <button wire:click="showDetails({{ $tache->id }})"
+                                                    class="btn btn-info-2050 btn-sm" title="Voir les détails">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                @if (!$tache->is_validated)
+                                                    <button wire:click="valider({{ $tache->id }})"
+                                                        class="btn btn-success-2050 btn-sm" title="Valider la tâche">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                @endif
+                                                <button wire:click="edit({{ $tache->id }})"
+                                                    class="btn btn-warning-2050 btn-sm" title="Modifier">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button"
+                                                    wire:click.prevent="confirmDelete({{ $tache->id }})"
+                                                    class="btn btn-danger-2050 btn-sm" title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5">
+                                            <div class="text-muted">
+                                                <i class="fas fa-inbox fa-3x mb-3"></i>
+                                                <h5>Aucune tâche trouvée</h5>
+                                                <p>Commencez par créer une nouvelle tâche ou ajustez vos
+                                                    filtres.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Pagination -->
-        <div class="mt-4">
-            {{ $taches->links() }}
-        </div>
+            <!-- Pagination -->
+            <div class="mt-4">
+                {{ $taches->links() }}
+            </div>
+        @endif
     </div>
 
     <!-- Modal Détails Tâche -->
     @if ($showDetailsModal && $selectedTache)
-        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);"
+        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5); z-index: 9999;"
             wire:click.self="closeDetailsModal">
             <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content-2050">
-                    <div class="modal-header-2050">
+                <div class="modal-content" style="background: white; border-radius: 8px;">
+                    <div class="modal-header" style="background: #f8f9fa; border-bottom: 1px solid #dee2e6;">
                         <h5 class="modal-title">
                             <i class="fas fa-info-circle me-2"></i>Détails de la tâche
                         </h5>
-                        <button type="button" class="btn-close-2050" wire:click="closeDetailsModal">
-                            <i class="fas fa-times"></i>
-                        </button>
+                        <button type="button" class="btn-close" wire:click="closeDetailsModal"></button>
                     </div>
-                    <div class="modal-body-2050">
+                    <div class="modal-body p-4">
                         <div class="row g-4">
                             <!-- Informations chauffeur -->
                             <div class="col-md-6">
@@ -941,8 +966,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer-2050">
-                        <button type="button" class="btn btn-secondary-2050" wire:click="closeDetailsModal">
+                    <div class="modal-footer" style="background: #f8f9fa; border-top: 1px solid #dee2e6;">
+                        <button type="button" class="btn btn-secondary" wire:click="closeDetailsModal">
                             <i class="fas fa-times me-2"></i>Fermer
                         </button>
                     </div>
@@ -982,6 +1007,7 @@
                 </div>
             </div>
         </div>
+    @endif
 </div>
 </div>
 </div>

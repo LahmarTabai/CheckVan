@@ -1751,7 +1751,8 @@ body::before {
 }
 
 /* Styles pour les Select2 des filtres */
-.select2-selection-2050 {
+.select2-selection-2050,
+.select2-container--bootstrap-5 .select2-selection.select2-selection-2050 {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     border-radius: 12px !important;
@@ -1761,12 +1762,15 @@ body::before {
     padding: 0 8px !important;
 }
 
-.select2-selection-2050:hover {
+.select2-selection-2050:hover,
+.select2-container--bootstrap-5 .select2-selection.select2-selection-2050:hover {
     border-color: rgba(102, 126, 234, 0.5) !important;
     box-shadow: 0 0 20px rgba(102, 126, 234, 0.1) !important;
 }
 
-.select2-selection-2050:focus {
+.select2-selection-2050:focus,
+.select2-container--bootstrap-5 .select2-selection.select2-selection-2050:focus,
+.select2-container--bootstrap-5.select2-container--focus .select2-selection.select2-selection-2050 {
     border-color: #667eea !important;
     box-shadow: 0 0 20px rgba(102, 126, 234, 0.3) !important;
     outline: none !important;

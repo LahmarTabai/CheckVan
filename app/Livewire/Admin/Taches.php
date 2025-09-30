@@ -22,6 +22,10 @@ class Taches extends Component
     public $validationFilter = '';
     public $dateDebutFilter = '';
     public $dateFinFilter = '';
+    public $filterDateDebutDebut = '';
+    public $filterDateDebutFin = '';
+    public $filterDateFinDebut = '';
+    public $filterDateFinFin = '';
     public $search = '';
 
     // Tri
@@ -144,6 +148,10 @@ class Taches extends Component
         $this->validationFilter = '';
         $this->dateDebutFilter = '';
         $this->dateFinFilter = '';
+        $this->filterDateDebutDebut = '';
+        $this->filterDateDebutFin = '';
+        $this->filterDateFinDebut = '';
+        $this->filterDateFinFin = '';
         $this->search = '';
         $this->resetPage();
 

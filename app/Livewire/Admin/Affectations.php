@@ -21,6 +21,10 @@ class Affectations extends Component
     // Filtres
     public $filterStatus = '';
     public $filterChauffeur = '';
+    public $filterDateDebutDebut = '';
+    public $filterDateDebutFin = '';
+    public $filterDateFinDebut = '';
+    public $filterDateFinFin = '';
 
     // Recherche dans les formulaires
     public $searchChauffeur = '';
@@ -159,6 +163,10 @@ class Affectations extends Component
     {
         $this->filterStatus = '';
         $this->filterChauffeur = '';
+        $this->filterDateDebutDebut = '';
+        $this->filterDateDebutFin = '';
+        $this->filterDateFinDebut = '';
+        $this->filterDateFinFin = '';
 
         // Réinitialiser les Select2
         $this->dispatch('reset-filter-select2');

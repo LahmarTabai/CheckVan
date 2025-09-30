@@ -189,6 +189,10 @@
                                 <button type="button" wire:click="resetForm" class="btn btn-outline-2050">
                                     <i class="fas fa-times me-2"></i>Annuler
                                 </button>
+                            @else
+                                <button type="button" wire:click="hideForm" class="btn btn-outline-2050">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </button>
                             @endif
                         </div>
                     </form>
@@ -434,214 +438,249 @@
         @endif
 
         <!-- Filtres Futuristes -->
-        <div class="card-2050 mb-4 hover-lift">
-            <div class="card-header-2050">
-                <h6 class="mb-0">
-                    <i class="fas fa-filter me-2"></i>Filtres Intelligents
-                </h6>
-            </div>
-            <div class="card-body p-4">
-                <div class="form-row-2050">
-                    <div class="form-col-2050 col-md-4">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Statut</label>
-                            <div wire:ignore>
-                                <select id="filter-status" class="form-control-2050 select2-2050">
-                                    <option value="">Tous</option>
-                                    <option value="en_cours">En cours</option>
-                                    <option value="terminée">Terminée</option>
-                                </select>
+        @if (!$showForm && !$isEdit)
+            <div class="card-2050 mb-4 hover-lift">
+                <div class="card-header-2050">
+                    <h6 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>Filtres Intelligents
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="form-row-2050">
+                        <div class="form-col-2050 col-md-4">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Statut</label>
+                                <div wire:ignore>
+                                    <select id="filter-status" class="form-control-2050 select2-2050">
+                                        <option value="">Tous</option>
+                                        <option value="en_cours">En cours</option>
+                                        <option value="terminée">Terminée</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-col-2050 col-md-4">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Chauffeur</label>
+                                <div wire:ignore>
+                                    <select id="filter-chauffeur" class="form-control-2050 select2-2050">
+                                        <option value="">Tous</option>
+                                        @foreach ($chauffeurs as $c)
+                                            <option value="{{ $c->user_id }}">{{ $c->nom }}
+                                                {{ $c->prenom }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-col-2050 col-md-4">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">&nbsp;</label>
+                                <button wire:click="resetFilters" class="btn btn-outline-2050 w-100">
+                                    <i class="fas fa-times me-2"></i>Effacer les filtres
+                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="form-col-2050 col-md-4">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">Chauffeur</label>
-                            <div wire:ignore>
-                                <select id="filter-chauffeur" class="form-control-2050 select2-2050">
-                                    <option value="">Tous</option>
-                                    @foreach ($chauffeurs as $c)
-                                        <option value="{{ $c->user_id }}">{{ $c->nom }}
-                                            {{ $c->prenom }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                    <!-- Ligne 2 - Dates -->
+                    <div class="form-row-2050 mt-3">
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Date début - Début</label>
+                                <input type="date" wire:model.live="filterDateDebutDebut"
+                                    class="form-control-2050">
                             </div>
                         </div>
-                    </div>
-
-                    <div class="form-col-2050 col-md-4">
-                        <div class="form-group-2050">
-                            <label class="form-label-2050">&nbsp;</label>
-                            <button wire:click="resetFilters" class="btn btn-outline-2050 w-100">
-                                <i class="fas fa-times me-2"></i>Effacer les filtres
-                            </button>
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Date début - Fin</label>
+                                <input type="date" wire:model.live="filterDateDebutFin" class="form-control-2050">
+                            </div>
+                        </div>
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Date fin - Début</label>
+                                <input type="date" wire:model.live="filterDateFinDebut" class="form-control-2050">
+                            </div>
+                        </div>
+                        <div class="form-col-2050 col-md-3">
+                            <div class="form-group-2050">
+                                <label class="form-label-2050">Date fin - Fin</label>
+                                <input type="date" wire:model.live="filterDateFinFin" class="form-control-2050">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endif
 
         <!-- Liste des affectations Futuriste -->
-        <div class="card-2050 hover-lift">
-            <div class="card-header-2050">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-list me-2"></i>Liste des affectations
-                        <span class="badge badge-success-2050 ms-2">{{ $affectations->total() }}</span>
-                    </h5>
-                    <button wire:click="exportExcel" class="btn btn-success-2050 btn-sm">
-                        <i class="fas fa-file-excel me-2"></i>Exporter Excel
-                    </button>
+        @if (!$showForm && !$isEdit)
+            <div class="card-2050 hover-lift">
+                <div class="card-header-2050">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2"></i>Liste des affectations
+                            <span class="badge badge-success-2050 ms-2">{{ $affectations->total() }}</span>
+                        </h5>
+                        <button wire:click="exportExcel" class="btn btn-success-2050 btn-sm">
+                            <i class="fas fa-file-excel me-2"></i>Exporter Excel
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-2050 mb-0">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <button wire:click="sortBy('chauffeur_id')"
-                                        class="btn btn-link p-0 text-decoration-none text-primary">
-                                        <i class="fas fa-user me-2"></i>Chauffeur
-                                        @if ($sortField === 'chauffeur_id')
-                                            <i
-                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                        @else
-                                            <i class="fas fa-sort ms-1 text-muted"></i>
-                                        @endif
-                                    </button>
-                                </th>
-                                <th class="text-primary"><i class="fas fa-car me-2"></i>Véhicule</th>
-                                <th>
-                                    <button wire:click="sortBy('date_debut')"
-                                        class="btn btn-link p-0 text-decoration-none text-primary">
-                                        <i class="fas fa-calendar me-2"></i>Dates
-                                        @if ($sortField === 'date_debut')
-                                            <i
-                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                        @else
-                                            <i class="fas fa-sort ms-1 text-muted"></i>
-                                        @endif
-                                    </button>
-                                </th>
-                                <th>
-                                    <button wire:click="sortBy('status')"
-                                        class="btn btn-link p-0 text-decoration-none text-primary">
-                                        <i class="fas fa-info-circle me-2"></i>Statut
-                                        @if ($sortField === 'status')
-                                            <i
-                                                class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
-                                        @else
-                                            <i class="fas fa-sort ms-1 text-muted"></i>
-                                        @endif
-                                    </button>
-                                </th>
-                                <th class="text-primary"><i class="fas fa-file-text me-2"></i>Description
-                                </th>
-                                <th class="text-primary"><i class="fas fa-cogs me-2"></i>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($affectations as $a)
-                                <tr class="animate-fade-in-up">
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="glass-effect rounded-circle p-2 me-3">
-                                                <i class="fas fa-user text-gradient"></i>
-                                            </div>
-                                            <div>
-                                                <strong>{{ $a->chauffeur->nom ?? '-' }}
-                                                    {{ $a->chauffeur->prenom ?? '' }}</strong>
-                                                @if ($a->chauffeur)
-                                                    <br><small class="text-muted">{{ $a->chauffeur->email }}</small>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="glass-effect rounded-circle p-2 me-3">
-                                                <i class="fas fa-car text-gradient"></i>
-                                            </div>
-                                            <div>
-                                                <strong>{{ $a->vehicule->marque->nom ?? 'N/A' }}
-                                                    {{ $a->vehicule->modele->nom ?? '' }}</strong>
-                                                <br><small
-                                                    class="text-muted">{{ $a->vehicule->immatriculation ?? '' }}</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <small>
-                                            <strong>Début:</strong>
-                                            {{ $a->date_debut ? \Carbon\Carbon::parse($a->date_debut)->format('d/m/Y') : '-' }}<br>
-                                            <strong>Fin:</strong>
-                                            {{ $a->date_fin ? \Carbon\Carbon::parse($a->date_fin)->format('d/m/Y') : 'Non définie' }}
-                                        </small>
-                                    </td>
-                                    <td>
-                                        @if ($a->status === 'en_cours')
-                                            <span class="badge badge-warning-2050">
-                                                <i class="fas fa-clock me-1"></i>{{ ucfirst($a->status) }}
-                                            </span>
-                                        @else
-                                            <span class="badge badge-success-2050">
-                                                <i class="fas fa-check me-1"></i>{{ ucfirst($a->status) }}
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if ($a->description)
-                                            <small>{{ Str::limit($a->description, 50) }}</small>
-                                        @else
-                                            <small class="text-muted">Aucune description</small>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="btn-group-actions">
-                                            @if ($a->status === 'en_cours')
-                                                <button wire:click="terminerAffectation({{ $a->id }})"
-                                                    class="btn btn-success-2050 btn-sm" title="Terminer l'affectation"
-                                                    onclick="return confirm('Êtes-vous sûr de vouloir terminer cette affectation ?')">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                            @endif
-                                            <button wire:click="edit({{ $a->id }})"
-                                                class="btn btn-warning-2050 btn-sm" title="Modifier">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button type="button"
-                                                wire:click.prevent="confirmDelete({{ $a->id }})"
-                                                class="btn btn-danger-2050 btn-sm" title="Supprimer">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-2050 mb-0">
+                            <thead>
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted py-5">
-                                        <div class="glass-effect rounded-circle p-4 mx-auto mb-3"
-                                            style="width: 80px; height: 80px;">
-                                            <i class="fas fa-tasks text-gradient fs-2"></i>
-                                        </div>
-                                        <h5>Aucune affectation trouvée</h5>
-                                        <p class="mb-0">Créez votre première affectation pour commencer
-                                        </p>
-                                    </td>
+                                    <th>
+                                        <button wire:click="sortBy('chauffeur_id')"
+                                            class="btn btn-link p-0 text-decoration-none text-primary">
+                                            <i class="fas fa-user me-2"></i>Chauffeur
+                                            @if ($sortField === 'chauffeur_id')
+                                                <i
+                                                    class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort ms-1 text-muted"></i>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th class="text-primary"><i class="fas fa-car me-2"></i>Véhicule</th>
+                                    <th>
+                                        <button wire:click="sortBy('date_debut')"
+                                            class="btn btn-link p-0 text-decoration-none text-primary">
+                                            <i class="fas fa-calendar me-2"></i>Dates
+                                            @if ($sortField === 'date_debut')
+                                                <i
+                                                    class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort ms-1 text-muted"></i>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th>
+                                        <button wire:click="sortBy('status')"
+                                            class="btn btn-link p-0 text-decoration-none text-primary">
+                                            <i class="fas fa-info-circle me-2"></i>Statut
+                                            @if ($sortField === 'status')
+                                                <i
+                                                    class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                                            @else
+                                                <i class="fas fa-sort ms-1 text-muted"></i>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th class="text-primary"><i class="fas fa-file-text me-2"></i>Description
+                                    </th>
+                                    <th class="text-primary"><i class="fas fa-cogs me-2"></i>Actions</th>
                                 </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @forelse($affectations as $a)
+                                    <tr class="animate-fade-in-up">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="glass-effect rounded-circle p-2 me-3">
+                                                    <i class="fas fa-user text-gradient"></i>
+                                                </div>
+                                                <div>
+                                                    <strong>{{ $a->chauffeur->nom ?? '-' }}
+                                                        {{ $a->chauffeur->prenom ?? '' }}</strong>
+                                                    @if ($a->chauffeur)
+                                                        <br><small
+                                                            class="text-muted">{{ $a->chauffeur->email }}</small>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="glass-effect rounded-circle p-2 me-3">
+                                                    <i class="fas fa-car text-gradient"></i>
+                                                </div>
+                                                <div>
+                                                    <strong>{{ $a->vehicule->marque->nom ?? 'N/A' }}
+                                                        {{ $a->vehicule->modele->nom ?? '' }}</strong>
+                                                    <br><small
+                                                        class="text-muted">{{ $a->vehicule->immatriculation ?? '' }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <strong>Début:</strong>
+                                                {{ $a->date_debut ? \Carbon\Carbon::parse($a->date_debut)->format('d/m/Y') : '-' }}<br>
+                                                <strong>Fin:</strong>
+                                                {{ $a->date_fin ? \Carbon\Carbon::parse($a->date_fin)->format('d/m/Y') : 'Non définie' }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            @if ($a->status === 'en_cours')
+                                                <span class="badge badge-warning-2050">
+                                                    <i class="fas fa-clock me-1"></i>{{ ucfirst($a->status) }}
+                                                </span>
+                                            @else
+                                                <span class="badge badge-success-2050">
+                                                    <i class="fas fa-check me-1"></i>{{ ucfirst($a->status) }}
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($a->description)
+                                                <small>{{ Str::limit($a->description, 50) }}</small>
+                                            @else
+                                                <small class="text-muted">Aucune description</small>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="btn-group-actions">
+                                                @if ($a->status === 'en_cours')
+                                                    <button wire:click="terminerAffectation({{ $a->id }})"
+                                                        class="btn btn-success-2050 btn-sm"
+                                                        title="Terminer l'affectation"
+                                                        onclick="return confirm('Êtes-vous sûr de vouloir terminer cette affectation ?')">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                @endif
+                                                <button wire:click="edit({{ $a->id }})"
+                                                    class="btn btn-warning-2050 btn-sm" title="Modifier">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button"
+                                                    wire:click.prevent="confirmDelete({{ $a->id }})"
+                                                    class="btn btn-danger-2050 btn-sm" title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-5">
+                                            <div class="glass-effect rounded-circle p-4 mx-auto mb-3"
+                                                style="width: 80px; height: 80px;">
+                                                <i class="fas fa-tasks text-gradient fs-2"></i>
+                                            </div>
+                                            <h5>Aucune affectation trouvée</h5>
+                                            <p class="mb-0">Créez votre première affectation pour commencer
+                                            </p>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="mt-4">
-            {{ $affectations->links() }}
-        </div>
+            <div class="mt-4">
+                {{ $affectations->links() }}
+            </div>
+        @endif
 
         <!-- Modal Confirmation Suppression -->
         @if ($showDeleteModal && $affectationToDelete)
@@ -676,5 +715,6 @@
                     </div>
                 </div>
             </div>
+        @endif
     </div>
 </div>
