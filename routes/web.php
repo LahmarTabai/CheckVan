@@ -23,6 +23,20 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Route de redirection après connexion
+Route::get('/redirect-after-login', function () {
+    $user = \Illuminate\Support\Facades\Auth::user();
+
+    if ($user->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    } elseif ($user->role === 'chauffeur') {
+        return redirect()->route('chauffeur.dashboard');
+    }
+
+    // Fallback par défaut
+    return redirect('/dashboard');
+})->middleware('auth')->name('redirect.after.login');
+
 // Route de test FCM (à supprimer en production)
 Route::get('/test-fcm', function () {
     return view('test-fcm');

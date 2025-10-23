@@ -16,9 +16,19 @@
             @if (Route::has('login'))
                 <nav class="d-flex justify-content-end">
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="btn btn-outline-primary me-2">
-                            Dashboard
-                        </a>
+                        @if (auth()->user()->role === 'admin')
+                            <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-primary me-2">
+                                Dashboard Admin
+                            </a>
+                        @elseif(auth()->user()->role === 'chauffeur')
+                            <a href="{{ route('chauffeur.dashboard') }}" class="btn btn-outline-primary me-2">
+                                Dashboard Chauffeur
+                            </a>
+                        @else
+                            <a href="{{ url('/dashboard') }}" class="btn btn-outline-primary me-2">
+                                Dashboard
+                            </a>
+                        @endif
                     @else
                         <a href="{{ route('login') }}" class="btn btn-outline-primary me-2">
                             Connexion

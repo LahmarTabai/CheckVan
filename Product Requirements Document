@@ -1,0 +1,414 @@
+1. Contexte & Objectifs
+1.1 Contexte
+
+CheckVan est une solution de gestion de flotte et de suivi de chauffeurs. Les admins gèrent leurs véhicules et chauffeurs, valident les tâches, suivent les trajets et génèrent des rapports et fiches de paie. Les chauffeurs utilisent une app mobile (phase 2) pour réaliser des prises en charge, tâches et check-out même hors ligne.
+
+1.2 Objectifs
+
+Simplifier l’affectation des véhicules et la traçabilité (photos, états, dommages).
+
+Gérer le cycle de vie d’une tâche (demande → validation admin → exécution → clôture).
+
+OCR plaque (Google ML Kit) et photos (début/fin).
+
+Mode hors ligne (SQLite) + sync vers API Laravel/MySQL.
+
+Suivi temps réel sur carte (admin) quand connecté.
+
+Notifications (FCM) : demandes, validations, clôtures.
+
+Rapports & paie (jours, heures, grilles journalières/mensuelles, dimanches/fériés, exports Excel/PDF).
+
+UI Livewire + Bootstrap (multi-tenants par admin_id).
+
+2. Périmètre (Scope)
+2.1 Inclus
+
+Portail Admin (Web) : Livewire + Bootstrap.
+
+Modules : Utilisateurs, Véhicules, Affectations, Dommages (2D/3D), Tâches, Suivi, Notifications, Paramétrage, Rapports & Paie.
+
+API REST sécurisée (Laravel Sanctum) pour l’app mobile (phase 2).
+
+OCR plaque, Uploads images, Géolocalisation.
+
+Exports Excel/PDF.
+
+2.2 Exclusions initiales
+
+Facturation client, maintenance atelier, télématique véhicule (OBD).
+
+Multilingue (peut être ajouté plus tard).
+
+3. Personae
+
+Admin (gestionnaire) : crée/édite ses véhicules, invite ses chauffeurs, valide les tâches, suit la flotte, gère paie & rapports.
+
+Chauffeur : prend un véhicule en charge/retourne, exécute des tâches, prend des photos, signale des dommages, travaille hors ligne.
+
+Super-admin (optionnel, futur) : supervision globale de plusieurs admins.
+
+4. Hypothèses & Contraintes
+
+Multi-tenant via admin_id partout.
+
+Mobile (Flutter) offline-first avec SQLite + files en cache + sync quand réseau disponible.
+
+OCR côté mobile (ML Kit on-device) — pas de coût cloud ni connexion requise.
+
+Notifications via FCM.
+
+Carto via Leaflet / Mapbox (Web), Google Maps (Mobile) — configurable.
+
+Stockage fichiers sur disk public Laravel (ou S3 plus tard).
+
+5. Architecture & Tech
+
+Backend : Laravel 11/12, Livewire 3, Bootstrap 5.
+
+DB : MySQL 8 (tables déjà synthétisées ci-dessous).
+
+Auth : Laravel auth, Sanctum pour API mobile.
+
+Mobile (Phase 2) : Flutter + Dio + SQLite, ML Kit OCR, Geolocator, Image Picker.
+
+Notifications : FCM (topics ou tokens par user).
+
+Temps réel carte : broadcasting (Pusher/Laravel WebSockets) ou polling.
+
+6. Modèle de Données (principal)
+
+Tables existantes/validées (rappel) :
+
+users : id, admin_id, name, email, password, role('admin','chauffeur'), profile_picture, ...
+
+vehicules : id, admin_id, marque, modele, immatriculation, photo
+
+affectations : id, chauffeur_id, vehicule_id, status('en_cours','terminée')
+
+taches : id, chauffeur_id, vehicule_id, start_date, start_latitude, start_longitude, end_date, end_latitude, end_longitude, status('en_attente','en_cours','terminée'), is_validated(bool)
+
+photos : id, tache_id, type (plate|start_km|start_fuel|end_km|end_fuel|autre), path
+
+dommages : id, affectation_id, chauffeur_id, coord_x, coord_y, coord_z, type, description, severite, photo_path, repare(bool)
+
+Paie & rapports (nouveau — validé précédemment) :
+
+parametrages_paie, grilles_paie, grille_jour_categories, jours_feries
+
+presences, absences
+
+bulletins_paie, bulletin_lignes
+
+7. Règles Métiers (Modules)
+7.1 Utilisateurs & Rôles
+
+Rôles : admin, chauffeur.
+
+Chaque admin ne voit que ses données (admin_id).
+
+Chauffeurs rattachés à un admin (users.admin_id = admin.id).
+
+7.2 Véhicules
+
+CRUD véhicule par admin.
+
+Immatriculation unique par admin.
+
+Photo optionnelle.
+
+7.3 Affectations
+
+Un chauffeur doit avoir une affectation en_cours pour pouvoir démarrer une tâche.
+
+Changement de véhicule :
+
+Check-out ancien (photos état/fin).
+
+Check-in nouveau (photos état/début).
+
+Un véhicule ne peut être en cours que chez un chauffeur (contrainte métier).
+
+7.4 OCR Plaque (Mobile)
+
+Chauffeur peut saisir plaque :
+
+manuel,
+
+ou photo → OCR ML Kit → texte proposé → modifiable → enregistré.
+
+Admin peut rechercher par plaque.
+
+7.5 Tâches (Cycle de vie)
+
+Demande de démarrage (chauffeur) :
+
+prerequisites : affectation en_cours.
+
+capture start_km, start_fuel, photo plaque (optionnel).
+
+envoie demande → notif admin.
+
+Validation admin :
+
+admin valide/rejette.
+
+si valide → status = 'en_cours', is_validated = 1, notif chauffeur.
+
+Exécution :
+
+Mobile peut envoyer positions périodiques (tracking temps réel).
+
+Clôture :
+
+Chauffeur prend end_km, end_fuel, envoie fin + coordonnées.
+
+Admin peut confirmer la fin si besoin (option métier).
+
+status = 'terminée'.
+
+Edge cases : perte de réseau → file d’attente locale, photos et données timestampées & sync plus tard.
+
+7.6 Dommages (2D/3D)
+
+UI admin & chauffeur :
+
+modèle 3D (glisser/rotation) ou plan 2D multi-vues.
+
+clic/touch ⇒ coord_x, coord_y, coord_z (ou segment/face).
+
+saisie : type (rayure/bosse/éclat/…), sévérité (faible/moyenne/forte), photo, commentaire.
+
+Admin peut marquer réparé + upload preuve réparation.
+
+Lien fort avec affectation (dommage trouvé à l’entrée/sortie).
+
+7.7 Notifications (FCM)
+
+Evénements :
+
+Demande démarrage tâche → notif admin.
+
+Validation admin → notif chauffeur.
+
+Clôture → notif admin.
+
+Dommages ajoutés → notif admin.
+
+Gestion tokens FCM par user (table user_devices — à créer côté API mobile).
+
+Centre de notifications Web (Livewire) + filtres.
+
+7.8 Suivi Temps Réel (admin)
+
+Carte : positions des chauffeurs en tâche.
+
+Flux via WebSockets (pusher/laravel-websockets) ou polling toutes 10–30s.
+
+Historique journalier (replay simplifié : polyline des points clés).
+
+7.9 Présence & Paie
+
+Présences auto depuis taches validées & terminées :
+
+découpage par jour,
+
+arrondi minutes,
+
+calcul jours travaillés.
+
+Grilles :
+
+par_jour (forfait jour : semaine/samedi/dimanche/férié),
+
+par_mois (taux horaire + heures sup + majorations dim/férié).
+
+Dimanche/Férié : selon jours_feries + Carbon::isSunday().
+
+Bulletins :
+
+générer brouillon → valider → payé,
+
+lignes détaillées (jours, heures, primes, indemnités),
+
+exports Excel/PDF.
+
+7.10 Rapports & Exports
+
+Présences (mensuel, par chauffeur).
+
+Tâches (détails : dates, véhicule, durées, coords).
+
+Dommages (état, sévérité, réparé ?).
+
+Paie (bulletins récap + fiche de paie PDF).
+
+8. Parcours Utilisateur (Flow)
+8.1 Chauffeur (mobile)
+
+Login → dashboard.
+
+Prendre en charge (si pas d’affectation en cours) :
+
+photos état + éventuels dommages.
+
+Commencer une tâche :
+
+OCR plaque (optionnel), photos start_km/start_fuel,
+
+envoyer demande → attendre validation admin (UI « en attente »).
+
+Une fois validé → interface en cours, tracking activé (si en ligne).
+
+Fin de tâche :
+
+photos end_km/end_fuel,
+
+envoi fin → confirmation.
+
+Notification de réception/validation.
+
+8.2 Admin (web)
+
+Login → Dashboard (cartes : tâches en attente, en cours, anomalies, positions).
+
+Gérer Chauffeurs, Véhicules, Affectations.
+
+Tâches :
+
+onglet « demandes » → valider/rejeter,
+
+suivi en cours sur carte,
+
+clôtures à vérifier.
+
+Dommages :
+
+revue, marquer réparé, exporter.
+
+Présences & Paie :
+
+recalcul mois, corriger manuellement,
+
+générer bulletins, valider, payé,
+
+exporter.
+
+9. Exigences Non Fonctionnelles
+
+Sécurité : Sanctum, rôles, filtrage par admin_id, validation inputs, rate limiting.
+
+RGPD : consentements, purge tokens, suppression comptes.
+
+Performance : index DB (sur dates, chauffeur_id, admin_id), pagination, caches.
+
+Disponibilité : tolérance au Offline côté mobile.
+
+Qualité : tests unitaires services (Présence & Paie), tests Livewire.
+
+Journalisation : audits simples (création/validation tâches, réparations).
+
+Scalabilité : S3 pour images, files pour notifications/exports.
+
+10. APIs (haut niveau) — Phase 2 mobile
+
+Auth
+POST /api/login – POST /api/logout – GET /api/me
+
+Affectations
+GET /api/affectations/actuelle
+POST /api/affectations/checkin (photos + dommages)
+POST /api/affectations/checkout
+
+Tâches
+POST /api/taches/demarrer (payload : plaque, start_km img, start_fuel img, GPS)
+POST /api/taches/valider (admin)
+POST /api/taches/position (heartbeat GPS)
+POST /api/taches/terminer (end_km img, end_fuel img, GPS)
+GET /api/taches/mes (historique chauffeur)
+
+Dommages
+POST /api/dommages (coords + photo + métadonnées)
+GET /api/dommages/affectation/{id}
+
+Notifications
+POST /api/device/register (token FCM)
+DELETE /api/device/{id}
+
+11. Critères d’Acceptation (exemples)
+
+Impossible de démarrer une tâche sans affectation en cours.
+
+En mode offline, démarrage/fin de tâche s’enregistrent localement et se synchronisent à la reconnexion (incluant photos).
+
+OCR recommande une plaque ≥ 80% du temps sur une plaque lisible en daylight.
+
+Admin voit en temps réel (≤30 s) la position d’un chauffeur en tâche (quand connecté).
+
+Bulletin : calcul conforme à la grille active + majorations dimanche/férié + primes/indemnités.
+
+Exports Excel : colonnes complètes, filtres (date, chauffeur, véhicule).
+
+12. Mesures de Succès (KPIs)
+
+Temps moyen de validation des tâches (admin).
+
+Taux de sync réussie (mobile→API).
+
+% de plaques correctement reconnues (OCR).
+
+Délai génération bulletins & export.
+
+Taux de retours SAV/erreurs sur calculs paie.
+
+13. Roadmap (phases)
+
+Phase 1 – Web (Admin)
+
+Base (Users, Roles, Véhicules, Affectations).
+
+Tâches (demandes, validation, suivi).
+
+Dommages (UI 2D/3D minimal, enregistrement).
+
+Notifications FCM (web->mobile ready), Centre de notifs.
+
+Rapports Présences (calcul depuis tâches).
+
+Paie (par_jour d’abord) + Exports.
+
+Phase 2 – Mobile (Chauffeur)
+
+Auth, Affectation, OCR plaque, Photos, Offline (SQLite).
+
+Démarrer tâche (demande/attente validation), tracking.
+
+Clôture tâche, dommages, sync.
+
+Historique & calendrier des jours travaillés.
+
+Phase 3 – Avancées
+
+3D viewer amélioré, grilles paie “par mois”, PDF fiche de paie, WebSockets live tracking, S3, multi-langue.
+
+14. Risques & Mitigations
+
+OCR faible en faible luminosité → fallback saisie manuelle + retouche texte.
+
+Offline sync conflits → règles d’arbitrage : serveur “source of truth”, mais timestamps client respectés pour l’historique.
+
+Photos lourdes → compression côté mobile.
+
+Temps réel → fallback polling si WebSockets indisponibles.
+
+15. Livrables
+
+Repo Laravel (Livewire + Bootstrap) + migrations/seeders.
+
+Services : PresenceService, PayrollService, ExcelExportService.
+
+Composants Livewire : Admin (Dashboard, Chauffeurs, Véhicules, Affectations, Tâches, Dommages, Notifications, Présences, Paie, Exports).
+
+API sanctum (routes & policies).
+
+Spécifications Flutter (schéma DB SQLite, sync, écrans).
