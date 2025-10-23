@@ -71,6 +71,21 @@
                         <i class="fas fa-tasks"></i>
                         <span>Tâches</span>
                     </a>
+                    <a href="{{ route('admin.demandes-taches') }}"
+                        class="nav-item-2050 {{ request()->routeIs('admin.demandes-taches') ? 'active' : '' }}">
+                        <i class="fas fa-clock"></i>
+                        <span>Demandes</span>
+                        @php
+                            $pendingCount = \App\Models\Tache::where('status', 'en_attente')
+                                ->whereHas('vehicule', function ($q) {
+                                    $q->where('admin_id', Auth::user()->user_id);
+                                })
+                                ->count();
+                        @endphp
+                        @if ($pendingCount > 0)
+                            <span class="badge bg-danger-2050 ms-2">{{ $pendingCount }}</span>
+                        @endif
+                    </a>
                     <a href="{{ route('admin.dommages') }}"
                         class="nav-item-2050 {{ request()->routeIs('admin.dommages') ? 'active' : '' }}">
                         <i class="fas fa-exclamation-triangle"></i>

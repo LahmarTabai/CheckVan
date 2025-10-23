@@ -5,6 +5,7 @@ use App\Livewire\Admin\Chauffeurs;
 use App\Livewire\Admin\Dashboard;
 use App\Livewire\Admin\Vehicules;
 use App\Livewire\Admin\Taches;
+use App\Livewire\Admin\DemandesTaches;
 use App\Livewire\Admin\Notifications;
 use App\Livewire\Admin\Affectations;
 use App\Livewire\Admin\Dommages;
@@ -65,6 +66,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
     Route::get('/chauffeurs', Chauffeurs::class)->name('chauffeurs');
     Route::get('/affectations', Affectations::class)->name('affectations');
     Route::get('/taches', Taches::class)->name('taches');
+    Route::get('/demandes-taches', DemandesTaches::class)->name('demandes-taches');
     Route::get('/dommages', Dommages::class)->name('dommages');
     Route::get('/notifications', Notifications::class)->name('notifications');
     Route::get('/map', AdminMap::class)->name('map');

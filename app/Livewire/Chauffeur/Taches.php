@@ -7,6 +7,8 @@ use Livewire\WithFileUploads;
 use App\Models\Tache;
 use App\Models\Photo;
 use App\Models\Affectation;
+use App\Models\Vehicule;
+use App\Services\TacheNotificationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
@@ -35,6 +37,13 @@ class Taches extends Component
     public $end_longitude;
     public $description_fin;
 
+    // Propriétés pour demander une tâche
+    public $showRequestModal = false;
+    public $vehicule_id;
+    public $type_tache = 'autre';
+    public $description;
+    public $start_date;
+
     public function render()
     {
         $taches = Tache::where('chauffeur_id', Auth::user()->user_id)
@@ -42,7 +51,21 @@ class Taches extends Component
                         ->latest()
                         ->get();
 
-        return view('livewire.chauffeur.taches', compact('taches'))->layout('layouts.chauffeur');
+        // Récupérer seulement les véhicules de l'admin du chauffeur qui ne sont pas déjà pris en charge
+        $vehicules = Vehicule::with(['marque', 'modele'])
+            ->where('admin_id', Auth::user()->admin_id)
+            ->whereDoesntHave('affectations', function ($query) {
+                $query->where('status', 'en_cours');
+            })
+            ->get();
+
+        // Récupérer le véhicule pris en charge actuellement
+        $affectation = Affectation::where('chauffeur_id', Auth::user()->user_id)
+            ->where('status', 'en_cours')
+            ->with('vehicule.marque', 'vehicule.modele')
+            ->first();
+
+        return view('livewire.chauffeur.taches', compact('taches', 'vehicules', 'affectation'))->layout('layouts.chauffeur');
     }
 
     public function showStartModal($id)
@@ -118,6 +141,100 @@ class Taches extends Component
         $this->end_longitude = '';
         $this->description_fin = '';
         $this->resetErrorBag();
+    }
+
+    public function openRequestModal()
+    {
+        // Vérifier qu'un véhicule est pris en charge
+        $affectation = Affectation::where('chauffeur_id', Auth::user()->user_id)
+            ->where('status', 'en_cours')
+            ->first();
+
+        if (!$affectation) {
+            session()->flash('error', 'Vous devez d\'abord prendre en charge un véhicule avant de demander une tâche.');
+            return;
+        }
+
+        $this->resetRequestForm();
+        $this->showRequestModal = true;
+    }
+
+    public function closeRequestModal()
+    {
+        $this->showRequestModal = false;
+        $this->resetRequestForm();
+    }
+
+
+    public function resetRequestForm()
+    {
+        // Récupérer le véhicule pris en charge
+        $affectation = Affectation::where('chauffeur_id', Auth::user()->user_id)
+            ->where('status', 'en_cours')
+            ->with('vehicule')
+            ->first();
+
+        $this->vehicule_id = $affectation ? $affectation->vehicule_id : '';
+        $this->type_tache = 'autre';
+        $this->description = '';
+        $this->start_date = now()->format('Y-m-d\TH:i');
+        $this->resetErrorBag();
+    }
+
+    public function requestTache()
+    {
+        $this->validate([
+            'vehicule_id' => 'required|exists:vehicules,id',
+            'type_tache' => 'required|in:maintenance,livraison,inspection,autre',
+            'description' => 'nullable|string|max:1000',
+            'start_date' => 'required|date|after:now',
+        ], [
+            'vehicule_id.required' => 'Le véhicule est obligatoire.',
+            'vehicule_id.exists' => 'Le véhicule sélectionné n\'existe pas.',
+            'type_tache.required' => 'Le type de tâche est obligatoire.',
+            'type_tache.in' => 'Le type de tâche sélectionné n\'est pas valide.',
+            'description.max' => 'La description ne peut pas dépasser 1000 caractères.',
+            'start_date.required' => 'La date de début est obligatoire.',
+            'start_date.date' => 'La date de début doit être une date valide.',
+            'start_date.after' => 'La date de début doit être dans le futur.',
+        ]);
+
+        // Vérifier qu'il n'y a pas déjà une tâche en cours pour ce chauffeur
+        $existingTache = Tache::where('chauffeur_id', Auth::user()->user_id)
+            ->where('status', 'en_cours')
+            ->first();
+
+        if ($existingTache) {
+            session()->flash('error', 'Vous avez déjà une tâche en cours.');
+            return;
+        }
+
+        // Vérifier qu'il n'y a pas déjà une tâche en cours pour ce véhicule
+        $existingVehiculeTache = Tache::where('vehicule_id', $this->vehicule_id)
+            ->where('status', 'en_cours')
+            ->first();
+
+        if ($existingVehiculeTache) {
+            session()->flash('error', 'Ce véhicule a déjà une tâche en cours.');
+            return;
+        }
+
+        // Créer la tâche
+        $tache = Tache::create([
+            'chauffeur_id' => Auth::user()->user_id,
+            'vehicule_id' => $this->vehicule_id,
+            'start_date' => $this->start_date,
+            'description' => $this->description,
+            'type_tache' => $this->type_tache,
+            'status' => 'en_attente',
+            'is_validated' => false,
+        ]);
+
+        // Envoyer une notification à l'admin
+        app(TacheNotificationService::class)->notifyTacheCreated($tache);
+
+        session()->flash('success', 'Demande de tâche envoyée. Vous serez notifié quand l\'administrateur l\'aura validée.');
+        $this->closeRequestModal();
     }
 
     public function startTache()

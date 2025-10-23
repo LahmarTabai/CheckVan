@@ -474,6 +474,7 @@
                                         <option value="en_attente">En attente</option>
                                         <option value="en_cours">En cours</option>
                                         <option value="terminée">Terminée</option>
+                                        <option value="rejetee">Rejetée</option>
                                     </select>
                                 </div>
                             </div>
@@ -749,11 +750,33 @@
                                                     class="btn btn-info-2050 btn-sm" title="Voir les détails">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
-                                                @if (!$tache->is_validated)
+
+                                                {{-- Actions selon le statut de la tâche --}}
+                                                @if ($tache->status === 'en_attente')
                                                     <button wire:click="valider({{ $tache->id }})"
                                                         class="btn btn-success-2050 btn-sm" title="Valider la tâche">
                                                         <i class="fas fa-check"></i>
                                                     </button>
+                                                    <button wire:click="rejeter({{ $tache->id }})"
+                                                        class="btn btn-danger-2050 btn-sm" title="Rejeter la tâche"
+                                                        onclick="return confirm('Êtes-vous sûr de vouloir rejeter cette tâche ?')">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                @elseif($tache->status === 'en_cours')
+                                                    <button wire:click="terminer({{ $tache->id }})"
+                                                        class="btn btn-warning-2050 btn-sm"
+                                                        title="Marquer comme terminée"
+                                                        onclick="return confirm('Êtes-vous sûr de vouloir marquer cette tâche comme terminée ?')">
+                                                        <i class="fas fa-flag-checkered"></i>
+                                                    </button>
+                                                @elseif($tache->status === 'terminée')
+                                                    <span class="badge bg-success-2050">
+                                                        <i class="fas fa-check-circle me-1"></i>Terminée
+                                                    </span>
+                                                @elseif($tache->status === 'rejetee')
+                                                    <span class="badge bg-danger-2050">
+                                                        <i class="fas fa-times-circle me-1"></i>Rejetée
+                                                    </span>
                                                 @endif
                                                 <button wire:click="edit({{ $tache->id }})"
                                                     class="btn btn-warning-2050 btn-sm" title="Modifier">
@@ -915,6 +938,7 @@
                                                             'en_attente' => 'badge-warning-2050',
                                                             'en_cours' => 'badge-info-2050',
                                                             'terminée' => 'badge-success-2050',
+                                                            'rejetee' => 'badge-danger-2050',
                                                         ];
                                                     @endphp
                                                     <span

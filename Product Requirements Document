@@ -412,3 +412,422 @@ Composants Livewire : Admin (Dashboard, Chauffeurs, Véhicules, Affectations, T�
 API sanctum (routes & policies).
 
 Spécifications Flutter (schéma DB SQLite, sync, écrans).
+
+
+
+II APRES REFLEXION J'AI AJOUTé CA pour mieux comprendre 
+
+PRD — CheckVan (Web Admin Livewire + futur Mobile Flutter)
+1) Vision & objectifs
+
+Digitaliser la gestion de flotte et des chauffeurs.
+
+Garantir la traçabilité : affectations, état des véhicules, tâches, positions GPS, preuves photo.
+
+Offrir une organisation RH : planning, congés, présences, paie (mensuelle/journalière, primes dimanche/fériés), avances.
+
+Fonctionner en ligne côté Web Admin, et offline-first prévu pour l’app mobile (phase 2).
+
+Sécurité : séparation stricte par admin (chaque admin voit ses chauffeurs/véhicules).
+
+2) Rôles & permissions
+
+Admin
+
+Gère ses chauffeurs, véhicules, affectations, tâches (validation), dommages, planning, congés, avances, paie, exports.
+
+Reçoit toutes les notifications liées à son parc.
+
+Chauffeur
+
+Accède à son tableau de bord, prend un véhicule en charge, démarre/termine des tâches (après validation), déclare des dommages, consulte ses plannings, congés, historique, fiche de paie, avances.
+
+3) Domaines fonctionnels (modules)
+3.1 Utilisateurs & Sécurité
+
+Chaque chauffeur est rattaché à un admin (users.admin_id).
+
+Authentification standard (web) + roles (admin, chauffeur).
+
+Accès scopé : un admin ne voit que ses données (chauffeurs/vehicules/tâches/affectations).
+
+3.2 Véhicules
+
+Création/édition/suppression (admin).
+
+Champs : marque, modèle, immatriculation (unique), photo, admin_id.
+
+Statut disponible/indisponible dérivé des affectations actives (voir 3.3).
+
+3.3 Affectations (prise en charge & restitution)
+
+Règles d’intégrité (verrous)
+
+R1. Un chauffeur ne peut avoir qu’une seule affectation active.
+
+R2. Un véhicule ne peut être affecté qu’à un seul chauffeur à la fois.
+
+R3. Un chauffeur ne peut voir/choisir que les véhicules de son admin.
+
+R4. Obligatoire : photos & géolocalisation au check-in et check-out.
+
+R5. Dommages possibles lors du check-in/out (voir 3.5).
+
+Flux — Check-in (prise en charge)
+
+Chauffeur choisit un véhicule disponible (pas d’affectation active dessus).
+
+OCR plaque (ou saisie), photos obligatoires (faces, compteur, carburant si politique), géoloc.
+
+(Option) Dommages saisis via viewer 2D/3D (points coord_x/y/z, type, sévérité, photo).
+
+Création affectation(active=1, status='en_cours') + enregistrement médias.
+
+Notification Admin “Nouvelle prise en charge”.
+
+Flux — Check-out (restitution)
+
+Chauffeur restitue le véhicule : photos obligatoires (faces, compteur, carburant), géoloc.
+
+Ajout de dommages si nécessaire.
+
+affectation passe active=0, status='terminée', clôture timestamps.
+
+Notification Admin “Restitution véhicule”.
+
+Contrainte DB recommandée :
+Uniques sur (chauffeur_id, active) et (vehicule_id, active) pour empêcher deux affectations actives concurrentes.
+
+3.4 Tâches (trajets)
+
+Pré-conditions
+
+T1. Affectation active obligatoire pour démarrer.
+
+T2. La tâche doit pointer sur le même véhicule que l’affectation active.
+
+Cycle de vie
+
+en_attente → (Validation admin) → en_cours → terminée.
+
+Démarrage : Chauffeur envoie photos start (km & carburant), géoloc + OCR plaque facultatif. Admin valide (ou rejette) → notification chauffeur.
+
+Suivi : Heartbeat position GPS périodique (si connecté).
+
+Fin : Chauffeur envoie photos end (km & carburant), géoloc → terminée → notif admin.
+
+Données clés
+
+start_date, start_lat/long, end_date, end_lat/long, status, is_validated.
+
+3.5 Dommages (2D/3D)
+
+Les dommages sont liés à une affectation (inventaire d’entrée/sortie).
+
+Champs : affectation_id, chauffeur_id, coord_x, coord_y, coord_z, type (rayure/bosse/bris...), severite (mineur/moyen/majeur), description, photo_path, reparé(bool).
+
+Viewer 2D/3D côté chauffeur pour pointer la zone (rotation, zoom).
+
+Admin : tri, filtres, statut “réparé” + téléchargement des pièces jointes.
+
+3.6 Planification & Disponibilités (hebdo / mensuel)
+
+Objectifs
+
+L’admin organise à l’avance les chauffeurs disponibles pour la semaine/le mois.
+
+Visualisations : planning par chauffeur/équipe, conflict checker.
+
+Fonctionnalités
+
+Calendrier Admin : affecte un chauffeur à un créneau (jour + tranche horaire optionnelle).
+
+Disponibilités chauffeur (facultatif) : le chauffeur déclare ses préférences / indisponibilités.
+
+Conflits : interdiction d’assigner un chauffeur sur deux van en même temps, ou si congé validé.
+
+Exports : planning PDF/Excel.
+
+3.7 Congés & Absences
+
+Workflow
+
+Chauffeur crée une demande de congé (type : payé/non payé/maladie, dates, motif).
+
+Admin approuve/rejette (commentaires).
+
+Planning & tâches tiennent compte des congés validés (pas d’affectation ni tâche sur période).
+
+Règles
+
+Validation obligatoire côté admin.
+
+Historique des congés par chauffeur.
+
+Impact paie : jours non travaillés non rémunérés si statut non payé (configurable).
+
+3.8 Avances sur salaire
+
+Workflow
+
+Chauffeur soumet une demande d’avance (montant, motif).
+
+Admin approuve/rejette (montant approuvé, échéancier optionnel).
+
+À la paie, l’avance approuvée est déduite (partielle ou totale selon règles).
+
+Historique des avances par chauffeur.
+
+3.9 Rémunération & Paie
+
+Grilles & règles
+
+Mode mensuel (fixe) OU mode journalier (à la journée).
+
+Dimanche et jours fériés : majoration (ex. +50%) — table des règles configurable par admin.
+
+Heures sup (si pertinent) : taux majorés (config).
+
+Présence = jours où le chauffeur a une tâche validée et terminée (ou autre définition : présence = affectation + activité ≥ X heures).
+
+Congés payés : rémunérés selon la politique.
+
+Avances : déduites selon l’échéancier.
+
+Pénalités/Primes (optionnel) : retards, bonne conduite, absence de dommages, etc.
+
+Sorties
+
+Bulletin de paie mensuel par chauffeur (PDF/Excel).
+
+Récap admin : coût global, jours travaillés, tâches, kilomètres (si calculés), majorations dimanche/fériés.
+
+3.10 Suivi temps réel (tracking)
+
+Mode web admin : carte avec positions des chauffeurs en tâche en cours.
+
+Source : heartbeats envoyés par l’app mobile quand connectée (phase 2).
+
+Historique de trace (polyline) par tâche (optionnel).
+
+3.11 Notifications
+
+Admin reçoit : nouvelle prise en charge, demande démarrage tâche, tâche terminée, dommage ajouté, restitution véhicule, demande de congé, demande d’avance.
+
+Chauffeur reçoit : validation ou rejet de démarrage tâche, validation congé, validation avance, rappels (ex. restitution).
+
+Canaux : web (toasts + centre de notifications), e-mail (optionnel), FCM mobile (phase 2).
+
+File queue pour fiabilité.
+
+3.12 Rapports & exports
+
+Présence (jours travaillés par période, dimanches/fériés).
+
+Trajets (tâches par chauffeur, distances si dispo, positions).
+
+Dommages (période, types, sévérité, statut réparation).
+
+Planning (hebdo/mensuel).
+
+Paie (bulletins, états de charges).
+
+Export Excel/CSV/PDF.
+
+3.13 Offline (mobile futur)
+
+SQLite + cache photo + sync queue (ordre, horodatage, UUID client).
+
+Idempotence côté serveur : éviter doublons.
+
+Conflits arbitrés serveur avec journal d’audit.
+
+4) Flux clés (détaillés)
+4.1 Prise en charge (Check-in)
+
+Chauffeur → liste véhicules disponibles (admin scope + pas d’affectation active).
+
+Sélection véhicule → OCR plaque (ou saisie).
+
+Photos obligatoires (faces + compteur + carburant selon politique).
+
+Géolocalisation capturée.
+
+Dommages via 2D/3D (coordonnées + photo + sévérité).
+
+Création affectation(active=1) + stock médias → Notif admin.
+
+4.2 Démarrer une tâche
+
+Vérifier affectation active.
+
+Photos start (km, carburant) + GPS.
+
+Créer tâche en_attente (liée à véhicule de l’affectation) → Notif admin.
+
+Admin valide → Notif chauffeur → en_cours.
+
+4.3 Terminer une tâche
+
+Photos end (km, carburant) + GPS.
+
+Terminer → terminée + Notif admin.
+
+4.4 Restituer le véhicule (Check-out)
+
+Photos obligatoires + GPS.
+
+Dommages supplémentaires si besoin.
+
+affectation.active=0 → véhicule redevient disponible.
+
+4.5 Demande de congé
+
+Chauffeur crée demande (dates, type, motif).
+
+Admin approuve/rejette.
+
+Impact planning et paie (selon type).
+
+4.6 Planification hebdo/mensuelle
+
+Admin ouvre planning → filtre par équipe/chauffeur.
+
+Affecte chauffeurs à jours/tranches → check conflits (affectation déjà active, congé, double assignation).
+
+Export planning.
+
+4.7 Avance sur salaire
+
+Chauffeur soumet demande (montant, motif).
+
+Admin approuve/rejette (montant validé + option d’échéancier).
+
+Déduction à la paie.
+
+5) Données (vue logique haut niveau)
+
+users: id, admin_id, name, email, password, role (admin/chauffeur), profile_picture.
+
+vehicules: id, admin_id, marque, modele, immatriculation (unique), photo.
+
+affectations: id, chauffeur_id, vehicule_id, active (bool), status (en_cours/terminée), checkin_lat/long, checkin_done_at, checkout_lat/long, checkout_done_at, created_at.
+
+Contraintes : unique (chauffeur_id, active), unique (vehicule_id, active).
+
+taches: id, chauffeur_id, vehicule_id, start_date, start_lat/long, end_date, end_lat/long, status (en_attente/en_cours/terminée), is_validated (bool).
+
+photos: id, affectation_id (nullable), tache_id (nullable), type (enum), path, created_at.
+(Règle : au moins un des deux FK non null)
+
+dommages: id, affectation_id, chauffeur_id, coord_x/coord_y/coord_z, type, description, severite, photo_path, repare(bool).
+
+plannings: id, admin_id, chauffeur_id, date, time_window (start_time/end_time optionnels), statut (planifié/annulé), note.
+
+conges: id, chauffeur_id, type (payé/non_payé/maladie/autre), date_start, date_end, motif, statut (en_attente/validé/rejeté), note_admin.
+
+avances: id, chauffeur_id, montant_demande, montant_valide, statut (en_attente/validé/rejeté), mode_recouvrement (intégral/échelonné), échéancier_json (optionnel).
+
+paies: id, chauffeur_id, periode (AAAA-MM), mode (mensuel/journalier), base, primes (dimanche/férié/HS), déductions (avances, absences), net_a_payer, état (brouillon/validé).
+
+regles_paie: id, admin_id, mode (mensuel/journalier), taux_dimanche, taux_ferie, calcul_presence (définition), heures_sup (seuils & taux), jours_feries (par pays/zone).
+
+6) Règles métier critiques (résumé)
+
+Affectation active obligatoire pour démarrer une tâche.
+
+Un véhicule indisponible tant qu’une affectation active=1 existe.
+
+Les photos & GPS sont obligatoires aux quatre moments :
+check-in affectation, start tâche, end tâche, check-out affectation.
+
+Tâche ne peut être en_cours qu’après validation admin.
+
+Planning interdit de placer un chauffeur en conflit (deux affectations/tâches, congés validés).
+
+Paie dépend du mode (mensuel/journalier), avec majorations dimanche/fériés, avances déduites, congés impactant selon type.
+
+7) Notifications (matrice)
+
+Admin : prise en charge, demande démarrage tâche, fin tâche, dommage ajouté, restitution, demande congé, demande avance.
+
+Chauffeur : validation/rejet démarrage, validation congé/avance, rappels restitution / planning du lendemain.
+
+Canaux : UI (centre de notifs), Email (optionnel), FCM mobile (phase 2).
+
+Fiabilisation par queues (Laravel Queue).
+
+8) Rapports & KPIs
+
+Présence par chauffeur (jours/mois, dimanches/fériés).
+
+Tâches (nombre, durées, positions si activées).
+
+Dommages (typologie, sévérité, réparations).
+
+Planning (couverture, conflits évités).
+
+Paie (coûts par admin, primes/pénalités, avances).
+
+Exports Excel/PDF.
+
+KPIs : taux d’utilisation flotte, temps moyen validation tâches, % retours à l’heure, coût dommages.
+
+9) Non-fonctionnel
+
+Sécurité : séparation par admin_id, vérifications serveur sur chaque action.
+
+Performance : pagination, index DB (FK & uniques), compression images (S3 conseillé).
+
+Traçabilité : audit des validations (qui/quoi/quand).
+
+Disponibilité : tolérance aux pannes via files pour notifications & exports.
+
+Offline (phase 2 mobile) : sync idempotente, files locales, gestion conflits.
+
+10) Roadmap (phases)
+
+MVP Web Admin (Livewire + Bootstrap)
+Admin : véhiculess, chauffeurs, affectations (check-in/out), tâches (validation), dommages, notifications, exports de base.
+Chauffeur (Web) : check-in/out, tâches start/end (avec validation), dommages, tableau de bord.
+
+Phase 2 Mobile (Flutter)
+Offline, OCR plaque, photos intégrées, géoloc, sync, suivi temps réel.
+
+Phase 3 RH/Paie avancée
+Planning complet, congés/avances, paie & bulletins, règles complexes, fériés par pays.
+
+Phase 4 Scalabilité
+S3, websockets/Live tracking, audit poussé, multi-agences, multi-langues.
+
+11) Cas limites & garde-fous
+
+Tentative de démarrer tâche sans affectation → bloquer (message clair).
+
+Deux chauffeurs tentent la même affectation → DB uniques + transaction → 1 seul passe.
+
+Chauffeur offline pendant une tâche → buffer positions + envoi à la reconnexion.
+
+Absence photo obligatoire → bloquer la soumission.
+
+Incohérences de périmètre (véhicule d’un autre admin) → refuser côté serveur.
+
+Congé approuvé chevauchant une tâche planifiée → signal & interdiction d’assigner.
+
+Avance validée non déduite → recalcul paie (idempotent sur la période).
+
+12) Acceptation (critères)
+
+Impossible de démarrer tâche sans affectation active et photos start + GPS.
+
+Un véhicule jamais en double affectation active.
+
+Tâche en_cours uniquement après validation admin.
+
+Check-out impossible sans photos end + GPS.
+
+Dommages enregistrables avec coordonnées (2D/3D) et photos.
+
+Planning empêche conflits & respecte congés validés.
+
+Paie mensuelle/journalière avec dimanche/fériés & avances.

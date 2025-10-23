@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Vehicule;
 use Livewire\WithPagination;
 use App\Services\FcmService;
+use App\Services\TacheNotificationService;
 use App\Services\ExportService;
 use Illuminate\Support\Facades\Auth;
 
@@ -161,27 +162,27 @@ class Taches extends Component
 
     public function updatedStatusFilter()
     {
-        \Log::info('Filtre Status changé:', ['statusFilter' => $this->statusFilter]);
+        \Illuminate\Support\Facades\Log::info('Filtre Status changé:', ['statusFilter' => $this->statusFilter]);
     }
 
     public function updatedValidationFilter()
     {
-        \Log::info('Filtre Validation changé:', ['validationFilter' => $this->validationFilter]);
+        \Illuminate\Support\Facades\Log::info('Filtre Validation changé:', ['validationFilter' => $this->validationFilter]);
     }
 
     public function updatedChauffeurFilter()
     {
-        \Log::info('Filtre Chauffeur changé:', ['chauffeurFilter' => $this->chauffeurFilter]);
+        \Illuminate\Support\Facades\Log::info('Filtre Chauffeur changé:', ['chauffeurFilter' => $this->chauffeurFilter]);
     }
 
     public function updatedVehiculeFilter()
     {
-        \Log::info('Filtre Véhicule changé:', ['vehiculeFilter' => $this->vehiculeFilter]);
+        \Illuminate\Support\Facades\Log::info('Filtre Véhicule changé:', ['vehiculeFilter' => $this->vehiculeFilter]);
     }
 
     public function updatedSearch()
     {
-        \Log::info('Recherche changée:', ['search' => $this->search]);
+        \Illuminate\Support\Facades\Log::info('Recherche changée:', ['search' => $this->search]);
     }
 
     public function sortBy($field)
@@ -400,18 +401,65 @@ class Taches extends Component
     public function valider($id)
     {
         $tache = Tache::findOrFail($id);
-        $tache->update(['is_validated' => true]);
+
+        // Vérifier que la tâche est en attente
+        if ($tache->status !== 'en_attente') {
+            session()->flash('error', 'Cette tâche ne peut pas être validée dans son état actuel.');
+            return;
+        }
+
+        // Mettre à jour le statut et la validation
+        $tache->update([
+            'status' => 'en_cours',
+            'is_validated' => true
+        ]);
 
         // Envoyer une notification FCM au chauffeur
-        $chauffeur = $tache->chauffeur;
-        if ($chauffeur && $chauffeur->fcm_token) {
-            app(FcmService::class)->sendToToken(
-                $chauffeur->fcm_token,
-                'Tâche validée',
-                'Votre tâche a été validée par l\'administrateur.',
-                ['type' => 'tache', 'tache_id' => $tache->id]
-            );
+        app(TacheNotificationService::class)->notifyTacheValidated($tache);
+
+        session()->flash('success', 'Tâche validée. Le chauffeur a été notifié.');
+    }
+
+    public function rejeter($id)
+    {
+        $tache = Tache::findOrFail($id);
+
+        // Vérifier que la tâche est en attente
+        if ($tache->status !== 'en_attente') {
+            session()->flash('error', 'Cette tâche ne peut pas être rejetée dans son état actuel.');
+            return;
         }
-        session()->flash('success', 'Tâche validée.');
+
+        // Mettre à jour le statut
+        $tache->update([
+            'status' => 'rejetee',
+            'is_validated' => false
+        ]);
+
+        // Envoyer une notification FCM au chauffeur
+        app(TacheNotificationService::class)->notifyTacheRejected($tache);
+
+        session()->flash('success', 'Tâche rejetée. Le chauffeur a été notifié.');
+    }
+
+    public function terminer($id)
+    {
+        $tache = Tache::findOrFail($id);
+
+        // Vérifier que la tâche est en cours
+        if ($tache->status !== 'en_cours') {
+            session()->flash('error', 'Cette tâche ne peut pas être terminée dans son état actuel.');
+            return;
+        }
+
+        // Mettre à jour le statut
+        $tache->update([
+            'status' => 'terminée'
+        ]);
+
+        // Envoyer une notification FCM au chauffeur
+        app(TacheNotificationService::class)->notifyTacheCompleted($tache);
+
+        session()->flash('success', 'Tâche marquée comme terminée.');
     }
 }

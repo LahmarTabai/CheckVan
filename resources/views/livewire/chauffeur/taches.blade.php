@@ -21,6 +21,45 @@
                 <i class="fas fa-tasks me-3"></i>Mes Tâches
             </h2>
             <p class="text-muted mb-0">Gérez vos tâches et suivez votre progression</p>
+            @php
+                $affectation = \App\Models\Affectation::where('chauffeur_id', auth()->user()->user_id)
+                    ->where('status', 'en_cours')
+                    ->with('vehicule')
+                    ->first();
+            @endphp
+            @if (!$affectation)
+                <div class="alert alert-warning-2050 mt-2">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Action requise :</strong> Vous devez d'abord prendre un véhicule en charge pour pouvoir
+                    demander des tâches.
+                    <a href="{{ route('chauffeur.prise-en-charge') }}" class="btn btn-sm btn-warning-2050 ms-2">
+                        <i class="fas fa-car me-1"></i>Prendre un véhicule
+                    </a>
+                </div>
+            @else
+                <div class="alert alert-info-2050 mt-2">
+                    <i class="fas fa-car me-2"></i>
+                    <strong>Véhicule pris en charge :</strong> {{ $affectation->vehicule->immatriculation }}
+                </div>
+            @endif
+        </div>
+        <div>
+            @php
+                $affectation = \App\Models\Affectation::where('chauffeur_id', auth()->user()->user_id)
+                    ->where('status', 'en_cours')
+                    ->first();
+            @endphp
+
+            @if ($affectation)
+                <button wire:click="openRequestModal" class="btn btn-primary-2050">
+                    <i class="fas fa-plus me-2"></i>Demander une tâche
+                </button>
+            @else
+                <button class="btn btn-outline-secondary-2050" disabled
+                    title="Vous devez d'abord prendre un véhicule en charge">
+                    <i class="fas fa-car me-2"></i>Prendre un véhicule d'abord
+                </button>
+            @endif
         </div>
         <div class="header-stats-2050">
             <div class="stat-item-2050">
@@ -536,6 +575,89 @@
                                 </button>
                                 <button type="button" wire:click="closeEndModal" class="btn btn-outline-2050">
                                     <i class="fas fa-times me-2"></i>Annuler
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+
+    {{-- Modal Demande de Tâche --}}
+    @if ($showRequestModal)
+        <div class="modal fade show d-block" tabindex="-1"
+            style="background-color: rgba(0,0,0,0.5); z-index: 1050;">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content card-2050">
+                    <div class="modal-header card-header-2050">
+                        <h5 class="modal-title">
+                            <i class="fas fa-plus-circle me-2"></i>Demander une tâche
+                        </h5>
+                        <button type="button" wire:click="closeRequestModal" class="btn-close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <form wire:submit.prevent="requestTache">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group-2050 mb-3">
+                                        <label class="form-label-2050">Véhicule pris en charge</label>
+                                        <input type="text" class="form-control-2050" readonly
+                                            value="{{ $affectation && $affectation->vehicule
+                                                ? $affectation->vehicule->immatriculation .
+                                                    ' - ' .
+                                                    ($affectation->vehicule->marque->nom ?? 'N/A') .
+                                                    ' ' .
+                                                    ($affectation->vehicule->modele->nom ?? 'N/A')
+                                                : 'Aucun véhicule pris en charge' }}">
+                                        <small class="text-muted">Vous devez d'abord prendre en charge un
+                                            véhicule</small>
+                                        <input type="hidden" wire:model="vehicule_id">
+                                        @error('vehicule_id')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-2050 mb-3">
+                                        <label class="form-label-2050">Type de tâche <span
+                                                class="text-danger">*</span></label>
+                                        <select wire:model="type_tache" class="form-control-2050">
+                                            <option value="autre">Autre</option>
+                                            <option value="maintenance">Maintenance</option>
+                                            <option value="livraison">Livraison</option>
+                                            <option value="inspection">Inspection</option>
+                                        </select>
+                                        @error('type_tache')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group-2050 mb-3">
+                                <label class="form-label-2050">Date de début <span
+                                        class="text-danger">*</span></label>
+                                <input type="datetime-local" wire:model="start_date" class="form-control-2050">
+                                @error('start_date')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group-2050 mb-3">
+                                <label class="form-label-2050">Description</label>
+                                <textarea wire:model="description" class="form-control-2050" rows="3"
+                                    placeholder="Décrivez la tâche à effectuer..."></textarea>
+                                @error('description')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" wire:click="closeRequestModal"
+                                    class="btn btn-outline-secondary-2050">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </button>
+                                <button type="submit" class="btn btn-primary-2050">
+                                    <i class="fas fa-paper-plane me-2"></i>Envoyer la demande
                                 </button>
                             </div>
                         </form>
