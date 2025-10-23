@@ -11,6 +11,7 @@ use App\Models\Vehicule;
 use App\Services\TacheNotificationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class Taches extends Component
@@ -201,11 +202,11 @@ class Taches extends Component
 
         // Vérifier qu'il n'y a pas déjà une tâche en cours pour ce chauffeur
         $existingTache = Tache::where('chauffeur_id', Auth::user()->user_id)
-            ->where('status', 'en_cours')
+            ->whereIn('status', ['en_cours', 'en_attente'])
             ->first();
 
         if ($existingTache) {
-            session()->flash('error', 'Vous avez déjà une tâche en cours.');
+            session()->flash('error', 'Vous avez déjà une tâche en cours ou en attente.');
             return;
         }
 
@@ -282,10 +283,17 @@ class Taches extends Component
 
     public function endTache()
     {
+        Log::info('endTache method called');
+
+        if (!$this->selectedTache) {
+            session()->flash('error', 'Aucune tâche sélectionnée.');
+            return;
+        }
+
         $this->validate([
             'fin_kilometrage' => 'required|integer|min:0',
             'fin_carburant' => 'required|numeric|min:0|max:100',
-            'end_photos' => 'required|array|min:3|max:5',
+            'end_photos' => 'required|array|min:1|max:5',
             'end_photos.*' => 'image|max:2048',
             'end_latitude' => 'required|numeric',
             'end_longitude' => 'required|numeric',
@@ -298,8 +306,8 @@ class Taches extends Component
             'fin_carburant.numeric' => 'Le carburant doit être un nombre.',
             'fin_carburant.min' => 'Le carburant ne peut pas être négatif.',
             'fin_carburant.max' => 'Le carburant ne peut pas dépasser 100%.',
-            'end_photos.required' => 'Vous devez prendre au moins 3 photos.',
-            'end_photos.min' => 'Vous devez prendre au moins 3 photos.',
+            'end_photos.required' => 'Vous devez prendre au moins 1 photo.',
+            'end_photos.min' => 'Vous devez prendre au moins 1 photo.',
             'end_photos.max' => 'Vous ne pouvez pas prendre plus de 5 photos.',
             'end_photos.*.image' => 'Chaque fichier doit être une image.',
             'end_photos.*.max' => 'Chaque photo ne peut pas dépasser 2MB.',
@@ -308,22 +316,32 @@ class Taches extends Component
             'description_fin.max' => 'La description ne peut pas dépasser 1000 caractères.',
         ]);
 
-        // Mettre à jour la tâche
-        $this->selectedTache->update([
-            'status' => 'terminée',
-            'end_date' => Carbon::now(),
-            'end_latitude' => $this->end_latitude,
-            'end_longitude' => $this->end_longitude,
-            'fin_kilometrage' => $this->fin_kilometrage,
-            'fin_carburant' => $this->fin_carburant,
-            'description' => $this->description_fin,
-        ]);
+        try {
+            // Mettre à jour la tâche
+            $this->selectedTache->update([
+                'status' => 'terminée',
+                'end_date' => Carbon::now(),
+                'end_latitude' => $this->end_latitude,
+                'end_longitude' => $this->end_longitude,
+                'fin_kilometrage' => $this->fin_kilometrage,
+                'fin_carburant' => $this->fin_carburant,
+                'description' => $this->description_fin,
+            ]);
 
-        // Sauvegarder les photos
-        $this->savePhotos($this->end_photos, 'end');
+            // Sauvegarder les photos
+            $this->savePhotos($this->end_photos, 'end');
 
-        session()->flash('success', 'Tâche terminée avec succès !');
-        $this->closeEndModal();
+            // Envoyer notification à l'admin
+            app(TacheNotificationService::class)->notifyTacheCompleted($this->selectedTache);
+
+            session()->flash('success', 'Tâche terminée avec succès !');
+            $this->closeEndModal();
+
+            Log::info('endTache completed successfully');
+        } catch (\Exception $e) {
+            Log::error('endTache error: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors de la finalisation de la tâche: ' . $e->getMessage());
+        }
     }
 
     private function savePhotos($photos, $type)

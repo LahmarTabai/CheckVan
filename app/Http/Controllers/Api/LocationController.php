@@ -17,11 +17,15 @@ class LocationController extends Controller
             'recorded_at' => 'nullable|date',
         ]);
 
-        $user = $request->user();
-        abort_unless($user && $user->role === 'chauffeur', 403);
+        // Vérifier l'authentification web
+        if (!Auth::check() || Auth::user()->role !== 'chauffeur') {
+            return response()->json(['error' => 'Non autorisé'], 403);
+        }
+
+        $user = Auth::user();
 
         $location = Location::create([
-            'chauffeur_id' => $user->id,
+            'chauffeur_id' => $user->user_id,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'recorded_at' => $request->input('recorded_at', now()),

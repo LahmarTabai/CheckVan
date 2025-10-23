@@ -107,6 +107,7 @@ class Dashboard extends Component
 
     public function render()
     {
-        return view('livewire.chauffeur.dashboard')->layout('layouts.chauffeur');
+        $tacheEnCours = $this->tachesEnCours->count() > 0;
+        return view('livewire.chauffeur.dashboard', compact('tacheEnCours'))->layout('layouts.chauffeur');
     }
 }

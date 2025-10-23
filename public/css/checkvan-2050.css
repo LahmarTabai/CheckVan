@@ -1871,3 +1871,95 @@ body::before {
     top: 50% !important;
     width: 0 !important;
 }
+
+/* ========================================
+   MARQUEURS DE CARTE - STYLES
+   ======================================== */
+
+.custom-marker-2050 {
+    background: transparent !important;
+    border: none !important;
+}
+
+.marker-pulse-2050 {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 3px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse-2050 2s infinite;
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+    position: relative;
+}
+
+.marker-pulse-2050 i {
+    font-size: 14px;
+    z-index: 2;
+}
+
+@keyframes pulse-2050 {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    }
+}
+
+/* Popup de carte */
+.popup-2050 {
+    min-width: 200px;
+    font-family: 'Inter', sans-serif;
+}
+
+.popup-2050 h6 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.popup-2050 p {
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #555;
+}
+
+.popup-2050 .badge {
+    font-size: 12px;
+    padding: 4px 8px;
+}
+
+/* Conteneur de carte */
+.map-container-2050 {
+    height: 500px;
+    width: 100%;
+    border-radius: 0 0 15px 15px;
+    overflow: hidden;
+}
+
+/* Marqueur "Aucune donnée" */
+.no-data-marker-2050 {
+    background: transparent !important;
+    border: none !important;
+}
+
+.no-data-2050 {
+    background: rgba(108, 117, 125, 0.9);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 14px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.no-data-2050 i {
+    font-size: 24px;
+    margin-bottom: 10px;
+    display: block;
+}

@@ -12,6 +12,11 @@ class Notifications extends Component
 
     public $status = '';
 
+    public function mount()
+    {
+        // Pas d'auto-refresh pour éviter les boucles
+    }
+
     public function markAsRead($id)
     {
         $notification = Auth::user()->notifications()->find($id);

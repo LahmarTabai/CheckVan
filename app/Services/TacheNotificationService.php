@@ -20,22 +20,11 @@ class TacheNotificationService
      */
     public function notifyTacheCreated(Tache $tache)
     {
-        // Notifier l'admin qu'une nouvelle tâche a été créée
+        // Créer une notification Laravel
         $admin = User::find($tache->vehicule->admin_id);
 
-        if ($admin && $admin->fcm_token) {
-            $this->fcmService->sendToToken(
-                $admin->fcm_token,
-                'Nouvelle demande de tâche',
-                "Le chauffeur {$tache->chauffeur->nom} {$tache->chauffeur->prenom} a demandé une nouvelle tâche.",
-                [
-                    'type' => 'tache',
-                    'tache_id' => $tache->id,
-                    'action' => 'created',
-                    'chauffeur' => $tache->chauffeur->nom . ' ' . $tache->chauffeur->prenom,
-                    'vehicule' => $tache->vehicule->immatriculation
-                ]
-            );
+        if ($admin) {
+            $admin->notify(new \App\Notifications\TacheCreated($tache));
         }
     }
 
@@ -86,22 +75,11 @@ class TacheNotificationService
      */
     public function notifyTacheCompleted(Tache $tache)
     {
-        // Notifier l'admin que la tâche est terminée
+        // Créer une notification Laravel
         $admin = User::find($tache->vehicule->admin_id);
 
-        if ($admin && $admin->fcm_token) {
-            $this->fcmService->sendToToken(
-                $admin->fcm_token,
-                'Tâche terminée',
-                "Le chauffeur {$tache->chauffeur->nom} {$tache->chauffeur->prenom} a terminé sa tâche.",
-                [
-                    'type' => 'tache',
-                    'tache_id' => $tache->id,
-                    'action' => 'completed',
-                    'chauffeur' => $tache->chauffeur->nom . ' ' . $tache->chauffeur->prenom,
-                    'vehicule' => $tache->vehicule->immatriculation
-                ]
-            );
+        if ($admin) {
+            $admin->notify(new \App\Notifications\TacheCompleted($tache));
         }
     }
 

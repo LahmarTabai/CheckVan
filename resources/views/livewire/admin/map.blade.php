@@ -1,4 +1,3 @@
-
 <div>
     <div>
         <div class="d-flex align-items-center mb-4">
@@ -45,12 +44,14 @@
             </div>
         </div>
 
+
+
         <!-- Carte -->
         <div class="card-2050 hover-lift">
             <div class="card-header-2050">
                 <h6 class="mb-0">
                     <i class="fas fa-globe me-2"></i>Carte des Positions
-                    <span class="badge badge-primary-2050 ms-2">{{ count($locations) }} Points</span>
+                    <span class="badge badge-primary-2050 ms-2">{{ count($locations) }} Chauffeurs</span>
                 </h6>
             </div>
             <div class="card-body p-0">
@@ -115,33 +116,68 @@
                     touchZoom: true
                 }).setView([46.2276, 2.2137], 6); // Centre sur la France
 
-                // Ajouter une couche de tuiles avec style sombre
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-                    subdomains: 'abcd',
+                // Ajouter une couche de tuiles OpenStreetMap
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                     maxZoom: 19
                 }).addTo(map);
 
-                // Ajouter des marqueurs personnalisés
+                // Ajouter des marqueurs personnalisés avec couleurs
                 const points = @json($locations);
                 if (points.length) {
-                    const customIcon = L.divIcon({
-                        className: 'custom-marker-2050',
-                        html: '<div class="marker-pulse-2050"><i class="fas fa-car"></i></div>',
-                        iconSize: [30, 30],
-                        iconAnchor: [15, 15]
-                    });
-
                     const markers = points.map(p => {
+                        // Couleur selon le statut
+                        let color = '#28a745'; // Vert par défaut
+                        let iconClass = 'fas fa-car';
+
+                        if (p.status === 'en_cours') {
+                            color = '#28a745'; // Vert
+                            iconClass = 'fas fa-car';
+                        } else if (p.status === 'en_attente') {
+                            color = '#ffc107'; // Jaune
+                            iconClass = 'fas fa-clock';
+                        } else if (p.status === 'terminée') {
+                            color = '#6c757d'; // Gris
+                            iconClass = 'fas fa-check';
+                        } else if (p.status === 'disponible') {
+                            color = '#007bff'; // Bleu
+                            iconClass = 'fas fa-user';
+                        }
+
+                        // Générer les initiales du chauffeur
+                        const chauffeurNom = p.chauffeur_nom || 'Chauffeur';
+                        const initiales = chauffeurNom.split(' ').map(n => n.charAt(0)).join('').substring(0, 2)
+                            .toUpperCase();
+
+                        const customIcon = L.divIcon({
+                            className: 'custom-marker-2050',
+                            html: `<div class="marker-pulse-2050" style="background-color: ${color}; border-color: ${color};">
+                                <span style="color: white; font-weight: bold; font-size: 12px;">${initiales}</span>
+                            </div>`,
+                            iconSize: [35, 35],
+                            iconAnchor: [17, 17]
+                        });
+
                         const marker = L.marker([p.latitude, p.longitude], {
                             icon: customIcon
                         });
+
+                        // Popup avec informations détaillées
+                        const statusBadge = p.status === 'en_cours' ?
+                            '<span class="badge bg-success">En cours</span>' :
+                            p.status === 'en_attente' ?
+                            '<span class="badge bg-warning">En attente</span>' :
+                            p.status === 'disponible' ?
+                            '<span class="badge bg-primary">Disponible</span>' :
+                            '<span class="badge bg-secondary">Terminée</span>';
+
                         marker.bindPopup(`
                             <div class="popup-2050">
-                                <h6><i class="fas fa-map-marker-alt me-2"></i>Position GPS</h6>
-                                <p><strong>Latitude:</strong> ${p.latitude.toFixed(6)}</p>
-                                <p><strong>Longitude:</strong> ${p.longitude.toFixed(6)}</p>
-                                <p><strong>Heure:</strong> ${new Date(p.recorded_at).toLocaleString('fr-FR')}</p>
+                                <h6><i class="fas fa-user me-2"></i>${p.chauffeur_nom || 'Chauffeur'}</h6>
+                                <p><strong>Véhicule:</strong> ${p.vehicule || 'N/A'}</p>
+                                <p><strong>Statut:</strong> ${statusBadge}</p>
+                                <p><strong>Position:</strong> ${p.latitude.toFixed(6)}, ${p.longitude.toFixed(6)}</p>
+                                <p><strong>Dernière mise à jour:</strong> ${new Date(p.recorded_at).toLocaleString('fr-FR')}</p>
                             </div>
                         `);
                         return marker;
@@ -154,10 +190,10 @@
                         });
                     }
                 } else {
-                    // Aucune position, afficher un message
+                    // Aucune position, afficher un message au centre de la France
                     const noDataIcon = L.divIcon({
                         className: 'no-data-marker-2050',
-                        html: '<div class="no-data-2050"><i class="fas fa-exclamation-triangle"></i><br>Aucune position</div>',
+                        html: '<div class="no-data-2050"><i class="fas fa-exclamation-triangle"></i><br>Aucune tâche en cours</div>',
                         iconSize: [200, 100],
                         iconAnchor: [100, 50]
                     });
@@ -170,5 +206,53 @@
 
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+        <style>
+            /* Styles pour la carte */
+            .map-container-2050 {
+                height: 500px !important;
+                width: 100% !important;
+                border-radius: 0 0 15px 15px;
+                overflow: hidden;
+            }
+
+            /* Marqueurs */
+            .custom-marker-2050 {
+                background: transparent !important;
+                border: none !important;
+            }
+
+            .marker-pulse-2050 {
+                width: 35px;
+                height: 35px;
+                border-radius: 50%;
+                border: 3px solid;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: pulse-2050 2s infinite;
+                box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+                position: relative;
+            }
+
+            .marker-pulse-2050 i {
+                font-size: 14px;
+                z-index: 2;
+            }
+
+            @keyframes pulse-2050 {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+                }
+
+                70% {
+                    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+                }
+
+                100% {
+                    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+                }
+            }
+        </style>
     </div>
 </div>
