@@ -68,4 +68,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(Tache::class, 'chauffeur_id', 'user_id');
     }
+
+    // Dernière position GPS du chauffeur (optimisé pour éviter N+1)
+    public function lastLocation()
+    {
+        return $this->hasOne(Location::class, 'chauffeur_id', 'user_id')
+                    ->latestOfMany('recorded_at');
+    }
+
+    // Tâche en cours du chauffeur (optimisé)
+    public function currentTache()
+    {
+        return $this->hasOne(Tache::class, 'chauffeur_id', 'user_id')
+                    ->where('status', 'en_cours')
+                    ->latestOfMany();
+    }
 }

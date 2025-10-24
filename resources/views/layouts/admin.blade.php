@@ -20,6 +20,7 @@
         rel="stylesheet" />
 
     @livewireStyles
+    @stack('styles')
 </head>
 
 <body class="body-2050">
@@ -274,6 +275,7 @@
             });
         });
     </script>
+    @stack('scripts')
     @livewireScripts
 </body>
 

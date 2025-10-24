@@ -14,6 +14,24 @@ class Map extends Component
     public $chauffeurFiltre = null; // null = tous les chauffeurs
     public $chauffeurs = []; // Liste des chauffeurs pour le dropdown
 
+    // Filtres
+    public $search = '';
+    public $filterEnCours = true;
+    public $filterDisponible = true;
+    public $filterHorsLigne = true;
+
+    // Auto-refresh
+    public $autoRefresh = false;
+
+    // KPI
+    public $kpis = [
+        'total' => 0,
+        'en_cours' => 0,
+        'disponible' => 0,
+        'hors_ligne' => 0,
+        'derniere_maj' => null
+    ];
+
     public function mount()
     {
         $adminId = Auth::user()->user_id;
@@ -26,59 +44,119 @@ class Map extends Component
             ->get();
     }
 
+    public function toggleAutoRefresh()
+    {
+        $this->autoRefresh = !$this->autoRefresh;
+    }
+
     public function refresh()
     {
         $adminId = Auth::user()->user_id;
+        $now = now();
 
-        // Récupérer les positions GPS récentes des chauffeurs de cet admin
+        // Récupérer les chauffeurs avec leurs relations (optimisé, pas de N+1) ✅
         $query = User::where('role', 'chauffeur')
-            ->where('admin_id', $adminId);
+            ->where('admin_id', $adminId)
+            ->with(['lastLocation', 'currentTache.vehicule']);
 
-        // Si un chauffeur est sélectionné, filtrer uniquement pour lui
+        // Filtre par chauffeur spécifique
         if ($this->chauffeurFiltre) {
             $query->where('user_id', $this->chauffeurFiltre);
         }
 
-        $chauffeursAdmin = $query->get();
-
-        $locations = [];
-
-        foreach ($chauffeursAdmin as $chauffeur) {
-            // Récupérer la dernière position GPS du chauffeur
-            $lastLocation = Location::where('chauffeur_id', $chauffeur->user_id)
-                ->latest('recorded_at')
-                ->first();
-
-            if ($lastLocation) {
-                // Récupérer la tâche en cours du chauffeur
-                $tacheEnCours = Tache::where('chauffeur_id', $chauffeur->user_id)
-                    ->where('status', 'en_cours')
-                    ->with('vehicule')
-                    ->first();
-
-                $locations[] = [
-                    'latitude' => (float) $lastLocation->latitude,
-                    'longitude' => (float) $lastLocation->longitude,
-                    'recorded_at' => $lastLocation->recorded_at,
-                    'chauffeur_id' => $chauffeur->user_id,
-                    'chauffeur_nom' => $chauffeur->nom . ' ' . $chauffeur->prenom,
-                    'vehicule' => $tacheEnCours ? $tacheEnCours->vehicule->immatriculation : 'Aucun véhicule',
-                    'tache_id' => $tacheEnCours ? $tacheEnCours->id : null,
-                    'status' => $tacheEnCours ? 'en_cours' : 'disponible'
-                ];
-            }
+        // Filtre par recherche (nom ou prénom)
+        if ($this->search) {
+            $query->where(function($q) {
+                $q->where('nom', 'like', '%' . $this->search . '%')
+                  ->orWhere('prenom', 'like', '%' . $this->search . '%');
+            });
         }
 
-        // Mets à jour la propriété pour l'affichage des compteurs, etc.
+        $chauffeurs = $query->get();
+
+        // Transformer les données + calculer les KPI
+        $enCours = 0;
+        $disponible = 0;
+        $horsLigne = 0;
+
+        $locations = $chauffeurs->filter(function($chauffeur) {
+            return $chauffeur->lastLocation !== null;
+        })->map(function($chauffeur) use ($now, &$enCours, &$disponible, &$horsLigne) {
+            $tache = $chauffeur->currentTache;
+            $lastLoc = $chauffeur->lastLocation;
+
+            // Calculer si hors ligne (> 5 minutes)
+            $recordedAt = \Carbon\Carbon::parse($lastLoc->recorded_at);
+            $isStale = $now->diffInMinutes($recordedAt) > 5;
+
+            // Déterminer le statut
+            if ($isStale) {
+                $status = 'hors_ligne';
+                $horsLigne++;
+            } elseif ($tache) {
+                $status = 'en_cours';
+                $enCours++;
+            } else {
+                $status = 'disponible';
+                $disponible++;
+            }
+
+            return [
+                'latitude'      => (float) $lastLoc->latitude,
+                'longitude'     => (float) $lastLoc->longitude,
+                'recorded_at'   => $lastLoc->recorded_at->toIso8601String(),
+                'chauffeur_id'  => $chauffeur->user_id,
+                'chauffeur_nom' => $chauffeur->nom . ' ' . $chauffeur->prenom,
+                'vehicule'      => $tache?->vehicule?->immatriculation ?? 'Aucun véhicule',
+                'tache_id'      => $tache?->id,
+                'status'        => $status,
+                'is_stale'      => $isStale,
+            ];
+        })->filter(function($location) {
+            // Appliquer les filtres de statut
+            if ($location['status'] === 'en_cours' && !$this->filterEnCours) return false;
+            if ($location['status'] === 'disponible' && !$this->filterDisponible) return false;
+            if ($location['status'] === 'hors_ligne' && !$this->filterHorsLigne) return false;
+            return true;
+        })->values()->all();
+
+        // Mettre à jour les KPI
+        $this->kpis = [
+            'total' => count($locations),
+            'en_cours' => $enCours,
+            'disponible' => $disponible,
+            'hors_ligne' => $horsLigne,
+            'derniere_maj' => $now->format('H:i:s')
+        ];
+
         $this->locations = $locations;
 
-        // 🔔 Envoie aussi les données côté JS pour mettre à jour la carte sans la recréer
-        // Livewire v3 :
+        // 🔔 Envoie les données à la carte
         $this->dispatch('locations-updated', locations: $locations);
     }
 
-    // Méthode appelée quand le filtre change
+    // Méthodes appelées quand les filtres changent
     public function updatedChauffeurFiltre()
+    {
+        $this->refresh();
+    }
+
+    public function updatedSearch()
+    {
+        $this->refresh();
+    }
+
+    public function updatedFilterEnCours()
+    {
+        $this->refresh();
+    }
+
+    public function updatedFilterDisponible()
+    {
+        $this->refresh();
+    }
+
+    public function updatedFilterHorsLigne()
     {
         $this->refresh();
     }
