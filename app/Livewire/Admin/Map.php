@@ -21,8 +21,8 @@ class Map extends Component
     public $filterDisponible = true;
     public $filterHorsLigne = true;
 
-    // Auto-refresh
-    public $autoRefresh = false;
+    // Auto-refresh (✅ ACTIVÉ par défaut pour être réactif)
+    public $autoRefresh = true;
 
     // KPI
     public $kpis = [

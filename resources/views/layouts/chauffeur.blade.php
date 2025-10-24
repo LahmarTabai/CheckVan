@@ -69,9 +69,9 @@
             </div>
 
             <div class="sidebar-footer-2050">
-                <form action="{{ route('logout') }}" method="POST">
+                <form action="{{ route('logout') }}" method="POST" id="logoutForm">
                     @csrf
-                    <button type="submit" class="btn btn-outline-2050 w-100">
+                    <button type="submit" class="btn btn-outline-2050 w-100" onclick="handleLogout(event)">
                         <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
                     </button>
                 </form>
@@ -176,6 +176,23 @@
     <script>
         // Activer l'inclusion du GPS dans le heartbeat pour les chauffeurs
         window.includeGPSInHeartbeat = true;
+
+        // ✅ CORRECTION : Stopper le heartbeat avant la déconnexion
+        function handleLogout(event) {
+            event.preventDefault(); // Empêcher la soumission immédiate
+
+            console.log('🔐 Déconnexion en cours...');
+
+            // Arrêter le heartbeat et marquer comme offline
+            if (window.heartbeatService) {
+                window.heartbeatService.stop();
+            }
+
+            // Attendre 500ms pour que la requête offline soit envoyée
+            setTimeout(() => {
+                document.getElementById('logoutForm').submit();
+            }, 500);
+        }
     </script>
 
     @livewireScripts
