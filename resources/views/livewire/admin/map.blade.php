@@ -16,7 +16,7 @@
         <div class="card-2050 mb-4 hover-lift">
             <div class="card-body-2050 p-4">
                 <div class="row align-items-center">
-                    <div class="col-md-8">
+                    <div class="col-md-5">
                         <div class="map-controls-2050">
                             <div class="d-flex align-items-center gap-3">
                                 <div class="control-item-2050">
@@ -27,18 +27,28 @@
                                     <i class="fas fa-route text-success me-2"></i>
                                     <span>Trajets optimisés</span>
                                 </div>
-                                <div class="control-item-2050">
-                                    <i class="fas fa-shield-alt text-warning me-2"></i>
-                                    <span>Sécurité renforcée</span>
-                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 text-end">
-                        <button wire:click="refresh" class="btn btn-primary-2050">
-                            <i class="fas fa-sync-alt me-2"></i>
-                            Rafraîchir
-                        </button>
+                    <div class="col-md-7">
+                        <div class="d-flex align-items-center gap-3 justify-content-end">
+                            <!-- Filtre chauffeur -->
+                            <div class="flex-grow-1" style="max-width: 300px;">
+                                <select wire:model.live="chauffeurFiltre" class="form-select form-select-2050">
+                                    <option value="">🚗 Tous les chauffeurs</option>
+                                    @foreach ($chauffeurs as $chauffeur)
+                                        <option value="{{ $chauffeur->user_id }}">
+                                            {{ $chauffeur->nom }} {{ $chauffeur->prenom }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <button wire:click="refresh" class="btn btn-primary-2050">
+                                <i class="fas fa-sync-alt me-2"></i>
+                                Rafraîchir
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -49,10 +59,25 @@
         <!-- Carte -->
         <div class="card-2050 hover-lift">
             <div class="card-header-2050">
-                <h6 class="mb-0">
-                    <i class="fas fa-globe me-2"></i>Carte des Positions
-                    <span class="badge badge-primary-2050 ms-2">{{ count($locations) }} Chauffeurs</span>
-                </h6>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-globe me-2"></i>Carte des Positions
+                        <span class="badge badge-primary-2050 ms-2">
+                            {{ count($locations) }} Position(s)
+                        </span>
+                        @if ($chauffeurFiltre)
+                            <span class="badge bg-info ms-2">
+                                <i class="fas fa-filter me-1"></i>Filtré
+                            </span>
+                        @endif
+                    </h6>
+                    @if ($chauffeurFiltre)
+                        <button wire:click="$set('chauffeurFiltre', null)" class="btn btn-sm btn-outline-light"
+                            title="Réinitialiser le filtre">
+                            <i class="fas fa-times me-1"></i>Voir tous
+                        </button>
+                    @endif
+                </div>
             </div>
             <div class="card-body p-0">
                 <!-- IMPORTANT: empêcher Livewire de remplacer ce nœud -->
@@ -232,6 +257,34 @@
         </script>
 
         <style>
+            /* Styles pour le filtre */
+            .form-select-2050 {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border: 2px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                font-weight: 500;
+                padding: 0.6rem 2.5rem 0.6rem 1rem;
+                border-radius: 10px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right 0.75rem center;
+                background-size: 16px 12px;
+            }
+
+            .form-select-2050:focus {
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.4);
+                border-color: rgba(255, 255, 255, 0.4);
+            }
+
+            .form-select-2050 option {
+                background-color: #2d3748;
+                color: white;
+                padding: 10px;
+            }
+
             /* Styles pour la carte */
             .map-container-2050 {
                 height: 500px !important;

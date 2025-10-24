@@ -11,15 +11,35 @@ use Illuminate\Support\Facades\Auth;
 class Map extends Component
 {
     public $locations = [];
+    public $chauffeurFiltre = null; // null = tous les chauffeurs
+    public $chauffeurs = []; // Liste des chauffeurs pour le dropdown
+
+    public function mount()
+    {
+        $adminId = Auth::user()->user_id;
+
+        // Charger la liste des chauffeurs de cet admin pour le filtre
+        $this->chauffeurs = User::where('role', 'chauffeur')
+            ->where('admin_id', $adminId)
+            ->select('user_id', 'nom', 'prenom')
+            ->orderBy('nom')
+            ->get();
+    }
 
     public function refresh()
     {
         $adminId = Auth::user()->user_id;
 
         // Récupérer les positions GPS récentes des chauffeurs de cet admin
-        $chauffeursAdmin = User::where('role', 'chauffeur')
-            ->where('admin_id', $adminId)
-            ->get();
+        $query = User::where('role', 'chauffeur')
+            ->where('admin_id', $adminId);
+
+        // Si un chauffeur est sélectionné, filtrer uniquement pour lui
+        if ($this->chauffeurFiltre) {
+            $query->where('user_id', $this->chauffeurFiltre);
+        }
+
+        $chauffeursAdmin = $query->get();
 
         $locations = [];
 
@@ -55,6 +75,12 @@ class Map extends Component
         // 🔔 Envoie aussi les données côté JS pour mettre à jour la carte sans la recréer
         // Livewire v3 :
         $this->dispatch('locations-updated', locations: $locations);
+    }
+
+    // Méthode appelée quand le filtre change
+    public function updatedChauffeurFiltre()
+    {
+        $this->refresh();
     }
 
     public function render()
