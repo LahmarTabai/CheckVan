@@ -55,7 +55,8 @@
                 </h6>
             </div>
             <div class="card-body p-0">
-                <div id="map" class="map-container-2050"></div>
+                <!-- IMPORTANT: empêcher Livewire de remplacer ce nœud -->
+                <div wire:ignore id="map" class="map-container-2050"></div>
             </div>
         </div>
 
@@ -96,17 +97,23 @@
             </div>
         </div>
 
-        <script>
-            document.addEventListener('livewire:navigated', initMap);
-            document.addEventListener('livewire:init', initMap);
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-            function initMap() {
-                if (!window.L) return;
+        <script>
+            let map, markersLayer;
+
+            function initMapOnce() {
+                // Si déjà initialisée, on ne recrée pas
+                if (map) return;
+
+                // Si Leaflet pas encore chargé, réessaye un peu plus tard
+                if (!window.L) return setTimeout(initMapOnce, 100);
+
                 const mapEl = document.getElementById('map');
                 if (!mapEl) return;
 
-                // Créer la carte avec un style futuriste
-                const map = L.map('map', {
+                map = L.map(mapEl, {
                     zoomControl: true,
                     scrollWheelZoom: true,
                     doubleClickZoom: true,
@@ -114,83 +121,28 @@
                     keyboard: true,
                     dragging: true,
                     touchZoom: true
-                }).setView([46.2276, 2.2137], 6); // Centre sur la France
+                }).setView([46.2276, 2.2137], 6);
 
-                // Ajouter une couche de tuiles OpenStreetMap
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                     maxZoom: 19
                 }).addTo(map);
 
-                // Ajouter des marqueurs personnalisés avec couleurs
-                const points = @json($locations);
-                if (points.length) {
-                    const markers = points.map(p => {
-                        // Couleur selon le statut
-                        let color = '#28a745'; // Vert par défaut
-                        let iconClass = 'fas fa-car';
+                // Couche pour nos marqueurs (facile à vider/remplir)
+                markersLayer = L.layerGroup().addTo(map);
 
-                        if (p.status === 'en_cours') {
-                            color = '#28a745'; // Vert
-                            iconClass = 'fas fa-car';
-                        } else if (p.status === 'en_attente') {
-                            color = '#ffc107'; // Jaune
-                            iconClass = 'fas fa-clock';
-                        } else if (p.status === 'terminée') {
-                            color = '#6c757d'; // Gris
-                            iconClass = 'fas fa-check';
-                        } else if (p.status === 'disponible') {
-                            color = '#007bff'; // Bleu
-                            iconClass = 'fas fa-user';
-                        }
+                // Premier rendu avec les données serveur initiales
+                updateMarkers(@json($locations));
 
-                        // Générer les initiales du chauffeur
-                        const chauffeurNom = p.chauffeur_nom || 'Chauffeur';
-                        const initiales = chauffeurNom.split(' ').map(n => n.charAt(0)).join('').substring(0, 2)
-                            .toUpperCase();
+                // Corrige l'affichage si le conteneur a été (re)rendu
+                setTimeout(() => map.invalidateSize(), 0);
+            }
 
-                        const customIcon = L.divIcon({
-                            className: 'custom-marker-2050',
-                            html: `<div class="marker-pulse-2050" style="background-color: ${color}; border-color: ${color};">
-                                <span style="color: white; font-weight: bold; font-size: 12px;">${initiales}</span>
-                            </div>`,
-                            iconSize: [35, 35],
-                            iconAnchor: [17, 17]
-                        });
+            function updateMarkers(points) {
+                if (!map || !markersLayer) return;
+                markersLayer.clearLayers();
 
-                        const marker = L.marker([p.latitude, p.longitude], {
-                            icon: customIcon
-                        });
-
-                        // Popup avec informations détaillées
-                        const statusBadge = p.status === 'en_cours' ?
-                            '<span class="badge bg-success">En cours</span>' :
-                            p.status === 'en_attente' ?
-                            '<span class="badge bg-warning">En attente</span>' :
-                            p.status === 'disponible' ?
-                            '<span class="badge bg-primary">Disponible</span>' :
-                            '<span class="badge bg-secondary">Terminée</span>';
-
-                        marker.bindPopup(`
-                            <div class="popup-2050">
-                                <h6><i class="fas fa-user me-2"></i>${p.chauffeur_nom || 'Chauffeur'}</h6>
-                                <p><strong>Véhicule:</strong> ${p.vehicule || 'N/A'}</p>
-                                <p><strong>Statut:</strong> ${statusBadge}</p>
-                                <p><strong>Position:</strong> ${p.latitude.toFixed(6)}, ${p.longitude.toFixed(6)}</p>
-                                <p><strong>Dernière mise à jour:</strong> ${new Date(p.recorded_at).toLocaleString('fr-FR')}</p>
-                            </div>
-                        `);
-                        return marker;
-                    });
-
-                    const group = L.featureGroup(markers).addTo(map);
-                    if (points.length > 1) {
-                        map.fitBounds(group.getBounds(), {
-                            padding: [20, 20]
-                        });
-                    }
-                } else {
-                    // Aucune position, afficher un message au centre de la France
+                if (!points || !points.length) {
                     const noDataIcon = L.divIcon({
                         className: 'no-data-marker-2050',
                         html: '<div class="no-data-2050"><i class="fas fa-exclamation-triangle"></i><br>Aucune tâche en cours</div>',
@@ -199,13 +151,85 @@
                     });
                     L.marker([46.2276, 2.2137], {
                         icon: noDataIcon
-                    }).addTo(map);
+                    }).addTo(markersLayer);
+                    return;
                 }
-            }
-        </script>
 
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                const markers = points.map(p => {
+                    let color = '#28a745',
+                        iconClass = 'fas fa-car';
+                    if (p.status === 'en_attente') {
+                        color = '#ffc107';
+                        iconClass = 'fas fa-clock';
+                    } else if (p.status === 'terminée') {
+                        color = '#6c757d';
+                        iconClass = 'fas fa-check';
+                    } else if (p.status === 'disponible') {
+                        color = '#007bff';
+                        iconClass = 'fas fa-user';
+                    }
+
+                    const chauffeurNom = p.chauffeur_nom || 'Chauffeur';
+                    const initiales = chauffeurNom.split(' ').map(n => n.charAt(0)).join('').substring(0, 2)
+                        .toUpperCase();
+
+                    const customIcon = L.divIcon({
+                        className: 'custom-marker-2050',
+                        html: `<div class="marker-pulse-2050" style="background-color:${color};border-color:${color};">
+                                <span style="color:#fff;font-weight:bold;font-size:12px;">${initiales}</span>
+                               </div>`,
+                        iconSize: [35, 35],
+                        iconAnchor: [17, 17]
+                    });
+
+                    const m = L.marker([p.latitude, p.longitude], {
+                        icon: customIcon
+                    });
+
+                    const statusBadge = p.status === 'en_cours' ? '<span class="badge bg-success">En cours</span>' :
+                        p.status === 'en_attente' ? '<span class="badge bg-warning">En attente</span>' :
+                        p.status === 'disponible' ? '<span class="badge bg-primary">Disponible</span>' :
+                        '<span class="badge bg-secondary">Terminée</span>';
+
+                    m.bindPopup(`
+                        <div class="popup-2050">
+                            <h6><i class="fas fa-user me-2"></i>${chauffeurNom}</h6>
+                            <p><strong>Véhicule:</strong> ${p.vehicule || 'N/A'}</p>
+                            <p><strong>Statut:</strong> ${statusBadge}</p>
+                            <p><strong>Position:</strong> ${Number(p.latitude).toFixed(6)}, ${Number(p.longitude).toFixed(6)}</p>
+                            <p><strong>Dernière mise à jour:</strong> ${new Date(p.recorded_at).toLocaleString('fr-FR')}</p>
+                        </div>
+                    `);
+
+                    m.addTo(markersLayer);
+                    return m;
+                });
+
+                // Ajuster la vue
+                const group = L.featureGroup(markers);
+                if (points.length > 1) {
+                    map.fitBounds(group.getBounds(), {
+                        padding: [20, 20]
+                    });
+                }
+
+                // Sécurise l'affichage si le conteneur vient d'être morphé
+                setTimeout(() => map.invalidateSize(), 0);
+            }
+
+            // Initialisation + écoute des events Livewire
+            document.addEventListener('livewire:init', () => {
+                initMapOnce();
+
+                // Livewire v3
+                Livewire.on('locations-updated', (payload) => {
+                    updateMarkers(payload.locations);
+                });
+
+                // Si tu utilises la navigation SPA de Livewire
+                document.addEventListener('livewire:navigated', initMapOnce);
+            });
+        </script>
 
         <style>
             /* Styles pour la carte */

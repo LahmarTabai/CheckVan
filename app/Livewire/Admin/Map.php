@@ -21,7 +21,7 @@ class Map extends Component
             ->where('admin_id', $adminId)
             ->get();
 
-        $this->locations = [];
+        $locations = [];
 
         foreach ($chauffeursAdmin as $chauffeur) {
             // Récupérer la dernière position GPS du chauffeur
@@ -36,7 +36,7 @@ class Map extends Component
                     ->with('vehicule')
                     ->first();
 
-                $this->locations[] = [
+                $locations[] = [
                     'latitude' => (float) $lastLocation->latitude,
                     'longitude' => (float) $lastLocation->longitude,
                     'recorded_at' => $lastLocation->recorded_at,
@@ -48,6 +48,13 @@ class Map extends Component
                 ];
             }
         }
+
+        // Mets à jour la propriété pour l'affichage des compteurs, etc.
+        $this->locations = $locations;
+
+        // 🔔 Envoie aussi les données côté JS pour mettre à jour la carte sans la recréer
+        // Livewire v3 :
+        $this->dispatch('locations-updated', locations: $locations);
     }
 
     public function render()
