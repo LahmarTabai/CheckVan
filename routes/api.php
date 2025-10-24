@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\LocationController;
+use App\Http\Controllers\Api\HeartbeatController;
 use Illuminate\Support\Facades\Auth;
 
 Route::middleware('web')->group(function () {
@@ -12,6 +13,11 @@ Route::middleware('web')->group(function () {
 
     // Géolocalisation chauffeur (web)
     Route::post('/location', [LocationController::class, 'store']);
+
+    // Heartbeat pour le statut online/offline
+    Route::post('/heartbeat', [HeartbeatController::class, 'store']);
+    Route::post('/heartbeat/offline', [HeartbeatController::class, 'offline']);
+    Route::get('/heartbeat/status', [HeartbeatController::class, 'status']);
 
     // Enregistrement du token FCM (depuis le mobile)
     Route::post('/fcm-token', function (Request $request) {

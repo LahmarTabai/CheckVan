@@ -30,6 +30,9 @@ class User extends Authenticatable
         'statut',
         'date_embauche',
         'fcm_token',
+        'is_online',
+        'last_seen',
+        'last_heartbeat',
     ];
 
     protected $hidden = [
@@ -41,6 +44,8 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'last_seen' => 'datetime',
+        'last_heartbeat' => 'datetime',
     ];
 
     // 🔄 Relations

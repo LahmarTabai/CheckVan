@@ -158,17 +158,29 @@
                                     </span>
                                 @endif
                             </h6>
-                            @if ($chauffeurFiltre || $search)
-                                <button wire:click="$set('chauffeurFiltre', null); $set('search', '')"
-                                    class="btn btn-sm btn-outline-light" title="Réinitialiser les filtres">
-                                    <i class="fas fa-times me-1"></i>Réinitialiser
+                            <div class="d-flex gap-2">
+                                <!-- Toggle Mode Sombre -->
+                                <button onclick="toggleDarkMode()" class="btn btn-sm btn-outline-light"
+                                    title="Mode sombre" id="darkModeBtn">
+                                    <i class="fas fa-moon"></i>
                                 </button>
-                            @endif
+                                <!-- Bouton Plein écran -->
+                                <button onclick="toggleFullscreen()" class="btn btn-sm btn-outline-light"
+                                    title="Plein écran" id="fullscreenBtn">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                                @if ($chauffeurFiltre || $search)
+                                    <button wire:click="$set('chauffeurFiltre', null); $set('search', '')"
+                                        class="btn btn-sm btn-outline-light" title="Réinitialiser les filtres">
+                                        <i class="fas fa-times me-1"></i>Réinitialiser
+                                    </button>
+                                @endif
+                            </div>
                         </div>
                     </div>
                     <div class="card-body p-0">
                         <!-- IMPORTANT: empêcher Livewire de remplacer ce nœud -->
-                        <div wire:ignore id="map" class="map-container-2050"></div>
+                        <div wire:ignore id="map" class="map-container-2050" data-fullscreen="false"></div>
                     </div>
                 </div>
             </div>
@@ -221,190 +233,29 @@
 
     @push('styles')
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
     @endpush
 
     @push('scripts')
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+        <script src="{{ asset('js/advanced-map.js') }}"></script>
         <script>
-            let map, markersLayer;
-            const chauffeurMarkers = {}; // Pour le focus
-
-            function initMapOnce() {
-                // Si déjà initialisée, on ne recrée pas
-                if (map) return;
-
-                // Si Leaflet pas encore chargé, réessaye un peu plus tard
-                if (!window.L) return setTimeout(initMapOnce, 100);
-
-                const mapEl = document.getElementById('map');
-                if (!mapEl) return;
-
-                // ✅ Utiliser Canvas pour de meilleures performances
-                map = L.map(mapEl, {
-                    preferCanvas: true,
-                    zoomControl: true,
-                    scrollWheelZoom: true,
-                    doubleClickZoom: true,
-                    boxZoom: true,
-                    keyboard: true,
-                    dragging: true,
-                    touchZoom: true
-                }).setView([46.2276, 2.2137], 6);
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                    maxZoom: 19
-                }).addTo(map);
-
-                // Couche pour nos marqueurs (facile à vider/remplir)
-                markersLayer = L.layerGroup().addTo(map);
-
-                // Premier rendu avec les données serveur initiales
-                updateMarkers(@json($locations));
-
-                // Corrige l'affichage si le conteneur a été (re)rendu
-                setTimeout(() => map.invalidateSize(), 0);
-            }
-
-            function updateMarkers(points) {
-                if (!map || !markersLayer) return;
-                markersLayer.clearLayers();
-                Object.keys(chauffeurMarkers).forEach(key => delete chauffeurMarkers[key]);
-
-                if (!points || !points.length) {
-                    const noDataIcon = L.divIcon({
-                        className: 'no-data-marker-2050',
-                        html: '<div class="no-data-2050"><i class="fas fa-exclamation-triangle"></i><br>Aucune position</div>',
-                        iconSize: [200, 100],
-                        iconAnchor: [100, 50]
-                    });
-                    L.marker([46.2276, 2.2137], {
-                        icon: noDataIcon
-                    }).addTo(markersLayer);
-                    return;
-                }
-
-                const markers = points.map(p => {
-                    let color = '#28a745',
-                        iconClass = 'fas fa-car';
-
-                    // ✅ Gérer le statut "hors_ligne"
-                    if (p.status === 'hors_ligne') {
-                        color = '#6c757d'; // Gris
-                        iconClass = 'fas fa-wifi-slash';
-                    } else if (p.status === 'en_cours') {
-                        color = '#28a745'; // Vert
-                        iconClass = 'fas fa-car';
-                    } else if (p.status === 'en_attente') {
-                        color = '#ffc107'; // Jaune
-                        iconClass = 'fas fa-clock';
-                    } else if (p.status === 'disponible') {
-                        color = '#007bff'; // Bleu
-                        iconClass = 'fas fa-user';
-                    }
-
-                    const chauffeurNom = p.chauffeur_nom || 'Chauffeur';
-                    const initiales = chauffeurNom.split(' ').map(n => n.charAt(0)).join('').substring(0, 2)
-                        .toUpperCase();
-
-                    const customIcon = L.divIcon({
-                        className: 'custom-marker-2050',
-                        html: `<div class="marker-pulse-2050 ${p.is_stale ? 'stale' : ''}" style="background-color:${color};border-color:${color};">
-                            <span style="color:#fff;font-weight:bold;font-size:12px;">${initiales}</span>
-                           </div>`,
-                        iconSize: [35, 35],
-                        iconAnchor: [17, 17]
-                    });
-
-                    const m = L.marker([p.latitude, p.longitude], {
-                        icon: customIcon
-                    });
-
-                    // ✅ Badge adapté selon le statut
-                    const statusBadge = p.status === 'en_cours' ? '<span class="badge bg-success">En cours</span>' :
-                        p.status === 'disponible' ? '<span class="badge bg-info">Disponible</span>' :
-                        p.status === 'hors_ligne' ? '<span class="badge bg-secondary">Hors ligne (>5min)</span>' :
-                        '<span class="badge bg-warning">En attente</span>';
-
-                    const recordedAt = new Date(p.recorded_at);
-                    const timeAgo = getTimeAgo(recordedAt);
-
-                    m.bindPopup(`
-                    <div class="popup-2050">
-                        <h6><i class="fas fa-user me-2"></i>${chauffeurNom}</h6>
-                        <p><strong>Véhicule:</strong> ${p.vehicule || 'N/A'}</p>
-                        <p><strong>Statut:</strong> ${statusBadge}</p>
-                        <p><strong>Position:</strong> ${Number(p.latitude).toFixed(6)}, ${Number(p.longitude).toFixed(6)}</p>
-                        <p><strong>Dernière MAJ:</strong> ${timeAgo}</p>
-                    </div>
-                `);
-
-                    m.addTo(markersLayer);
-
-                    // Stocker pour le focus
-                    chauffeurMarkers[p.chauffeur_id] = m;
-
-                    return m;
-                });
-
-                // Ajuster la vue
-                if (markers.length > 0) {
-                    const group = L.featureGroup(markers);
-                    if (points.length > 1) {
-                        map.fitBounds(group.getBounds(), {
-                            padding: [20, 20]
-                        });
-                    } else {
-                        map.setView([points[0].latitude, points[0].longitude], 13);
-                    }
-                }
-
-                // Sécurise l'affichage si le conteneur vient d'être morphé
-                setTimeout(() => map.invalidateSize(), 0);
-            }
-
-            // ✅ Fonction pour calculer "il y a X minutes"
-            function getTimeAgo(date) {
-                const now = new Date();
-                const diffMs = now - date;
-                const diffMins = Math.floor(diffMs / 60000);
-
-                if (diffMins < 1) return 'À l\'instant';
-                if (diffMins < 60) return `Il y a ${diffMins} min`;
-
-                const diffHours = Math.floor(diffMins / 60);
-                if (diffHours < 24) return `Il y a ${diffHours}h`;
-
-                return date.toLocaleString('fr-FR');
-            }
-
-            // ✅ Fonction pour focus sur un chauffeur depuis la liste
-            window.focusOnChauffeur = function(lat, lng, name) {
-                if (!map) return;
-                map.setView([lat, lng], 15);
-
-                // Trouver et ouvrir le popup
-                markersLayer.eachLayer(function(layer) {
-                    if (layer instanceof L.Marker) {
-                        const pos = layer.getLatLng();
-                        if (Math.abs(pos.lat - lat) < 0.0001 && Math.abs(pos.lng - lng) < 0.0001) {
-                            layer.openPopup();
-                        }
-                    }
-                });
-            };
-
-            // Initialisation + écoute des events Livewire
+            // Utilisation du service avancé
             document.addEventListener('livewire:init', () => {
-                initMapOnce();
+                // Initialiser la carte avec les données serveur
+                window.advancedMapService.init(@json($locations));
 
-                // Livewire v3
+                // Écouter les mises à jour Livewire
                 Livewire.on('locations-updated', (payload) => {
-                    updateMarkers(payload.locations);
+                    window.advancedMapService.updateMarkers(payload.locations);
                 });
 
-                // Si tu utilises la navigation SPA de Livewire
-                document.addEventListener('livewire:navigated', initMapOnce);
+                // Support navigation SPA
+                document.addEventListener('livewire:navigated', () => {
+                    window.advancedMapService.init(@json($locations));
+                });
             });
         </script>
 
@@ -545,6 +396,45 @@
                 width: 100% !important;
                 border-radius: 0 0 15px 15px;
                 overflow: hidden;
+                transition: all 0.3s ease;
+            }
+
+            /* Plein écran */
+            .fullscreen-map {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                z-index: 9999 !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* Popup amélioré */
+            .popup-2050 {
+                min-width: 250px;
+            }
+
+            .popup-2050 h6 {
+                color: #2d3748;
+                border-bottom: 2px solid #667eea;
+                padding-bottom: 0.5rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .popup-2050 p {
+                margin-bottom: 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            .popup-actions {
+                border-top: 1px solid #e2e8f0;
+                padding-top: 0.75rem;
+            }
+
+            .popup-actions .btn {
+                flex: 1;
             }
 
             /* Marqueurs */

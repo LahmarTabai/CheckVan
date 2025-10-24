@@ -170,6 +170,14 @@
             });
         });
     </script>
+
+    {{-- Heartbeat Service pour maintenir le statut online --}}
+    <script src="{{ asset('js/heartbeat.js') }}"></script>
+    <script>
+        // Activer l'inclusion du GPS dans le heartbeat pour les chauffeurs
+        window.includeGPSInHeartbeat = true;
+    </script>
+
     @livewireScripts
 </body>
 

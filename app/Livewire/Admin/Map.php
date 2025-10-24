@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Location;
 use App\Models\Tache;
 use App\Models\User;
+use App\Services\OnlineStatusService;
 use Illuminate\Support\Facades\Auth;
 
 class Map extends Component
@@ -31,6 +32,13 @@ class Map extends Component
         'hors_ligne' => 0,
         'derniere_maj' => null
     ];
+
+    protected $onlineStatusService;
+
+    public function boot(OnlineStatusService $onlineStatusService)
+    {
+        $this->onlineStatusService = $onlineStatusService;
+    }
 
     public function mount()
     {
@@ -85,12 +93,11 @@ class Map extends Component
             $tache = $chauffeur->currentTache;
             $lastLoc = $chauffeur->lastLocation;
 
-            // Calculer si hors ligne (> 5 minutes)
-            $recordedAt = \Carbon\Carbon::parse($lastLoc->recorded_at);
-            $isStale = $now->diffInMinutes($recordedAt) > 5;
+            // ✅ NOUVEAU : Utiliser is_online et last_heartbeat (système heartbeat)
+            $isOnline = $this->onlineStatusService->isUserOnline($chauffeur);
 
             // Déterminer le statut
-            if ($isStale) {
+            if (!$isOnline) {
                 $status = 'hors_ligne';
                 $horsLigne++;
             } elseif ($tache) {
@@ -104,13 +111,15 @@ class Map extends Component
             return [
                 'latitude'      => (float) $lastLoc->latitude,
                 'longitude'     => (float) $lastLoc->longitude,
-                'recorded_at'   => $lastLoc->recorded_at->toIso8601String(),
+                'recorded_at'   => $this->formatDateTime($lastLoc->recorded_at),
                 'chauffeur_id'  => $chauffeur->user_id,
                 'chauffeur_nom' => $chauffeur->nom . ' ' . $chauffeur->prenom,
                 'vehicule'      => $tache?->vehicule?->immatriculation ?? 'Aucun véhicule',
                 'tache_id'      => $tache?->id,
                 'status'        => $status,
-                'is_stale'      => $isStale,
+                'is_stale'      => !$isOnline, // ✅ Basé sur le heartbeat réel
+                'is_online'     => $isOnline,
+                'last_heartbeat'=> $this->formatDateTime($chauffeur->last_heartbeat),
             ];
         })->filter(function($location) {
             // Appliquer les filtres de statut
@@ -159,6 +168,32 @@ class Map extends Component
     public function updatedFilterHorsLigne()
     {
         $this->refresh();
+    }
+
+    /**
+     * Formater un datetime en ISO8601 (gère string, Carbon, null)
+     */
+    private function formatDateTime($datetime)
+    {
+        if (!$datetime) {
+            return null;
+        }
+
+        // Si c'est déjà une chaîne ISO8601, la retourner
+        if (is_string($datetime)) {
+            try {
+                return \Carbon\Carbon::parse($datetime)->toIso8601String();
+            } catch (\Exception $e) {
+                return $datetime;
+            }
+        }
+
+        // Si c'est un objet Carbon/DateTime
+        if ($datetime instanceof \Carbon\Carbon || $datetime instanceof \DateTime) {
+            return $datetime->format('c'); // ISO8601
+        }
+
+        return null;
     }
 
     public function render()
